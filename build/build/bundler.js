@@ -18,7 +18,7 @@ module.exports = {
                     return transform ? transform(str, file) : str;
                 }).join('\n');
             },
-            output = "",
+            output = "(function () { \n",
             version = fs.readFileSync("version", "utf-8").trim(),
             filepath;
 
@@ -38,6 +38,9 @@ module.exports = {
 
         //include window.webworks
         output += include("lib/public/window-webworks.js");
+
+        //Close closure
+        output += "\n}());";
 
         //create output folder if it doesn't exist
         filepath = __dirname.replace(/\\/g, '/') + "/../../clientFiles";
