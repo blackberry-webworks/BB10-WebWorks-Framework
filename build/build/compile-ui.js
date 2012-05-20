@@ -78,6 +78,7 @@ module.exports = function (prev, baton) {
     wrench.mkdirSyncRecursive(cssFolderDest, "0755");
     
     wrench.copyDirSyncRecursive(thirdParty, thirdPartyDest);
+    wrench.copyDirSyncRecursive(assets, assetsDest);
     fs.writeFileSync(cssDest, outputCSS); 
     fs.writeFileSync(jsDest, outputJS); 
     fs.writeFileSync(htmlDest, outputHTML); 
