@@ -72,6 +72,7 @@ function copyExtensions(extPath, extDest) {
 module.exports = function (src, baton) {
     var libDest = path.join(_c.DEPLOY, 'lib'),
         extDest = path.join(_c.DEPLOY, 'ext'),
+        htmlDest = path.join(_c.DEPLOY, 'html'),
         clientFilesDest = path.join(_c.DEPLOY, 'clientFiles'),
         bootstrapDest = path.join(_c.DEPLOY, 'dependencies/bootstrap'),
         browserRequireDest = path.join(_c.DEPLOY, 'dependencies/bootstrap/'),
@@ -86,6 +87,7 @@ module.exports = function (src, baton) {
     //Copy folders to target directory
     copyFolder(_c.LIB, libDest);
     copyExtensions(_c.EXT, extDest);
+    copyFolder(_c.HTML, htmlDest);
     copyFolder(_c.CLIENTFILES, clientFilesDest);
     copyFolder(_c.DEPENDENCIES_BOOTSTRAP, bootstrapDest);
     
