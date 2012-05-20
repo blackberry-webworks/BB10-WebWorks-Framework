@@ -31,18 +31,22 @@ module.exports = function (prev, baton) {
         include = function (files, transform) {
             files = files.map ? files : [files];
             return files.map(function (file) {
-                var str = fs.readFileSync(file, "utf-8") + "\n";
-                return transform ? transform(str, file) : str;
+                if (path.existsSync(file)) {
+                    var str = fs.readFileSync(file, "utf-8") + "\n";
+                    return transform ? transform(str, file) : str;
+                } else {
+                    return "";
+                }
             }).join('\n');
         },
         outputCSS = "",
         outputJS = "",
         outputHTML = "",
         template = { locals: {} },
-        cssDest = path.join(_c.DEPLOY_STYLES, 'styles.css'),
         htmlFolderDest = path.join(_c.DEPLOY, 'html'),
         cssFolderDest = path.join(htmlFolderDest, 'styles'),
         htmlDest = path.join(_c.DEPLOY_HTML, 'ui.html'),
+        cssDest = path.join(_c.DEPLOY_STYLES, 'styles.css'),
         jsDest = path.join(_c.DEPLOY_HTML, 'index.js');
 
     //cleanup simulator and device folders for all native extensions
