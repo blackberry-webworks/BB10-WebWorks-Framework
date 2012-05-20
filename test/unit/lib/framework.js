@@ -18,6 +18,7 @@ var srcPath = __dirname + '/../../../lib/',
     framework = require(srcPath + 'framework'),
     util = require(srcPath + "utils"),
     webview,
+    chromeWebview,
     Whitelist = require(srcPath + 'policy/whitelist').Whitelist,
     mock_request = {
         url: "http://www.dummy.com",
