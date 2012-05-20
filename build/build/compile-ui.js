@@ -47,7 +47,11 @@ module.exports = function (prev, baton) {
         cssFolderDest = path.join(htmlFolderDest, 'styles'),
         htmlDest = path.join(_c.DEPLOY_HTML, 'ui.html'),
         cssDest = path.join(_c.DEPLOY_STYLES, 'styles.css'),
-        jsDest = path.join(_c.DEPLOY_HTML, 'index.js');
+        jsDest = path.join(_c.DEPLOY_HTML, 'index.js'),
+        thirdParty = path.join(_c.HTML, 'thirdparty'),
+        assets = path.join(_c.HTML, 'assets'),
+        thirdPartyDest = path.join(_c.DEPLOY_HTML, 'thirdparty'),
+        assetsDest = path.join(_c.DEPLOY_HTML, 'assets');
 
     //cleanup simulator and device folders for all native extensions
     plugins = fs.readdirSync(_c.UI_PLUGINS);
@@ -73,6 +77,7 @@ module.exports = function (prev, baton) {
     wrench.mkdirSyncRecursive(htmlFolderDest, "0755");
     wrench.mkdirSyncRecursive(cssFolderDest, "0755");
     
+    wrench.copyDirSyncRecursive(thirdParty, thirdPartyDest);
     fs.writeFileSync(cssDest, outputCSS); 
     fs.writeFileSync(jsDest, outputJS); 
     fs.writeFileSync(htmlDest, outputHTML); 
