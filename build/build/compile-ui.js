@@ -64,7 +64,14 @@ module.exports = function (prev, baton) {
         
     });     
     outputCSS = include(cssFiles);
-    outputJS = include(jsFiles);
+    //outputJS = include(jsFiles);
+    
+    //include modules
+    outputJS += include(jsFiles, function (file, path) {
+        var pathSplit = path.split("\/");
+        return "define('" + pathSplit[pathSplit.length - 2] +
+                       "', function (require, exports, module) {\n" + file + "});\n";
+    });
     for(plugin in htmlFiles) {
         if (path.existsSync(htmlFiles[plugin])) {
             var str = fs.readFileSync(htmlFiles[plugin], "utf-8") + "\n";
