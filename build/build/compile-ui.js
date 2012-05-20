@@ -62,8 +62,10 @@ module.exports = function (prev, baton) {
     outputCSS = include(cssFiles);
     outputJS = include(jsFiles);
     for(plugin in htmlFiles) {
-        var str = fs.readFileSync(htmlFiles[plugin], "utf-8") + "\n";
-        template.locals[plugin] = str;
+        if (path.existsSync(htmlFiles[plugin])) {
+            var str = fs.readFileSync(htmlFiles[plugin], "utf-8") + "\n";
+            template.locals[plugin] = str;
+        }
     }
     //complile the ui.html with the templates file
     outputHTML = tmpl.render(fs.readFileSync(_c.HTML + HTML_UI, "utf-8"),template); 
