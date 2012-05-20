@@ -54,4 +54,29 @@ module.exports = {
         
         return filteredFiles;
     },
+    
+    
+    // Convert node.js Buffer data (encoded) to String
+    bufferToString : function (data) {
+        var s = "";
+        if (Buffer.isBuffer(data)) {
+            if (data.length >= 2 && data[0] === 0xFF && data[1] === 0xFE) {
+                s = data.toString("ucs2", 2);
+                console.log("bufferToString: " + s);
+            } else if (data.length >= 2 && data[0] === 0xFE && data[1] === 0xFF) {
+                try {
+                    swapBytes(data);
+                    s = data.toString("ucs2", 2);
+                } catch (e) {
+                    console.log("ERROR in bufferToString(): " + e.message);
+                }
+            } else if (data.length >= 3 && data[0] === 0xEF && data[1] === 0xBB && data[2] === 0xBF) {
+                s = data.toString("utf8", 3);
+            } else {
+                s = data.toString("ascii");
+            }
+        }
+
+        return s;
+    }
 };

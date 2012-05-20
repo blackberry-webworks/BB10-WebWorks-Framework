@@ -87,7 +87,6 @@ module.exports = function (src, baton) {
     //Copy folders to target directory
     copyFolder(_c.LIB, libDest);
     copyExtensions(_c.EXT, extDest);
-    copyFolder(_c.HTML, htmlDest);
     copyFolder(_c.CLIENTFILES, clientFilesDest);
     copyFolder(_c.DEPENDENCIES_BOOTSTRAP, bootstrapDest);
     
