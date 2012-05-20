@@ -33,7 +33,11 @@ describe("framework", function () {
             }
         };
         webview = util.requireWebview();
+        chromeWebview = util.requireChromeWebview();
         spyOn(webview, "create").andCallFake(function (done) {
+            done();
+        });
+        spyOn(chromeWebview, "create").andCallFake(function (done) {
             done();
         });
         spyOn(webview, "destroy");
