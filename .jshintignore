@@ -2,6 +2,7 @@
 node_modules
 target
 dependencies
+html/thirdparty
 clientFiles
 ext/blackberry.example.test
 lib/pps/ppsUtils.js

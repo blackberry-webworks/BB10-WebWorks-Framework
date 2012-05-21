@@ -25,6 +25,8 @@ var wrench = require("../../node_modules/wrench"),
 
 module.exports = function (prev, baton) {
     var plugins,
+        plugin,
+        str,
         cssFiles = [],
         jsFiles = [],
         htmlFiles = [],
@@ -72,14 +74,14 @@ module.exports = function (prev, baton) {
         return "define('" + pathSplit[pathSplit.length - 2] +
                        "', function (require, exports, module) {\n" + file + "});\n";
     });
-    for(plugin in htmlFiles) {
+    for (plugin in htmlFiles) {
         if (path.existsSync(htmlFiles[plugin])) {
-            var str = fs.readFileSync(htmlFiles[plugin], "utf-8") + "\n";
+            str = fs.readFileSync(htmlFiles[plugin], "utf-8") + "\n";
             template.locals[plugin] = str;
         }
     }
     //complile the ui.html with the templates file
-    outputHTML = tmpl.render(fs.readFileSync(_c.HTML + HTML_UI, "utf-8"),template); 
+    outputHTML = tmpl.render(fs.readFileSync(_c.HTML + HTML_UI, "utf-8"), template); 
     //write all the files out to the _c.DEPLOY folder
     wrench.mkdirSyncRecursive(htmlFolderDest, "0755");
     wrench.mkdirSyncRecursive(cssFolderDest, "0755");
