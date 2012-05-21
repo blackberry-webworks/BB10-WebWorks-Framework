@@ -1,9 +1,11 @@
 /*
  * Copyright (C) Research In Motion Limited 2012. All rights reserved.
  */
-var event = require('iris/event'),
-    tabs = require('chrome/tabs'),
-    self;
+
+//TODO: We currently dont have event or tabs plugins
+//var event = require('iris/event'),
+//    tabs = require('chrome/tabs'),
+var    self;
 
 function hide(evt) {
     if (!x$('#dialog').hasClass('hidden')) {
@@ -115,7 +117,8 @@ function requestDialog(id, evt, evtId) {
         console.error("chrome shouldn't spawn dialogs. Doing nothing.");
         return;
     }
-    tabs.update(id, {selected: true});
+    //TODO: Not set up in WebWorks Framework
+    //tabs.update(id, {selected: true});
 
     var res = show(evt);
     if (res) {
@@ -156,15 +159,19 @@ self = {
     },
 
     init: function () {
+        /*
+        * TODO: We this is not set up for WebWorks Framework
         event.on('DialogRequested', requestDialog);
         event.on('chrome.tabs.onCreated', function (tab) {
             if (tab.id != iris.chromeId) {
                 qnx.callExtensionMethod('webview.setEnableDialogRequestedEvents', tab.id, true);
             }
         });
+        */
     }
 };
 
-event.on('browser.plugins.init', self.init);
+//TODO: We currently do not have event plugins
+//event.on('browser.plugins.init', self.init);
 
 module.exports = self;
