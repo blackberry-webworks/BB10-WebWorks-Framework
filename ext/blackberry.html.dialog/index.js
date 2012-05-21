@@ -56,12 +56,11 @@ module.exports = {
     },
 
     showDialog: function (success, fail, args, env) {
-        var controller = window.qnx.webplatform.getController();
-        controller.addEventListener("ui.dialog.completed", function (returnVal) {
-            console.log("ui.dialog.completed fired");
-            returnVal ? success(returnVal) : fail();
-            controller.addEventListener("ui.dialog.completed"); // clear listener 
-        });        
-        controller.dispatchEvent("ui.dialog", [], 2);
+        var controller = window.qnx.webplatform.getController(),
+            dialogCallback = function (returnVal) {
+                console.log("ui.dialog.completed fired");
+                return returnVal ? success(returnVal) : fail();
+        };        
+        controller.dispatchEvent("ui.dialog", [], {webviewId: 2, callback: dialogCallback});
     }
 };

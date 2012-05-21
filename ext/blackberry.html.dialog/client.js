@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var _self = {},
+var dialog = {},
     ID = "blackberry.html.dialog";
 
-_self = {
+dialog = {
     showDialog : function () {
         window.webworks.execAsync(ID, "showDialog", null);
     }
-}
+};
 
 window.webworks.execSync(ID, "registerEvents", null);
 
-module.exports = _self;
+module.exports = dialog;
