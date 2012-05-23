@@ -19,7 +19,8 @@ describe("Chrome Webview", function () {
             onNetworkResourceRequested: undefined,
             destroy: jasmine.createSpy(),
             executeJavaScript: jasmine.createSpy(),
-            windowGroup: undefined
+            windowGroup: undefined,
+            addEventListener: jasmine.createSpy()
         };
         mockedApplicationWindow = {
             visible: undefined
@@ -66,6 +67,8 @@ describe("Chrome Webview", function () {
 
                 expect(request.init).toHaveBeenCalledWith(mockedWebview);
                 expect(mockedWebview.onNetworkResourceRequested).toEqual(request.init(mockedWebview).networkResourceRequestedHandler);
+
+                expect(mockedWebview.addEventListener).toHaveBeenCalledWith("ui.dialog", jasmine.any(Function));
             });
         });
 
