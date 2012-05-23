@@ -60,7 +60,7 @@ module.exports = {
             dialogCallback = function (returnVal) {
                 console.log("ui.dialog.completed fired");
                 return returnVal ? success(returnVal) : fail();
-        };        
+            };        
         controller.dispatchEvent("ui.dialog", [], {webviewId: 2, callback: dialogCallback});
     }
 };

@@ -72,7 +72,6 @@ function copyExtensions(extPath, extDest) {
 module.exports = function (src, baton) {
     var libDest = path.join(_c.DEPLOY, 'lib'),
         extDest = path.join(_c.DEPLOY, 'ext'),
-        htmlDest = path.join(_c.DEPLOY, 'html'),
         clientFilesDest = path.join(_c.DEPLOY, 'clientFiles'),
         bootstrapDest = path.join(_c.DEPLOY, 'dependencies/bootstrap'),
         browserRequireDest = path.join(_c.DEPLOY, 'dependencies/bootstrap/'),

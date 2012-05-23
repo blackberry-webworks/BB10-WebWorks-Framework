@@ -77,7 +77,11 @@ function show(desc) {
         input = x$(document.createElement('input'))
             .attr('type', 'text')
             .addClass('dialog-input')
-            .on('keydown', function (keyEvent) { if (parseInt(keyEvent.keyCode, 10) === 13) { button.click(); } });
+            .on('keydown', function (keyEvent) { 
+                if (parseInt(keyEvent.keyCode, 10) === 13) { 
+                    button.click(); 
+                } 
+            });
         content.bottom(desc.htmlmessage ? desc.htmlmessage : x$(document.createTextNode(desc.message)));
         button.bottom(x$(document.createTextNode(desc.oklabel ? desc.oklabel : "OK"))) // TODO: i18n
               .on('click', hide);
@@ -98,7 +102,9 @@ function show(desc) {
 
         res.ok = button[0];
         res.cancel = button2[0];
-        res.__defineGetter__('oktext', function () { return input[0].value; });
+        res.__defineGetter__('oktext', function () { 
+            return input[0].value; 
+        });
         break;
     case 'Generic':
     case 'GeolocationPermission':

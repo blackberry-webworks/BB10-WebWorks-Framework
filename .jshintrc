@@ -29,7 +29,8 @@
         "require", "Node",
         "qnx", "chrome", "NamedNodeMap",
         "JNEXT",
-        "x$"
+        "x$",
+        "iris"
     ],
 
     "node" : true,
