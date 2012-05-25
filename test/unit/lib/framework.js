@@ -20,6 +20,8 @@ var srcPath = __dirname + '/../../../lib/',
     webview,
     chromeWebview,
     Whitelist = require(srcPath + 'policy/whitelist').Whitelist,
+    mockedWebview,
+    mockedApplicationWindow,
     mock_request = {
         url: "http://www.dummy.com",
         allow: jasmine.createSpy(),
@@ -28,9 +30,34 @@ var srcPath = __dirname + '/../../../lib/',
 
 describe("framework", function () {
     beforeEach(function () {
+        mockedWebview = {
+            id: 42,
+            enableCrossSiteXHR: undefined,
+            visible: undefined,
+            active: undefined,
+            zOrder: undefined,
+            url: undefined,
+            setGeometry: jasmine.createSpy(),
+            onNetworkResourceRequested: undefined,
+            destroy: jasmine.createSpy(),
+            executeJavaScript: jasmine.createSpy(),
+            windowGroup: undefined,
+            addEventListener: jasmine.createSpy()
+        };
+        mockedApplicationWindow = {
+            visible: undefined
+        };
         GLOBAL.qnx = {
             callExtensionMethod : function () {
                 return 42;
+            },
+            webplatform : {
+                getController : function () {
+                    return mockedWebview;
+                },
+                getApplicationWindow : function () {
+                    return mockedApplicationWindow;
+                }
             }
         };
         webview = util.requireWebview();

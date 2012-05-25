@@ -58,20 +58,6 @@ describe("webview", function () {
     });
 
     describe("create", function () {
-        it("sets up the controller", function () {
-            webview.create();
-            expect(mockedController.enableWebInspector).toEqual(false);
-            expect(mockedController.enableCrossSiteXHR).toEqual(true);
-            expect(mockedController.visible).toEqual(true);
-            expect(mockedController.active).toEqual(false);
-            expect(mockedController.setGeometry).toHaveBeenCalledWith(0, 0, screen.width, 0);
-        }); 
-
-        it("passes in config settings", function () {
-            webview.create(null, {debugEnabled: true});
-            expect(mockedController.enableWebInspector).toEqual(true);
-        });
-
         it("sets up the visible webview", function () {
             spyOn(request, "init").andCallThrough();
             webview.create();

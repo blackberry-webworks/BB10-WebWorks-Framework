@@ -56,11 +56,10 @@ module.exports = {
     },
 
     showDialog: function (success, fail, args, env) {
-        var controller = window.qnx.webplatform.getController(),
-            dialogCallback = function (returnVal) {
-                console.log("ui.dialog.completed fired");
-                return returnVal ? success(returnVal) : fail();
-            };        
-        controller.dispatchEvent("ui.dialog", [], {webviewId: 3, callback: dialogCallback});
+        var controller = window.qnx.webplatform.getController();
+        controller.url = "local:///chrome-html/ui.html";
+
+        // TODO: Get return value
+        success(); 
     }
 };
