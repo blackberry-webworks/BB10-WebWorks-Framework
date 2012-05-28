@@ -104,7 +104,7 @@ int ConnectionBPS::WaitForEvents()
     if (status == BPS_SUCCESS) {
         ConnectionTypes oldType = GetConnectionType();
 
-        while (1) {
+        for (;;) {
             bps_event_t *event = NULL;
             bps_get_event(&event, -1);   // Blocking
 
