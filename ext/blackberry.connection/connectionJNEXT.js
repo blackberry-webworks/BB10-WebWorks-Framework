@@ -19,6 +19,8 @@ var connection,
 
 function getConnectionTypeString(type) {
     switch (type) {
+    case 0:
+        return "unknown";
     case 1:
         return "ethernet";
     case 2:
@@ -36,6 +38,8 @@ function getConnectionTypeString(type) {
     case 8:
         return "none";
     }
+
+    return type;
 }
 
 ///////////////////////////////////////////////////////////////////
