@@ -67,8 +67,6 @@ describe("Chrome Webview", function () {
 
                 expect(request.init).toHaveBeenCalledWith(mockedWebview);
                 expect(mockedWebview.onNetworkResourceRequested).toEqual(request.init(mockedWebview).networkResourceRequestedHandler);
-
-                expect(mockedWebview.addEventListener).toHaveBeenCalledWith("ui.dialog", jasmine.any(Function));
             });
         });
 
