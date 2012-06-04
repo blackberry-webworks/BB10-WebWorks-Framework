@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Research In Motion Limited.
+ * Copyright 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,105 +16,73 @@
 
 var _apiDir = __dirname + "./../../../../ext/blackberry.invoke/",
     _libDir = __dirname + "./../../../../lib/",
+    mockedInvocation,
     index;
 
 describe("blackberry.invoke index", function () {
 
     beforeEach(function () {
-        GLOBAL.qnx = {callExtensionMethod : function () {}};
+        mockedInvocation = {
+            invoke: jasmine.createSpy("invocation.invoke")
+        };
+        GLOBAL.window = {};
+        GLOBAL.window.qnx = {
+            webplatform: {
+                getApplication: function () {
+                    return {
+                        invocation: mockedInvocation
+                    };
+                }
+            }
+        };
         index = require(_apiDir + "index");
     });
 
     afterEach(function () {
+        mockedInvocation = null;
         GLOBAL.qnx = null;
         index = null;
     });
 
-    describe("Browser Invoke", function () {
-        var appType_Browser = 11,
-            httpUrl = 'http://www.rim.com',
-            noProtocolUrl = 'www.rim.com',
-            wrongAppType = -1,
-            successCB,
-            failCB,
-            mockValidArgs = {
-                appType: appType_Browser,
-                args: encodeURIComponent(JSON.stringify({
-                    url: httpUrl
-                }))
-            },
-            mockValidArgsNoProtocolUrl = {
-                appType: appType_Browser,
-                args: encodeURIComponent(JSON.stringify({
-                    url: noProtocolUrl
-                }))
-            },
-            mockWrongArgsForAppType = {
-                appType: wrongAppType,
-                args: encodeURIComponent(JSON.stringify({
-                    url: httpUrl
-                }))
-            },
-            mockWrongArgsForProtocol1 = {
-                appType: appType_Browser,
-                args: encodeURIComponent(JSON.stringify({
-                    url: 'wrong://www.rim.com'
-                }))
-            },
-            mockWrongArgsForProtocol2 = {
-                appType: appType_Browser,
-                args: encodeURIComponent(JSON.stringify({
-                    url: 'httpx://www.rim.com'
-                }))
+    it("can invoke with target", function () {
+        var successCB = jasmine.createSpy(),
+            mockedArgs = {
+                "request": encodeURIComponent(JSON.stringify({target: "abc.xyz"})),
+                "eventId": encodeURIComponent(JSON.stringify("blackberry.invoke.invokeEventId"))
             };
 
-        beforeEach(function () {
-            successCB = jasmine.createSpy("Success Callback");
-            failCB = jasmine.createSpy("Fail Callback");
-        });
-        
-        afterEach(function () {
-            successCB = null;
-            failCB = null;
-        });
+        index.invoke(successCB, null, mockedArgs);
+        expect(mockedInvocation.invoke).toHaveBeenCalledWith({
+            target: "abc.xyz"
+        }, jasmine.any(Function));
+        expect(successCB).toHaveBeenCalled();
+    });
 
-        // Positive test cases
-        it("should call success callback when invoked with valid args", function () {
-            index.invoke(successCB, failCB, mockValidArgs);
-            index.invoke(successCB, failCB, mockValidArgsNoProtocolUrl);
-            expect(successCB.callCount).toEqual(2);            
-        });
+    it("can invoke with uri", function () {
+        var successCB = jasmine.createSpy(),
+            mockedArgs = {
+                "request": encodeURIComponent(JSON.stringify({uri: "http://www.rim.com"})),
+                "eventId": encodeURIComponent(JSON.stringify("blackberry.invoke.invokeEventId"))
+            };
 
-        it("should call qnx.callExtensionMethod when invoked with valid args", function () {
-            spyOn(qnx, "callExtensionMethod");
-            index.invoke(successCB, failCB, mockValidArgs);            
-            expect(qnx.callExtensionMethod).toHaveBeenCalledWith("navigator.invoke", "http://www.rim.com");
-        });
+        index.invoke(successCB, null, mockedArgs);
+        expect(mockedInvocation.invoke).toHaveBeenCalledWith({
+            uri: "http://www.rim.com"
+        }, jasmine.any(Function));
+        expect(successCB).toHaveBeenCalled();
+    });
 
-        //Negative test cases
-        it("should call fail callback when passed wrong appType", function () {
-            index.invoke(successCB, failCB, mockWrongArgsForAppType);
-            expect(failCB).toHaveBeenCalledWith(wrongAppType, "The application specified to invoke is not supported.");
-        });
+    it("can invoke without event id", function () {
+        var successCB = jasmine.createSpy(),
+            mockedArgs = {
+                "request": encodeURIComponent(JSON.stringify({uri: "http://www.rim.com"})),
+                "eventId": encodeURIComponent(JSON.stringify(""))
+            };
 
-        it("should call fail callback when passed wrong protocol", function () {
-            index.invoke(successCB, failCB, mockWrongArgsForProtocol1);
-            index.invoke(successCB, failCB, mockWrongArgsForProtocol2);
-            expect(failCB.callCount).toEqual(2); 
-            expect(failCB).toHaveBeenCalledWith(wrongAppType, "Please specify a fully qualified URL that starts with either the 'http://' or 'https://' protocol.");
-        });
-
-        it("should not call qnx.callExtensionMethod when passed wrong appType", function () {
-            spyOn(qnx, "callExtensionMethod");
-            index.invoke(successCB, failCB, mockWrongArgsForAppType);
-            expect(qnx.callExtensionMethod).not.toHaveBeenCalled();
-        });
-
-        it("should not call any of qnx.callExtensionMethod methods when passed wrong protocol", function () {
-            spyOn(qnx, "callExtensionMethod");
-            index.invoke(successCB, failCB, mockWrongArgsForProtocol1);
-            index.invoke(successCB, failCB, mockWrongArgsForProtocol2);
-            expect(qnx.callExtensionMethod).not.toHaveBeenCalled();
-        });
+        index.invoke(successCB, null, mockedArgs);
+        expect(mockedInvocation.invoke).toHaveBeenCalledWith({
+            uri: "http://www.rim.com"
+        }, undefined);
+        expect(successCB).toHaveBeenCalled();
     });
 });

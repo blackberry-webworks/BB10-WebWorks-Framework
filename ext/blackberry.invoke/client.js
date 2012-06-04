@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Research In Motion Limited.
+ * Copyright 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,32 @@
  */
 
 var _self = {},
-    _ID = "blackberry.invoke";
+    _ID = "blackberry.invoke",
+    _eventId = "blackberry.invoke.invokeEventId";
 
-_self.invoke = function (appType, args) {
-    return window.webworks.execAsync(_ID, "invoke", {
-        'appType': appType,
-        'args': args
-    });
+_self.invoke = function (request, callback) {
+    var evtId = "",
+        data;
+
+    if (!request) {
+        throw "invalid invocation request";
+    } else {
+        if (request["data"]) {
+            data = request["data"];
+            // calling window.btoa on a string that contains unicode character will cause error
+            // it is the caller's responsibility to convert the string prior to calling invoke
+            request["data"] = window.btoa(data);
+        }
+    }
+
+    if (callback && typeof callback === "function") {
+        if (!window.webworks.event.isOn(_eventId)) {
+            window.webworks.event.once(_ID, _eventId, callback);
+            evtId = _eventId;
+        }
+    }
+
+    return window.webworks.execAsync(_ID, "invoke", {request: request, eventId: evtId});
 };
-
-_self.BrowserArguments = function (url) {
-    this.url = url;
-};
-
-/*
- * Define constants for appType
- */
-window.webworks.defineReadOnlyField(_self, "APP_CAMERA", 4);
-window.webworks.defineReadOnlyField(_self, "APP_MAPS", 5);
-window.webworks.defineReadOnlyField(_self, "APP_BROWSER", 11);
-window.webworks.defineReadOnlyField(_self, "APP_MUSIC", 13);
-window.webworks.defineReadOnlyField(_self, "APP_PHOTOS", 14);
-window.webworks.defineReadOnlyField(_self, "APP_VIDEOS", 15);
-window.webworks.defineReadOnlyField(_self, "APP_APPWORLD", 16);
 
 module.exports = _self;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Research In Motion Limited.
+ * Copyright 2011-2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,77 +16,65 @@
 
 var _ID = "blackberry.invoke",
     _extDir = __dirname + "./../../../../ext",
-    _libDir = __dirname + "./../../../../lib",
     _apiDir = _extDir + "/" + _ID,
-    utils,
     client,
     mockedWebworks = {
-        execAsync: function () {},
-        defineReadOnlyField: jasmine.createSpy()
-    },
-    constants = {
-        "APP_CAMERA": 4,
-        "APP_MAPS": 5,
-        "APP_BROWSER": 11,
-        "APP_MUSIC": 13,
-        "APP_PHOTOS": 14,
-        "APP_VIDEOS": 15,
-        "APP_APPWORLD": 16
-    },
-    defineROFieldArgs = [];
+        execAsync: jasmine.createSpy("webworks.execAsync"),
+        event: {
+            isOn: jasmine.createSpy("webworks.event.isOn"),
+            once: jasmine.createSpy("webworks.event.once")
+        }
+    };
 
 describe("blackberry.invoke client", function () {
     beforeEach(function () {
         GLOBAL.window = GLOBAL;
+        GLOBAL.window.btoa = jasmine.createSpy("window.btoa").andReturn("base64 string");
         GLOBAL.window.webworks = mockedWebworks;
-
-        utils = require(_libDir + "/utils");
         client = require(_apiDir + "/client");
     });
 
     afterEach(function () {
         delete GLOBAL.window;
-        utils = null;
         client = null;
     });
 
-    describe("appType", function () {
-        it("should return constant for appropriate appType", function () {
-            Object.getOwnPropertyNames(constants).forEach(function (c) {
-                defineROFieldArgs.push([client, c, constants[c]]);
+    describe("invoke", function () {
+        it("should throw error if request is not valid", function () {
+            expect(function () {
+                client.invoke(null);
+            }).toThrow("invalid invocation request");
+        });
+
+        it("should call once and execAsync", function () {
+            var request = {
+                    target: "abc.xyz"
+                },
+                callback = jasmine.createSpy("client callback");
+
+            client.invoke(request, callback);
+
+            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.invoke.invokeEventId", callback);
+            expect(mockedWebworks.execAsync).toHaveBeenCalledWith(_ID, "invoke", {"request": request, eventId: "blackberry.invoke.invokeEventId"});
+        });
+
+        it("should encode data to base64 string", function () {
+            var request = {
+                    target: "abc.xyz",
+                    data: "my string"
+                },
+                callback = jasmine.createSpy("client callback");
+
+            client.invoke(request, callback);
+
+            expect(window.btoa).toHaveBeenCalledWith("my string");
+            expect(mockedWebworks.execAsync).toHaveBeenCalledWith(_ID, "invoke", {
+                "request": {
+                    target: request.target,
+                    data: "base64 string"
+                },
+                "eventId": "blackberry.invoke.invokeEventId"
             });
-
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("APP_CAMERA")]);
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("APP_MAPS")]);
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("APP_BROWSER")]);
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("APP_MUSIC")]);
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("APP_PHOTOS")]);
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("APP_VIDEOS")]);
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("APP_APPWORLD")]);
-        });
-    });
-
-    describe("Browser Invoke", function () {
-        it("should call execAsync when invoke called", function () {
-            var url = "http://www.google.com",
-                result;
-
-            spyOn(mockedWebworks, "execAsync").andReturn(0);
-
-            result = client.invoke(client.APP_BROWSER, new client.BrowserArguments(url));
-            
-            expect(mockedWebworks.execAsync).toHaveBeenCalledWith(_ID, "invoke", { 'appType' : client.APP_BROWSER, args : { 'url' : url } });
-        });
-    });
-
-    describe("BrowserArguments", function () {
-        var url = "http://www.google.com", 
-            browserArguments;
-
-        it("should create a new BrowserArguments Object with url", function () {
-            browserArguments = new client.BrowserArguments(url);
-
-            expect(browserArguments.url).toEqual(url);
         });
     });
 });
