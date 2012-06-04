@@ -24,8 +24,8 @@ var APP_URL_BROWSER = "http://",
         invoked: {
             context: require("./invocationEvents"),
             event: "invoked",
-            trigger: function (args) {
-                _event.trigger("invoked", args);
+            trigger: function (args, argsToBlob) {
+                _event.trigger("invoked", args, argsToBlob);
             }
         }
     };
