@@ -22,18 +22,19 @@
 
 #include "filetransfer_curl.hpp"
 
+// Set maximum chunk size to 1 MB
+#define MAX_CHUNK_SIZE 1048576
+
 namespace webworks {
 
 static size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     char *read_data = static_cast<char *>(ptr);
     FILE *file = static_cast<FILE *>(userdata);
-
-    const int max_chunk_amount = 1048576;   // 1 MB
     size_t amount = 0;
 
-    if (max_chunk_amount < (size * nmemb)) {
-        amount = fread(ptr, 1, max_chunk_amount, file);
+    if (MAX_CHUNK_SIZE < (size * nmemb)) {
+        amount = fread(ptr, 1, MAX_CHUNK_SIZE, file);
     } else {
         amount = fread(ptr, size, nmemb, file);
     }
@@ -154,8 +155,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     // Perform file transfer (blocking)
     result = curl_easy_perform(curl);
 
-    if (result == CURLE_OK)
-    {
+    if (result == CURLE_OK) {
         int http_code;
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 
@@ -169,9 +169,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
         } else {
             result_string = buildUploadErrorString(CONNECTION_ERR, uploadInfo->sourceFile, uploadInfo->targetURL);
         }
-    }
-    else
-    {
+    } else {
         FileTransferErrorCodes error_code;
         switch (result)
         {

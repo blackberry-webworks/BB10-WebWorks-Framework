@@ -67,8 +67,7 @@ std::string FileTransfer::InvokeMethod(const std::string& command)
 
     if (strCommand == "upload") {
         return StartUploadThread(jsonObject);
-    }
-    else if (strCommand == "download") {
+    } else if (strCommand == "download") {
     }
 
     return "";
