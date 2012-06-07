@@ -61,17 +61,6 @@ _self.upload = function (filePath, server, successCallback, errorCallback, optio
     window.webworks.execAsync(_ID, "upload", args);
 };
 
-_self.download = function (source, target, successCallback, errorCallback) {
-    var args = {
-        "source": source,
-        "target": target,
-        "successCallback": successCallback,
-        "errorCallback": errorCallback
-    };
-
-    window.webworks.execAsync(_ID, "download", args);
-};
-
 window.webworks.defineReadOnlyField(_self, "FILE_NOT_FOUND_ERR", 1);
 window.webworks.defineReadOnlyField(_self, "INVALID_URL_ERR", 2);
 window.webworks.defineReadOnlyField(_self, "CONNECTION_ERR", 3);

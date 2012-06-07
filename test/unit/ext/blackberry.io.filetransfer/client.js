@@ -78,5 +78,49 @@ describe("blackberry.io.filetransfer client", function () {
             client.upload(filePath, server, callback, callback, options);
             expect(mockedWebworks.execAsync).toHaveBeenCalledWith(_ID, "upload", expected_args);
         });
+
+        it("should call success callback on success event", function () {
+            var success = jasmine.createSpy(),
+                failure = jasmine.createSpy(),
+                mocked_args = {
+                    "result": "success",
+                    "bytesSent": "someBytesSent",
+                    "responseCode": "someResponseCode",
+                    "response": escape("someResponse!")
+                },
+                expected_args = {
+                    "bytesSent": "someBytesSent",
+                    "responseCode": "someResponseCode",
+                    "response": "someResponse!"
+                };
+
+            client.upload(filePath, server, success, failure, options);
+            mockedWebworks.event.once.argsForCall[0][2](mocked_args);
+    
+            expect(success).toHaveBeenCalledWith(expected_args);
+            expect(failure).not.toHaveBeenCalled();
+        });
+
+        it("should call failure callback on error event", function () {
+            var success = jasmine.createSpy(),
+                failure = jasmine.createSpy(),
+                mocked_args = {
+                    "result": "error",
+                    "code": "someCode",
+                    "source": "someSource",
+                    "target": "someTarget"
+                },
+                expected_args = {
+                    "code": "someCode",
+                    "source": "someSource",
+                    "target": "someTarget"
+                };
+
+            client.upload(filePath, server, success, failure, options);
+            mockedWebworks.event.once.argsForCall[0][2](mocked_args);
+    
+            expect(success).not.toHaveBeenCalled();
+            expect(failure).toHaveBeenCalledWith(expected_args);
+        });
     });
 });
