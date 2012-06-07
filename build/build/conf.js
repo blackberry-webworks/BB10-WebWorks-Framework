@@ -21,6 +21,7 @@ module.exports = {
     TARGET: path.normalize(__dirname + "/../../target/"),
     BUILD: path.normalize(__dirname + "/.."),
     CLIENTFILES: path.normalize(__dirname + "/../../clientFiles"),
+    WEBWORKS_HASH: path.normalize(__dirname + "/../../webworks-version"),
     LIB: path.normalize(__dirname + "/../../lib"),
     EXT: path.normalize(__dirname + "/../../ext"),
     DEPENDENCIES: path.normalize(__dirname + "/../../dependencies"),

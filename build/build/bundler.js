@@ -4,6 +4,8 @@ var fs = require('fs'),
 module.exports = {
     bundle: function () {
         var fs = require('fs'),
+            crypto = require('crypto'),
+            shasum = crypto.createHash('md5'),
             files = [
                 "lib/public/builder.js",
                 "lib/public/window.js",
@@ -20,36 +22,59 @@ module.exports = {
             },
             output = "",
             version = fs.readFileSync("version", "utf-8").trim(),
-            filepath;
+            filepath,
+            hash,
+            
+            //output sections
+            license,
+            open_closure,
+            content,
+            hash_injection,
+            end_closure;
 
         //include LICENSE
-        output += include("LICENSE", function (file) {
+        license = include("LICENSE", function (file) {
             return "/*\n" + file + "\n*/\n";
         });
 
         //Open closure
-        output = "(function () { \n";
-
+        open_closure = "(function () { \n";
+        
         //include require
-        output += include("dependencies/require/require.js");
+        content = include("dependencies/require/require.js");
 
         //include modules
-        output += include(files, function (file, path) {
+        content += include(files, function (file, path) {
             return "define('" + path.replace(/lib\/public\//, "").replace(/\.js$/, "") +
                    "', function (require, exports, module) {\n" + file + "});\n";
         });
 
         //include window.webworks
-        output += include("lib/public/window-webworks.js");
+        content += include("lib/public/window-webworks.js");
 
         //Close closure
-        output += "\n}());";
-
+        end_closure = "\n}());";
+        
+        //Hash the sections
+        shasum.update(license + open_closure + content + end_closure);
+        hash = shasum.digest('hex');
+        
+        hash_injection = "this.webworksHash = '" + hash + "';\n";
+        
+        //output
+        output = license + open_closure + hash_injection + content + end_closure;
+        
+        //Create webworks-version file to be placed in bar and compared against at runtime.
+        //This is neccessary to determine if the apps webworks.js is compatible with the framework.
+        fs.writeFileSync(__dirname.replace(/\\/g, '/') + "/../../webworks-version", hash);
+        
         //create output folder if it doesn't exist
         filepath = __dirname.replace(/\\/g, '/') + "/../../clientFiles";
         if (!path.existsSync(filepath)) {
             fs.mkdirSync(filepath, "0777"); //full permissions
         }
+        
+        //Create webworks.js file
         fs.writeFileSync(filepath + "/webworks-" + version + ".js", output);
     }
 };

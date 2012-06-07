@@ -14,16 +14,36 @@
  * limitations under the License.
  */
 
+var req,
+    res,
+    succ,
+    fail;
+
+function mockXHR() {
+    GLOBAL.XMLHttpRequest = function () {};
+    GLOBAL.XMLHttpRequest.prototype.open = jasmine.createSpy();
+    GLOBAL.XMLHttpRequest.prototype.send = jasmine.createSpy();
+    GLOBAL.XMLHttpRequest.prototype.responseText = "blah";
+    req = {
+        params: {
+            ext: "blackberry.app"
+        },
+        origin: "abc"
+    };
+    res = {
+        send: jasmine.createSpy()
+    };
+    succ = jasmine.createSpy();
+    fail = jasmine.createSpy();
+}
+ 
 describe("extensions", function () {
     var extensions = require("../../../../lib/plugins/extensions"),
-        Whitelist = require('../../../../lib/policy/whitelist').Whitelist,
-        req,
-        res,
-        succ,
-        fail;
+        Whitelist = require('../../../../lib/policy/whitelist').Whitelist;
 
     beforeEach(function () {
         spyOn(console, "log");
+        mockXHR();
     });
 
     describe("when handling get requests", function () {
@@ -51,25 +71,24 @@ describe("extensions", function () {
             extensions.get(req, succ, fail);
             expect(succ).toHaveBeenCalledWith(["MyFeatureId"]);
         });
+        
+        it("returns 409 when the client webworks.js is incompatible with the framework", function () {
+            var reqWithHash = {
+                params: {
+                    ext: "?webworksVersion=2af67c1a4739f6f3f307dcc7601d35fc"//random hash for client webworks.js
+                }
+            };
+            GLOBAL.XMLHttpRequest.prototype.responseText = "iDoNotMatch";//framework hash
+
+            extensions.get(reqWithHash, succ, fail);
+
+            expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String), 409);
+        });
     });
 
     describe("load client", function () {
         beforeEach(function () {
-            GLOBAL.XMLHttpRequest = function () {};
-            GLOBAL.XMLHttpRequest.prototype.open = jasmine.createSpy();
-            GLOBAL.XMLHttpRequest.prototype.send = jasmine.createSpy();
-            GLOBAL.XMLHttpRequest.prototype.responseText = "blah";
-            req = {
-                params: {
-                    ext: "blackberry.app"
-                },
-                origin: "abc"
-            };
-            res = {
-                send: jasmine.createSpy()
-            };
-            succ = jasmine.createSpy();
-            fail = jasmine.createSpy();
+            mockXHR();
         });
 
         it("sends xhr response text if feature is whitelisted", function () {
