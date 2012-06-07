@@ -20,19 +20,6 @@
 #include <json/reader.h>
 #include <string>
 
-void* FileUploadThread(void *args)
-{
-    webworks::FileTransferCurl *file_transfer = new webworks::FileTransferCurl();
-    webworks::FileUploadInfo *upload_info = static_cast<webworks::FileUploadInfo *>(args);
-
-    const std::string result = file_transfer->Upload(upload_info);
-    upload_info->pParent->NotifyEvent(upload_info->eventId, result);
-
-    delete upload_info;
-    delete file_transfer;
-    return NULL;
-}
-
 FileTransfer::FileTransfer(const std::string& id) : m_id(id)
 {
 }
@@ -136,5 +123,18 @@ std::string FileTransfer::StartUploadThread(const std::string& jsonObject)
     }
 
     return "";
+}
+
+void* FileTransfer::FileUploadThread(void *args)
+{
+    webworks::FileTransferCurl *file_transfer = new webworks::FileTransferCurl();
+    webworks::FileUploadInfo *upload_info = static_cast<webworks::FileUploadInfo *>(args);
+
+    const std::string result = file_transfer->Upload(upload_info);
+    upload_info->pParent->NotifyEvent(upload_info->eventId, result);
+
+    delete upload_info;
+    delete file_transfer;
+    return NULL;
 }
 

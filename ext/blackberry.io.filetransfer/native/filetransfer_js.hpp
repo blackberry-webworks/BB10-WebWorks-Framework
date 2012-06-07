@@ -20,7 +20,6 @@
 #ifndef FILETRANSFER_JS_H_
 #define FILETRANSFER_JS_H_
 
-void* FileUploadThread(void *args);
 
 class FileTransfer : public JSExt
 {
@@ -31,6 +30,7 @@ public:
     virtual bool CanDelete();
     void NotifyEvent(const std::string& eventId, const std::string& event);
     std::string StartUploadThread(const std::string& jsonObject);
+    static void* FileUploadThread(void *args);
 private:
     std::string m_id;
 };

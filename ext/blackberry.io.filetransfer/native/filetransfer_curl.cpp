@@ -27,31 +27,6 @@
 
 namespace webworks {
 
-static size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
-{
-    char *read_data = static_cast<char *>(ptr);
-    FILE *file = static_cast<FILE *>(userdata);
-    size_t amount = 0;
-
-    if (MAX_CHUNK_SIZE < (size * nmemb)) {
-        amount = fread(ptr, 1, MAX_CHUNK_SIZE, file);
-    } else {
-        amount = fread(ptr, size, nmemb, file);
-    }
-
-    return amount;
-}
-
-static size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
-{
-    std::string *write_data = static_cast<std::string *>(userdata);
-
-    size_t realsize = size * nmemb;
-    write_data->append(static_cast<char *>(ptr), realsize);
-
-    return realsize;
-}
-
 FileTransferCurl::FileTransferCurl()
 {
     curl_global_init(CURL_GLOBAL_ALL);
@@ -226,6 +201,31 @@ std::string FileTransferCurl::buildUploadErrorString(const int errorCode, const 
     return ss.str();
 }
 
-} // namespace webworks
+size_t FileTransferCurl::UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    char *read_data = static_cast<char *>(ptr);
+    FILE *file = static_cast<FILE *>(userdata);
+    size_t amount = 0;
 
+    if (MAX_CHUNK_SIZE < (size * nmemb)) {
+        amount = fread(ptr, 1, MAX_CHUNK_SIZE, file);
+    } else {
+        amount = fread(ptr, size, nmemb, file);
+    }
+
+    return amount;
+}
+
+size_t FileTransferCurl::UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    std::string *write_data = static_cast<std::string *>(userdata);
+
+    size_t realsize = size * nmemb;
+    write_data->append(static_cast<char *>(ptr), realsize);
+
+    return realsize;
+}
+
+
+} // namespace webworks
 
