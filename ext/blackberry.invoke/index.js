@@ -24,8 +24,15 @@ var APP_URL_BROWSER = "http://",
         invoked: {
             context: require("./invocationEvents"),
             event: "invoked",
-            trigger: function (args, argsToBlob) {
-                _event.trigger("invoked", args, argsToBlob);
+            trigger: function (onInvokedInfo) {
+                var fieldsToBlob;
+                onInvokedInfo = JSON.parse(onInvokedInfo);
+
+                if (onInvokedInfo.data) {
+                    fieldsToBlob = {"data": "base64"};
+                }
+
+                _event.trigger("invoked", onInvokedInfo, fieldsToBlob);
             }
         }
     };

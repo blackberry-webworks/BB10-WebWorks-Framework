@@ -17,24 +17,46 @@
 var _apiDir = __dirname + "./../../../../ext/blackberry.invoke/",
     _libDir = __dirname + "./../../../../lib/",
     invocationEvents = require(_apiDir + "invocationEvents"),
-    framework = require(_libDir + "framework");
+    mockedInvocation;
 
 describe("blackberry.invoke invocationEvents", function () {
+    beforeEach(function () {
+        mockedInvocation = {
+            addEventListener: jasmine.createSpy("invocation addEventListener"),
+            removeEventListener: jasmine.createSpy("invocation removeEventListener")
+        };
+        GLOBAL.window = {};
+        GLOBAL.window.qnx = {
+            webplatform: {
+                getApplication: function () {
+                    return {
+                        invocation: mockedInvocation
+                    };
+                }
+            }
+        };
+    });
+
+    afterEach(function () {
+        mockedInvocation = null;
+        GLOBAL.qnx = null;
+    });
+
     describe("addEventListener", function () {
         var trigger = function () {};
 
         it("calls framework setOnInvoked for 'invoked' event", function () {
-            spyOn(framework, "setOnInvoked");
             invocationEvents.addEventListener("invoked", trigger);
-            expect(framework.setOnInvoked).toHaveBeenCalledWith(trigger);
+            expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("Invoked", trigger);
         });
     });
 
     describe("removeEventListener", function () {
+        var trigger = function () {};
+
         it("calls framework setOnInvoked for 'invoked' event", function () {
-            spyOn(framework, "setOnInvoked");
-            invocationEvents.removeEventListener("invoked");
-            expect(framework.setOnInvoked).toHaveBeenCalledWith(null);
+            invocationEvents.removeEventListener("invoked", trigger);
+            expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("Invoked", trigger);
         });
     });
 });

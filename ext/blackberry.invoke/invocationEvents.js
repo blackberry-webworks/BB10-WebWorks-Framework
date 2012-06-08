@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-var framework = require("../../lib/framework");
-
 module.exports = {
     addEventListener: function (event, trigger) {
         if (event === "invoked") {
-            framework.setOnInvoked(trigger);
+            window.qnx.webplatform.getApplication().invocation.addEventListener("Invoked", trigger);
         }
         else {
             console.log("Ignore registration for unknown event: " + event);
         }
     },
-    removeEventListener: function (event) {
+    removeEventListener: function (event, trigger) {
         if (event === "invoked") {
-            framework.setOnInvoked(null);
+            window.qnx.webplatform.getApplication().invocation.removeEventListener("Invoked", trigger);
         }
         else {
             console.log("Ignore un-registration for unknown event: " + event);
