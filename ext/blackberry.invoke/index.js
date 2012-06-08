@@ -27,15 +27,12 @@ module.exports = {
         // if request contains invalid args, the invocation framework will provide error in callback
         // no validation done here
         var argReq = JSON.parse(decodeURIComponent(args["request"])),
-            eventId = JSON.parse(decodeURIComponent(args["eventId"])),
             request = {},
             callback;
 
-        if (eventId) {
-            callback = function (error) {
-                _event.trigger(eventId, error);
-            };
-        }
+        callback = function (error) {
+            _event.trigger("blackberry.invoke.invokeEventId", error);
+        };
 
         _expectedParams.forEach(function (key) {
             var val = argReq[key];

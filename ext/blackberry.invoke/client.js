@@ -18,29 +18,49 @@ var _self = {},
     _ID = "blackberry.invoke",
     _eventId = "blackberry.invoke.invokeEventId";
 
-_self.invoke = function (request, callback) {
-    var evtId = "",
-        data;
+_self.invoke = function (request, onSuccess, onError) {
+    var data,
+        callback;
 
     if (!request) {
-        throw "invalid invocation request";
+        if (onError && typeof onError === "function") {
+            onError("invalid invocation request");
+            return;
+        }
     } else {
         if (request["data"]) {
             data = request["data"];
-            // calling window.btoa on a string that contains unicode character will cause error
-            // it is the caller's responsibility to convert the string prior to calling invoke
-            request["data"] = window.btoa(data);
+
+            try {
+                // calling window.btoa on a string that contains unicode character will cause error
+                // it is the caller's responsibility to convert the string prior to calling invoke
+                request["data"] = window.btoa(data);
+            } catch (e) {
+                if (onError && typeof onError === "function") {
+                    onError(e);
+                    return;
+                }
+            }
         }
     }
 
-    if (callback && typeof callback === "function") {
-        if (!window.webworks.event.isOn(_eventId)) {
-            window.webworks.event.once(_ID, _eventId, callback);
-            evtId = _eventId;
+    callback = function (error) {
+        if (error) {
+            if (onError && typeof onError === "function") {
+                onError(error);
+            }
+        } else {
+            if (onSuccess && typeof onSuccess === "function") {
+                onSuccess();
+            }
         }
+    };
+
+    if (!window.webworks.event.isOn(_eventId)) {
+        window.webworks.event.once(_ID, _eventId, callback);
     }
 
-    return window.webworks.execAsync(_ID, "invoke", {request: request, eventId: evtId});
+    return window.webworks.execAsync(_ID, "invoke", {request: request});
 };
 
 module.exports = _self;

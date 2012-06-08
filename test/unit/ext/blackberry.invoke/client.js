@@ -21,8 +21,7 @@ var _ID = "blackberry.invoke",
     mockedWebworks = {
         execAsync: jasmine.createSpy("webworks.execAsync"),
         event: {
-            isOn: jasmine.createSpy("webworks.event.isOn"),
-            once: jasmine.createSpy("webworks.event.once")
+            isOn: jasmine.createSpy("webworks.event.isOn")
         }
     };
 
@@ -30,6 +29,7 @@ describe("blackberry.invoke client", function () {
     beforeEach(function () {
         GLOBAL.window = GLOBAL;
         GLOBAL.window.btoa = jasmine.createSpy("window.btoa").andReturn("base64 string");
+        mockedWebworks.event.once = jasmine.createSpy("webworks.event.once");
         GLOBAL.window.webworks = mockedWebworks;
         client = require(_apiDir + "/client");
     });
@@ -40,10 +40,11 @@ describe("blackberry.invoke client", function () {
     });
 
     describe("invoke", function () {
-        it("should throw error if request is not valid", function () {
-            expect(function () {
-                client.invoke(null);
-            }).toThrow("invalid invocation request");
+        it("should call error callback if request is not valid", function () {
+            var onError = jasmine.createSpy("client onError");
+
+            client.invoke(null, null, onError);
+            expect(onError).toHaveBeenCalled();
         });
 
         it("should call once and execAsync", function () {
@@ -54,8 +55,8 @@ describe("blackberry.invoke client", function () {
 
             client.invoke(request, callback);
 
-            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.invoke.invokeEventId", callback);
-            expect(mockedWebworks.execAsync).toHaveBeenCalledWith(_ID, "invoke", {"request": request, eventId: "blackberry.invoke.invokeEventId"});
+            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.invoke.invokeEventId", jasmine.any(Function));
+            expect(mockedWebworks.execAsync).toHaveBeenCalledWith(_ID, "invoke", {"request": request});
         });
 
         it("should encode data to base64 string", function () {
@@ -72,9 +73,46 @@ describe("blackberry.invoke client", function () {
                 "request": {
                     target: request.target,
                     data: "base64 string"
-                },
-                "eventId": "blackberry.invoke.invokeEventId"
+                }
             });
+        });
+
+        it("should call onError if failed to encode data to base64", function () {
+            var request = {
+                    target: "abc.xyz",
+                    data: "my string"
+                },
+                onError = jasmine.createSpy("client onError");
+
+            GLOBAL.window.btoa = jasmine.createSpy("window.btoa").andThrow("bad string");
+            client.invoke(request, null, onError);
+            expect(onError).toHaveBeenCalledWith("bad string");
+        });
+
+        it("should call onSuccess if invocation is successful", function () {
+            var request = {
+                    target: "abc.xyz"
+                },
+                onSuccess = jasmine.createSpy("client onSuccess"),
+                onError = jasmine.createSpy("client onError");
+
+            client.invoke(request, onSuccess);
+            mockedWebworks.event.once.argsForCall[0][2]("");
+            expect(onSuccess).toHaveBeenCalled();
+            expect(onError).not.toHaveBeenCalled();
+        });
+
+        it("should call onError if invocation failed", function () {
+            var request = {
+                    target: "abc.xyz"
+                },
+                onSuccess = jasmine.createSpy("client onSuccess"),
+                onError = jasmine.createSpy("client onError");
+
+            client.invoke(request, null, onError);
+            mockedWebworks.event.once.argsForCall[0][2]("There is an error");
+            expect(onSuccess).not.toHaveBeenCalled();
+            expect(onError).toHaveBeenCalled();
         });
     });
 });

@@ -23,11 +23,12 @@ describe("blackberry.invoke", function () {
         var request = {
                 uri: "http://www.google.com"
             },
-            cb = jasmine.createSpy(),
+            onSuccess = jasmine.createSpy("client onSuccess"),
+            onError = jasmine.createSpy("client onError"),
             confirm;
 
         try {
-            blackberry.invoke.invoke(request, cb);
+            blackberry.invoke.invoke(request, onSuccess, onError);
         } catch (e) {
             console.log(e);
         }
@@ -35,7 +36,8 @@ describe("blackberry.invoke", function () {
         confirm = window.confirm("Did it invoke?");
 
         expect(confirm).toEqual(true);
-        expect(cb).toHaveBeenCalledWith("");
+        expect(onSuccess).toHaveBeenCalled();
+        expect(onError).not.toHaveBeenCalled();
     });
 
     it('invoke should invoke blackberry.com with bound invocation', function () {
@@ -43,11 +45,12 @@ describe("blackberry.invoke", function () {
                 target: "sys.browser",
                 uri: "http://www.blackberry.com"
             },
-            cb = jasmine.createSpy(),
+            onSuccess = jasmine.createSpy("client onSuccess"),
+            onError = jasmine.createSpy("client onError"),
             confirm;
 
         try {
-            blackberry.invoke.invoke(request, cb);
+            blackberry.invoke.invoke(request, onSuccess);
         } catch (e) {
             console.log(e);
         }
@@ -55,6 +58,7 @@ describe("blackberry.invoke", function () {
         confirm = window.confirm("Did it invoke?");
 
         expect(confirm).toEqual(true);
-        expect(cb).toHaveBeenCalledWith("");
+        expect(onSuccess).toHaveBeenCalled();
+        expect(onError).not.toHaveBeenCalled();
     });
 });

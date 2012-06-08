@@ -47,8 +47,7 @@ describe("blackberry.invoke index", function () {
     it("can invoke with target", function () {
         var successCB = jasmine.createSpy(),
             mockedArgs = {
-                "request": encodeURIComponent(JSON.stringify({target: "abc.xyz"})),
-                "eventId": encodeURIComponent(JSON.stringify("blackberry.invoke.invokeEventId"))
+                "request": encodeURIComponent(JSON.stringify({target: "abc.xyz"}))
             };
 
         index.invoke(successCB, null, mockedArgs);
@@ -61,28 +60,13 @@ describe("blackberry.invoke index", function () {
     it("can invoke with uri", function () {
         var successCB = jasmine.createSpy(),
             mockedArgs = {
-                "request": encodeURIComponent(JSON.stringify({uri: "http://www.rim.com"})),
-                "eventId": encodeURIComponent(JSON.stringify("blackberry.invoke.invokeEventId"))
+                "request": encodeURIComponent(JSON.stringify({uri: "http://www.rim.com"}))
             };
 
         index.invoke(successCB, null, mockedArgs);
         expect(mockedInvocation.invoke).toHaveBeenCalledWith({
             uri: "http://www.rim.com"
         }, jasmine.any(Function));
-        expect(successCB).toHaveBeenCalled();
-    });
-
-    it("can invoke without event id", function () {
-        var successCB = jasmine.createSpy(),
-            mockedArgs = {
-                "request": encodeURIComponent(JSON.stringify({uri: "http://www.rim.com"})),
-                "eventId": encodeURIComponent(JSON.stringify(""))
-            };
-
-        index.invoke(successCB, null, mockedArgs);
-        expect(mockedInvocation.invoke).toHaveBeenCalledWith({
-            uri: "http://www.rim.com"
-        }, undefined);
         expect(successCB).toHaveBeenCalled();
     });
 });
