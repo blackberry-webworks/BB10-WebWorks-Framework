@@ -20,61 +20,63 @@ module.exports = {
                     return transform ? transform(str, file) : str;
                 }).join('\n');
             },
-            output = "",
+            transformCallback = function (file, path) {
+                return "define('" + path.replace(/lib\/public\//, "").replace(/\.js$/, "") +
+                       "', function (require, exports, module) {\n" + file + "});\n";
+            },
+            
+            output = "",//webworks.js output
             version = fs.readFileSync("version", "utf-8").trim(),
-            filepath,
-            hash,
+            clientFilesPath,
+            webworksHash,
             
             //output sections
-            license,
-            open_closure,
-            content,
+            pre_injection,
             hash_injection,
-            end_closure;
+            post_injection;
+            
 
         //include LICENSE
-        license = include("LICENSE", function (file) {
+        pre_injection = include("LICENSE", function (file) {
             return "/*\n" + file + "\n*/\n";
         });
 
         //Open closure
-        open_closure = "(function () { \n";
+        pre_injection += "(function () { \n";
         
         //include require
-        content = include("dependencies/require/require.js");
+        pre_injection += include("dependencies/require/require.js");
 
         //include modules
-        content += include(files, function (file, path) {
-            return "define('" + path.replace(/lib\/public\//, "").replace(/\.js$/, "") +
-                   "', function (require, exports, module) {\n" + file + "});\n";
-        });
+        pre_injection += include(files, transformCallback);
 
         //include window.webworks
-        content += include("lib/public/window-webworks.js");
+        post_injection = include("lib/public/window-webworks.js");
 
         //Close closure
-        end_closure = "\n}());";
+        post_injection += "\n}());";
         
         //Hash the sections
-        shasum.update(license + open_closure + content + end_closure);
-        hash = shasum.digest('hex');
+        shasum.update((pre_injection + post_injection).replace(/\\r\\n/g, "\\n"));//convert CRLF to LF
+        webworksHash = shasum.digest('hex');
         
-        hash_injection = "this.webworksHash = '" + hash + "';\n";
+        //Create webworks-version to be placed in bar and respresent the framework version[hash].
+        //This is neccessary to determine if the apps webworks.js is compatible with the framework.
+        fs.writeFileSync(__dirname.replace(/\\/g, '/') + "/../../lib/webworks-version.js", "module.exports = \"" + webworksHash + "\";\n");
+        
+        //Inject a define into the webworks.js that will represent its version[hash]
+        hash_injection = include(["lib/webworks-version.js"], transformCallback);
         
         //output
-        output = license + open_closure + hash_injection + content + end_closure;
-        
-        //Create webworks-version file to be placed in bar and compared against at runtime.
-        //This is neccessary to determine if the apps webworks.js is compatible with the framework.
-        fs.writeFileSync(__dirname.replace(/\\/g, '/') + "/../../webworks-version", hash);
+        output = pre_injection + hash_injection + post_injection;
         
         //create output folder if it doesn't exist
-        filepath = __dirname.replace(/\\/g, '/') + "/../../clientFiles";
-        if (!path.existsSync(filepath)) {
-            fs.mkdirSync(filepath, "0777"); //full permissions
+        clientFilesPath = __dirname.replace(/\\/g, '/') + "/../../clientFiles";
+        if (!path.existsSync(clientFilesPath)) {
+            fs.mkdirSync(clientFilesPath, "0777"); //full permissions
         }
         
         //Create webworks.js file
-        fs.writeFileSync(filepath + "/webworks-" + version + ".js", output);
+        fs.writeFileSync(clientFilesPath + "/webworks-" + version + ".js", output);
     }
 };

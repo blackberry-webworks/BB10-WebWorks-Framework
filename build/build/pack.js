@@ -92,7 +92,6 @@ module.exports = function (src, baton) {
     //Copy files to target directory (DO NOT copy webplatform-framework lib/* files over)
     utils.copyFile(_c.DEPENDENCIES_WEBPLATFORM_FRAMEWORK_REQUIRE, browserRequireDest);
     utils.copyFile(_c.DEPENDENCIES_WEBPLATFORM_FRAMEWORK_LIB, webplatformDest);
-    utils.copyFile(_c.WEBWORKS_HASH, bootstrapDest);
     utils.copyFile(readmeFile, _c.DEPLOY);
     utils.copyFile(licenseFile, _c.DEPLOY);
     
