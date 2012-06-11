@@ -22,52 +22,42 @@ var _push,
     _event = requireLocal("lib/event"),
     _exports = {};
 
-/* ToDo:
- * will optimize the JavaScript code using the following codes
- * though I need to work on native code first for now
-
-_exports.init = function (methods) {
-    for (m in methods) {
-        if (methods.hasOwnProperty(m)) {
-            _exports[m] = function (success, fail, args) {
-                try {
-                    success(push[m](args));
-                } catch (e) {
-                    fail(-1, e);
-                }
-            }
-        }
-    }
-
-    return _exports;
-}
-
-module.exports = _exports.init(_methods);
-*/
-
 module.exports = {
     startService: function (success, fail, args) {
-        success(_push.startService(args));
+        var pushOptions = { "invokeTargetId" : JSON.parse(decodeURIComponent(args.invokeTargetId)),
+                            "appId" : JSON.parse(decodeURIComponent(args.appId)),
+                            "ppgUrl" : JSON.parse(decodeURIComponent(args.ppgUrl)) };
+
+        _push.startService(pushOptions);
+        success();
     },
 
     createChannel: function (success, fail, args) {
-        success(_push.createChannel(args));
+        _push.createChannel(args);
+        success();
     },
 
     destroyChannel: function (success, fail, args) {
-        success(_push.destroyChannel(args));
+        _push.destroyChannel(args);
+        success();
     },
 
     extractPushPayload: function (success, fail, args) {
-        success(_push.extractPushPayload(args));
+        var invokeData = { "data" : JSON.parse(decodeURIComponent(args.data)) };
+        success(_push.extractPushPayload(invokeData));
     },
 
     launchApplicationOnPush: function (success, fail, args) {
-        success(_push.launchApplicationOnPush(args));
+        _push.launchApplicationOnPush(JSON.parse(decodeURIComponent(args.shouldLaunch)));
+        success();
     },
 
     acknowledge: function (success, fail, args) {
-        success(_push.acknowledge(args));
+        var acknowledgeData = { "id" : JSON.parse(decodeURIComponent(args.id)),
+                                "shouldAcceptPush" : JSON.parse(decodeURIComponent(args.shouldAcceptPush)) };
+
+        _push.acknowledge(acknowledgeData);
+        success();
     }
 };
 
@@ -79,33 +69,34 @@ JNEXT.Push = function () {
     var self = this;
 
     self.startService = function (args) {
-        var val = JNEXT.invoke(self.m_id, "startService " + JSON.stringify(args));
-        return val;
+        JNEXT.invoke(self.m_id, "startService " + JSON.stringify(args));
     };
 
     self.createChannel = function (args) {
-        var val = JNEXT.invoke(self.m_id, "createChannel " + JSON.stringify(args));
-        return val;
+        JNEXT.invoke(self.m_id, "createChannel");
     };
 
     self.destroyChannel = function (args) {
-        var val = JNEXT.invoke(self.m_id, "destroyChannel " + JSON.stringify(args));
-        return val;
+        JNEXT.invoke(self.m_id, "destroyChannel");
     };
 
     self.extractPushPayload = function (args) {
-        var val = JNEXT.invoke(self.m_id, "extractPushPayload " + JSON.stringify(args));
-        return val;
+        var payload = JNEXT.invoke(self.m_id, "extractPushPayload " + JSON.stringify(args));
+        return JSON.parse(payload.substring(payload.indexOf("{"), payload.lastIndexOf("}") + 1));
     };
 
     self.launchApplicationOnPush = function (args) {
-        var val = JNEXT.invoke(self.m_id, "launchApplicationOnPush " + JSON.stringify(args));
-        return val;
+        var shouldLaunch = args;
+
+        if (shouldLaunch) {
+            JNEXT.invoke(self.m_id, "registerToLaunch");
+        } else {
+            JNEXT.invoke(self.m_id, "unregisterFromLaunch");
+        }
     };
 
     self.acknowledge = function (args) {
-        var val = JNEXT.invoke(self.m_id, "acknowledge " + JSON.stringify(args));
-        return val;
+        JNEXT.invoke(self.m_id, "acknowledge " + JSON.stringify(args));
     };
 
     self.getId = function () {
@@ -129,23 +120,27 @@ JNEXT.Push = function () {
     self.onEvent = function (strData) {
         var arData = strData.split(" "),
             strEventId = arData[0],
-            args = arData[1];
+            args = arData[1],
+            info = {};
 
         // Trigger the event handler of specific Push events
-        // Although there are redundant strings
-        // It's meant to show you what specfic events are expected to receive
-        if (strEventId === "blackberry.push.create.successCallback") {
-            _event.trigger("blackberry.push.create.successCallback", JSON.parse(args));
-        } else if (strEventId === "blackberry.push.create.failCallback") {
-            _event.trigger("blackberry.push.create.failCallback", JSON.parse(args));
+        if (strEventId === "blackberry.push.create.callback") {
+            _event.trigger("blackberry.push.create.callback", JSON.parse(args));
+
         } else if (strEventId === "blackberry.push.create.simChangeCallback") {
-            _event.trigger("blackberry.push.create.simChangeCallback", JSON.parse(args));
+            _event.trigger("blackberry.push.create.simChangeCallback");
+
         } else if (strEventId === "blackberry.push.createChannel.callback") {
-            _event.trigger("blackberry.push.createChannel.callback", JSON.parse(args));
+            info.result = JSON.parse(arData[1]);
+            info.token = arData[2];
+            _event.trigger("blackberry.push.createChannel.callback", info);
+
         } else if (strEventId === "blackberry.push.destroyChannel.callback") {
             _event.trigger("blackberry.push.destroyChannel.callback", JSON.parse(args));
+
         } else if (strEventId === "blackberry.push.launchApplicationOnPush.callback") {
             _event.trigger("blackberry.push.launchApplicationOnPush.callback", JSON.parse(args));
+
         }
     };
 

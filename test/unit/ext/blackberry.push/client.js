@@ -59,7 +59,7 @@ function unloadClient() {
     client = null;
 }
 
-describe("blackberry.connection", function () {
+describe("blackberry.push", function () {
     beforeEach(function () {
         mockedWebworks.execSync = jasmine.createSpy().andReturn(2);
         mockedWebworks.event = { once : jasmine.createSpy().andReturn(3),
@@ -112,71 +112,276 @@ describe("blackberry.connection", function () {
     });
 
 
-    describe("blackberry.push.PushService methods", function () {
-        it("blackberry.push.PushService.create", function () {
-            var options = { "invokeTargetId" : "invokeTargetId",
-                 "appId" : "appId",
-                 "ppgUrl" : "ppgUrl" },
-                 successCallback,
-                 failCallback,
-                 simChangeCallback;
-
-            expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
-            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.create.successCallback", successCallback);
-            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.create.failCallback", failCallback);
-            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.create.simChangeCallback", simChangeCallback);
-            expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "startService", options);
+    describe("PushService", function () {
+        it("has only one static method: create", function () {
+            expect(client.PushService.create).toBeDefined();
+            expect(client.PushService.createChannel).toBeUndefined();
+            expect(client.PushService.destroyChannel).toBeUndefined();
+            expect(client.PushService.extractPushPayload).toBeUndefined();
+            expect(client.PushService.launchApplicationOnPush).toBeUndefined();
         });
 
-        it("blackberry.push.PushService.createChannel", function () {
-            var createChannelCallback;
-
-            expect(client.PushService.createChannel(createChannelCallback)).toEqual(2);
-            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.createChannel.callback", createChannelCallback);
-            expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "createChannel", null);
+        it("has several instance methods", function () {
+            var pushService = new client.PushService();
+            expect(pushService.createChannel).toBeDefined();
+            expect(pushService.destroyChannel).toBeDefined();
+            expect(pushService.extractPushPayload).toBeDefined();
+            expect(pushService.launchApplicationOnPush).toBeDefined();
         });
 
-        it("blackberry.push.PushService.destroyChannel", function () {
-            var destroyChannelCallback;
+        describe("create", function () {
+            var invokeTargetIdError = "blackberry.push.PushService.create: cannot call create() multiple times with different invokeTargetId's",
+                appIdError = "blackberry.push.PushService.create: cannot call create() multiple times with different appId's";
 
-            expect(client.PushService.destroyChannel(destroyChannelCallback)).toEqual(2);
-            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.destroyChannel.callback", destroyChannelCallback);
-            expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "destroyChannel", null);
+            it("sets up the create callback", function () {
+                var options = { "invokeTargetId" : "invokeTargetId",
+                                "appId" : "appId",
+                                "ppgUrl" : "ppgUrl" },
+                    successCallback,
+                    failCallback,
+                    simChangeCallback;
+
+                expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
+                expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.create.callback", jasmine.any(Function));
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "startService", options);
+            });
+
+            it("allows multiple calls with the same parameters", function () {
+                var options = { "invokeTargetId" : "invokeTargetId",
+                                "ppgUrl" : "ppgUrl" },
+                    successCallback,
+                    failCallback,
+                    simChangeCallback;
+
+                runs(function () {
+                    expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
+                });
+
+                runs(function () {
+                    options.appId = "";
+                    expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
+                    expect(mockedWebworks.event.once.callCount).toEqual(2);
+                    expect(mockedWebworks.execSync.callCount).toEqual(2);
+                });
+            });
+
+            it("throws an error when it is called again with a different invokeTargetId", function () {
+                var options = { "invokeTargetId" : "invokeTargetId",
+                                "appId" : "appId",
+                                "ppgUrl" : "ppgUrl" },
+                    successCallback,
+                    failCallback,
+                    simChangeCallback;
+
+                runs(function () {
+                    expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
+                });
+
+                runs(function () {
+                    options.invokeTargetId = "differentInvokeTargetId";
+
+                    function createPushService() {
+                        client.PushService.create(options, successCallback, failCallback, simChangeCallback);
+                    }
+
+                    expect(createPushService).toThrow(invokeTargetIdError);
+                    expect(mockedWebworks.event.once.callCount).toEqual(1);
+                    expect(mockedWebworks.execSync.callCount).toEqual(1);
+                });
+            });
+
+            it("throws an error when it is called again with a different appId", function () {
+                var options = { "invokeTargetId" : "invokeTargetId",
+                                "appId" : "appId",
+                                "ppgUrl" : "ppgUrl" },
+                    successCallback,
+                    failCallback,
+                    simChangeCallback;
+
+                runs(function () {
+                    expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
+                });
+
+                runs(function () {
+                    options.appId = "differentAppId";
+
+                    function createPushService() {
+                        client.PushService.create(options, successCallback, failCallback, simChangeCallback);
+                    }
+
+                    expect(createPushService).toThrow(appIdError);
+                    expect(mockedWebworks.event.once.callCount).toEqual(1);
+                    expect(mockedWebworks.execSync.callCount).toEqual(1);
+                });
+            });
+
+            it("throws an error when it is called twice, with an empty then non-empty appId", function () {
+                var options = { "invokeTargetId" : "invokeTargetId",
+                                "ppgUrl" : "ppgUrl" },
+                    successCallback,
+                    failCallback,
+                    simChangeCallback;
+
+                runs(function () {
+                    expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
+                });
+
+                runs(function () {
+                    options.appId = "hello";
+
+                    function createPushService() {
+                        client.PushService.create(options, successCallback, failCallback, simChangeCallback);
+                    }
+
+                    expect(createPushService).toThrow(appIdError);
+                    expect(mockedWebworks.event.once.callCount).toEqual(1);
+                    expect(mockedWebworks.execSync.callCount).toEqual(1);
+                });
+            });
+
+            it("throws an error when it is called twice, with a non-empty then empty appId", function () {
+                var options = { "invokeTargetId" : "invokeTargetId",
+                                "appId" : "appId",
+                                "ppgUrl" : "ppgUrl" },
+                    successCallback,
+                    failCallback,
+                    simChangeCallback;
+
+                runs(function () {
+                    expect(client.PushService.create(options, successCallback, failCallback, simChangeCallback)).toEqual(2);
+                });
+
+                runs(function () {
+                    options = { "invokeTargetId" : "invokeTargetId",
+                                "ppgUrl" : "ppgUrl" };
+
+                    function createPushService() {
+                        client.PushService.create(options, successCallback, failCallback, simChangeCallback);
+                    }
+
+                    expect(createPushService).toThrow(appIdError);
+                    expect(mockedWebworks.event.once.callCount).toEqual(1);
+                    expect(mockedWebworks.execSync.callCount).toEqual(1);
+                });
+            });
         });
 
-        it("blackberry.push.PushService.extractPushPayload", function () {
-            var invokeObject = {},
-                pushPayload = client.PushService.extractPushPayload(invokeObject);
+        describe("createChannel", function () {
+            it("sets up the createChannel callback", function () {
+                var createChannelCallback,
+                    pushService = new client.PushService();
 
-            expect(pushPayload).toBeDefined();
-            expect(pushPayload).toEqual(jasmine.any(client.PushPayload));
-            expect(pushPayload.payload).toEqual(2);
-            expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "extractPushPayload", invokeObject);
+                expect(pushService.createChannel(createChannelCallback)).toEqual(2);
+                expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.createChannel.callback", jasmine.any(Function));
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "createChannel", null);
+            });
         });
 
-        it("blackberry.push.PushService.launchApplicationOnPush", function () {
-            var shouldLaunch = true,
-                launchApplicationCallback;
+        describe("destroyChannel", function () {
+            it("sets up the destroyChannel callback", function () {
+                var destroyChannelCallback,
+                    pushService = new client.PushService();
 
-            expect(client.PushService.launchApplicationOnPush(shouldLaunch, launchApplicationCallback)).toEqual(2);
-            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.launchApplicationOnPush.callback", launchApplicationCallback);
-            expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "launchApplicationOnPush", shouldLaunch);
+                expect(pushService.destroyChannel(destroyChannelCallback)).toEqual(2);
+                expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.destroyChannel.callback", destroyChannelCallback);
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "destroyChannel", null);
+            });
+        });
+
+        describe("extractPushPayload", function () {
+            var extractPayloadError = "blackberry.push.PushService.extractPushPayload: the invoke object was invalid and no PushPayload could be extracted from it";
+
+            it("returns a PushPayload object", function () {
+                var invokeObject = { "data" : "ABC" },
+                    returnPayload = { "valid" : true },
+                    pushService = new client.PushService(),
+                    pushPayload;
+
+                mockedWebworks.execSync = jasmine.createSpy().andReturn(returnPayload);
+                pushPayload = pushService.extractPushPayload(invokeObject);
+
+                expect(pushPayload).toBeDefined();
+                expect(pushPayload).toEqual(jasmine.any(client.PushPayload));
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "extractPushPayload", invokeObject);
+            });
+
+            it("checks that there is a data field in the invoke object", function () {
+                var invokeObject = {},
+                    pushService = new client.PushService();
+
+                mockedWebworks.execSync = jasmine.createSpy();
+
+                function extractPayload() {
+                    pushService.extractPushPayload(invokeObject);
+                }
+
+                expect(extractPayload).toThrow(extractPayloadError);
+                expect(mockedWebworks.execSync).not.toHaveBeenCalled();
+            });
+
+            it("checks that the returned payload is valid", function () {
+                var invokeObject = { "data" : "ABC" },
+                    returnPayload = { "valid" : false },
+                    pushService = new client.PushService();
+
+                mockedWebworks.execSync = jasmine.createSpy().andReturn(returnPayload);
+
+                function extractPayload() {
+                    pushService.extractPushPayload(invokeObject);
+                }
+
+                expect(extractPayload).toThrow(extractPayloadError);
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "extractPushPayload", invokeObject);
+            });
+        });
+
+        describe("launchApplicationOnPush", function () {
+            it("sets up the launchApplicationOnPush callback", function () {
+                var shouldLaunch = true,
+                    shouldLaunchObj = {"shouldLaunch" : shouldLaunch},
+                    launchApplicationCallback,
+                    pushService = new client.PushService();
+
+                expect(pushService.launchApplicationOnPush(shouldLaunch, launchApplicationCallback)).toEqual(2);
+                expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, "blackberry.push.launchApplicationOnPush.callback", launchApplicationCallback);
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "launchApplicationOnPush", shouldLaunchObj);
+            });
         });
     });
 
-    describe("blackberry.push.PushPayload", function () {
-        it("blackberry.push.PushPayload constructor", function () {
-            var pushPayload = new client.PushPayload("hello");
+    describe("PushPayload", function () {
+        it("contains only instance members and methods", function () {
+            expect(client.PushPayload.data).toBeUndefined();
+            expect(client.PushPayload.headers).toBeUndefined();
+            expect(client.PushPayload.id).toBeUndefined();
+            expect(client.PushPayload.isAcknowledgeRequired).toBeUndefined();
+            expect(client.PushPayload.acknowledge).toBeUndefined();
+        });
+
+        it("calls defineReadOnlyField on the instance members", function () {
+            var payloadObject = {},
+                pushPayload;
+
+            payloadObject.data = "world";
+            payloadObject.headers = { webworks : "blackberry" };
+            payloadObject.id = "hello";
+            payloadObject.isAcknowledgeRequired = false;
+
+            pushPayload = new client.PushPayload(payloadObject);
 
             expect(pushPayload).toBeDefined();
             expect(pushPayload).toEqual(jasmine.any(client.PushPayload));
-            expect(pushPayload.payload).toEqual("hello");
+
+            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain([pushPayload, "data", payloadObject.data]);
+            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain([pushPayload, "headers", payloadObject.headers]);
+            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain([pushPayload, "id", payloadObject.id]);
+            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain([pushPayload, "isAcknowledgeRequired", payloadObject.isAcknowledgeRequired]);
         });
 
-        it("blackberry.push.PushPayload.acknowledge", function () {
+        it("can acknowledge the push notification", function () {
             var shouldAcceptPush = true,
                 pushPayload = new client.PushPayload("hello"),
-                args = {"id": "id", "shouldAcceptPush": shouldAcceptPush };
+                args = { "id": "id", "shouldAcceptPush": shouldAcceptPush };
 
             pushPayload.id = "id";
             expect(pushPayload.acknowledge(shouldAcceptPush)).toEqual(2);
@@ -184,3 +389,4 @@ describe("blackberry.connection", function () {
         });
     });
 });
+

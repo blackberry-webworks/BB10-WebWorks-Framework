@@ -24,7 +24,7 @@ describe("blackberry.push index", function () {
     beforeEach(function () {
         GLOBAL.JNEXT = {
             require: jasmine.createSpy().andReturn(true),
-            createObject: jasmine.createSpy().andReturn("1"),
+            createObject: jasmine.createSpy().andReturn("0"),
             invoke: jasmine.createSpy().andReturn(2),
             registerEvents: jasmine.createSpy().andReturn(true)
         };
@@ -37,51 +37,86 @@ describe("blackberry.push index", function () {
     afterEach(function () {
         GLOBAL.JNEXT = null;
         index = null;
+        args = {};
     });
 
     it("makes sure that JNEXT is initalized", function () {
         expect(GLOBAL.JNEXT.require).toHaveBeenCalled();
     });
 
-    it("makes sure that JNEXT startService called properly", function () {        
+    it("makes sure that JNEXT.invoke startService is called", function () {
+        var expected_args = { invokeTargetId : "invokeTargetId", appId : "appId", ppgUrl : "ppgUrl" };
+
+        args.invokeTargetId = encodeURIComponent(JSON.stringify("invokeTargetId"));
+        args.appId = encodeURIComponent(JSON.stringify("appId"));
+        args.ppgUrl = encodeURIComponent(JSON.stringify("ppgUrl"));
+
         index.startService(successCB, failCB, args);
         
-        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalled();
-        expect(successCB).toHaveBeenCalledWith(2);
+        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalledWith("0", "startService " + JSON.stringify(expected_args));
+        expect(successCB).toHaveBeenCalledWith();
+        expect(failCB).not.toHaveBeenCalled();
     });
 
-    it("makes sure that JNEXT createChannel called properly", function () {        
+    it("makes sure that JNEXT.invoke createChannel is called", function () {
         index.createChannel(successCB, failCB, args);
         
-        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalled();
-        expect(successCB).toHaveBeenCalledWith(2);
+        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalledWith("0", "createChannel");
+        expect(successCB).toHaveBeenCalledWith();
+        expect(failCB).not.toHaveBeenCalled();
     });
 
-    it("makes sure that JNEXT destroyChannel called properly", function () {        
+    it("makes sure that JNEXT.invoke destroyChannel is called", function () {
         index.destroyChannel(successCB, failCB, args);
         
-        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalled();
-        expect(successCB).toHaveBeenCalledWith(2);
+        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalledWith("0", "destroyChannel");
+        expect(successCB).toHaveBeenCalledWith();
+        expect(failCB).not.toHaveBeenCalled();
     });
 
-    it("makes sure that JNEXT extractPushPayload called properly", function () {        
+    it("makes sure that JNEXT.invoke extractPushPayload is called", function () {
+        var expected_args = { data : "hello world" };
+
+        args.data = encodeURIComponent(JSON.stringify("hello world"));
+        JNEXT.invoke = jasmine.createSpy().andReturn(" 123 " + JSON.stringify(expected_args));
+
         index.extractPushPayload(successCB, failCB, args);
-        
-        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalled();
-        expect(successCB).toHaveBeenCalledWith(2);
+
+        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalledWith("0", "extractPushPayload " + JSON.stringify(expected_args));
+        expect(successCB).toHaveBeenCalledWith(expected_args);
+        expect(failCB).not.toHaveBeenCalled();
     });
 
-    it("makes sure that JNEXT launchApplicationOnPush called properly", function () {        
+    it("makes sure that JNEXT.invoke registerToLaunch is called", function () {
+        args = {"shouldLaunch" : true};
+
         index.launchApplicationOnPush(successCB, failCB, args);
-        
-        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalled();
-        expect(successCB).toHaveBeenCalledWith(2);
+
+        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalledWith("0", "registerToLaunch");
+        expect(successCB).toHaveBeenCalledWith();
+        expect(failCB).not.toHaveBeenCalled();
     });
 
-    it("makes sure that JNEXT acknowledge called properly", function () {        
+    it("makes sure that JNEXT.invoke unregisterFromLaunch is called", function () {
+        args = {"shouldLaunch" : false};
+
+        index.launchApplicationOnPush(successCB, failCB, args);
+
+        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalledWith("0", "unregisterFromLaunch");
+        expect(successCB).toHaveBeenCalledWith();
+        expect(failCB).not.toHaveBeenCalled();
+    });
+
+    it("makes sure that JNEXT.invoke acknowledge is called", function () {
+        var expected_args = { id : "payloadId", shouldAcceptPush : true };
+
+        args.id = encodeURIComponent(JSON.stringify("payloadId"));
+        args.shouldAcceptPush = encodeURIComponent(JSON.stringify(true));
+
         index.acknowledge(successCB, failCB, args);
         
-        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalled();
-        expect(successCB).toHaveBeenCalledWith(2);
+        expect(GLOBAL.JNEXT.invoke).toHaveBeenCalledWith("0", "acknowledge " + JSON.stringify(expected_args));
+        expect(successCB).toHaveBeenCalledWith();
+        expect(failCB).not.toHaveBeenCalled();
     });
 });

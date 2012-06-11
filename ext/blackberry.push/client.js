@@ -16,8 +16,14 @@
 
 var _self = {},
     _ID = "blackberry.push",
-    PushService = {},
+    PushService,
     PushPayload,
+    onCreateSuccess = null,
+    onCreateFail = null,
+    onCreateSimChange = null,
+    onCreateChannel = null,
+    createInvokeTargetId = null,
+    createAppId = null,
     SUCCESS = 0,
     INTERNAL_ERROR = 500,
     INVALID_DEVICE_PIN = 10001,
@@ -41,32 +47,84 @@ var _self = {},
     PPG_CURRENTLY_NOT_AVAILABLE = 10110,
     MISSING_INVOKE_TARGET_ID = 10111;
 
+function webworksCreateCallback(result) {
+    if (result === SUCCESS) {
+        if (onCreateSimChange) {
+            window.webworks.event.once(_ID, "blackberry.push.create.simChangeCallback", onCreateSimChange);
+        }
+
+        if (onCreateSuccess) {
+            onCreateSuccess(new PushService());
+        }
+    } else {
+        if (onCreateFail) {
+            onCreateFail(result);
+        }
+
+        createInvokeTargetId = null;
+        createAppId = null;
+    }
+
+    onCreateSuccess = null;
+    onCreateFail = null;
+    onCreateSimChange = null;
+}
+
+function webworksCreateChannelCallback(info) {
+    if (onCreateChannel) {
+        onCreateChannel(info.result, info.token);
+        onCreateChannel = null;
+    }
+}
+
 /*
  * Define methods of blackberry.push.PushService
  */
+
+PushService = function () {
+};
+
 PushService.create = function (options, successCallback, failCallback, simChangeCallback) {
-    var args = { "invokeTargetId" : options.invokeTargetId,
-                 "appId" : options.appId,
-                 "ppgUrl" : options.ppgUrl };
+    var args = { "invokeTargetId" : options.invokeTargetId || "",
+                 "appId" : options.appId || "",
+                 "ppgUrl" : options.ppgUrl || "" };
+
+    // Check if create() called more than once
+    if (createInvokeTargetId !== null) {
+        if (args.invokeTargetId !== createInvokeTargetId) {
+            throw "blackberry.push.PushService.create: cannot call create() multiple times with different invokeTargetId's";
+        }
+    }
+
+    if (createAppId !== null) {
+        if (args.appId !== createAppId) {
+            throw "blackberry.push.PushService.create: cannot call create() multiple times with different appId's";
+        }
+    }
+
+    createInvokeTargetId = args.invokeTargetId;
+    createAppId = args.appId;
 
     // Register callbacks for blackberry.push.create()
-    window.webworks.event.once(_ID, "blackberry.push.create.successCallback", successCallback);
-    window.webworks.event.once(_ID, "blackberry.push.create.failCallback", failCallback);
-    window.webworks.event.once(_ID, "blackberry.push.create.simChangeCallback", simChangeCallback);
+    onCreateSuccess = successCallback;
+    onCreateFail = failCallback;
+    onCreateSimChange = simChangeCallback;
+    window.webworks.event.once(_ID, "blackberry.push.create.callback", webworksCreateCallback);
 
     // Send command to framework to start Push service
     return window.webworks.execSync(_ID, "startService", args);
 };
 
-PushService.createChannel = function (createChannelCallback) {
+PushService.prototype.createChannel = function (createChannelCallback) {
     // Register callbacks for blackberry.push.createChannel()
-    window.webworks.event.once(_ID, "blackberry.push.createChannel.callback", createChannelCallback);
+    onCreateChannel = createChannelCallback;
+    window.webworks.event.once(_ID, "blackberry.push.createChannel.callback", webworksCreateChannelCallback);
 
     // Send command to framework to create Push channel
     return window.webworks.execSync(_ID, "createChannel", null);
 };
 
-PushService.destroyChannel = function (destroyChannelCallback) {
+PushService.prototype.destroyChannel = function (destroyChannelCallback) {
     // Register callbacks for blackberry.push.destroyChannel()
     window.webworks.event.once(_ID, "blackberry.push.destroyChannel.callback", destroyChannelCallback);
 
@@ -74,20 +132,56 @@ PushService.destroyChannel = function (destroyChannelCallback) {
     return window.webworks.execSync(_ID, "destroyChannel", null);
 };
 
-PushService.extractPushPayload = function (invokeObject) {
-    // Send command to framework to get the Push play load object
-    var payload = window.webworks.execSync(_ID, "extractPushPayload", invokeObject);
+PushService.prototype.extractPushPayload = function (invokeObject) {
+    var args,
+        payload,
+        data_array,
+        blob_builder,
+        error_string;
+
+    error_string = "blackberry.push.PushService.extractPushPayload: the invoke object was invalid and no PushPayload could be extracted from it";
+
+    if (!invokeObject.data) {
+        throw error_string;
+    }
+
+    // Send command to framework to get the Push payload object
+    args = { "data" : invokeObject.data };
+    payload = window.webworks.execSync(_ID, "extractPushPayload", args);
+
+    if (!payload.valid) {
+        throw error_string;
+    }
+
+    // Data is returned as byte array.  Convert to blob.
+    if (payload.data) {
+        data_array = new Uint8Array(payload.data);
+
+        if (window.BlobBuilder) {
+            blob_builder = new window.BlobBuilder();
+            blob_builder.append(data_array.buffer);
+            payload.data = blob_builder.getBlob("arraybuffer");
+        } else if (window.WebKitBlobBuilder) {
+            blob_builder = new window.WebKitBlobBuilder();
+            blob_builder.append(data_array.buffer);
+            payload.data = blob_builder.getBlob("arraybuffer");
+        } else {
+            payload.data = new window.Blob([data_array.buffer], { "type" : "arraybuffer" });
+        }
+    }
 
     // Create blackberry.push.PushPayload object and return it
     return new PushPayload(payload);
 };
 
-PushService.launchApplicationOnPush = function (shouldLaunch, launchApplicationCallback) {
+PushService.prototype.launchApplicationOnPush = function (shouldLaunch, launchApplicationCallback) {
+    var args = { "shouldLaunch" : shouldLaunch };
+
     // Register callbacks for blackberry.push.launchApplicationOnPush()
     window.webworks.event.once(_ID, "blackberry.push.launchApplicationOnPush.callback", launchApplicationCallback);
 
     // Send command to framework to set the launch flag
-    return window.webworks.execSync(_ID, "launchApplicationOnPush", shouldLaunch);
+    return window.webworks.execSync(_ID, "launchApplicationOnPush", args);
 };
 
 /*
@@ -120,11 +214,14 @@ window.webworks.defineReadOnlyField(PushService, "MISSING_INVOKE_TARGET_ID", MIS
  * Define blackberry.push.PushPayload
  */
 PushPayload = function (payload) {
-    this.payload = payload;
+    window.webworks.defineReadOnlyField(this, "data", payload.data);
+    window.webworks.defineReadOnlyField(this, "headers", payload.headers);
+    window.webworks.defineReadOnlyField(this, "id", payload.id);
+    window.webworks.defineReadOnlyField(this, "isAcknowledgeRequired", payload.isAcknowledgeRequired);
 };
 
 PushPayload.prototype.acknowledge = function (shouldAcceptPush) {
-    var args = {"id": this.id, "shouldAcceptPush" : shouldAcceptPush};
+    var args = {"id" : this.id, "shouldAcceptPush" : shouldAcceptPush};
 
     // Send command to framework to acknowledge the Push payload
     return window.webworks.execSync(_ID, "acknowledge", args);
