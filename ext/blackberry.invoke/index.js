@@ -25,13 +25,12 @@ var APP_URL_BROWSER = "http://",
             context: require("./invocationEvents"),
             event: "invoked",
             trigger: function () {
-                 var onInvokedInfo = JSON.parse(qnx.callExtensionMethod('invocation.invokeRequest'));
+                var onInvokedInfo = JSON.parse(qnx.callExtensionMethod('invocation.invokeRequest'));
                 _event.trigger("invoked", onInvokedInfo);
             },
             isPersistent: function () {
-                var application = window.qnx.webplatform.getApplication(), 
-                uri = application.getenv('uri');
-                return application.invocation.getStartupMode() !== 0;
+                var application = window.qnx.webplatform.getApplication();
+                return application.invocation.getStartupMode() !== application.invocation.LAUNCH;
             }
         }
     };
