@@ -24,14 +24,17 @@ var APP_URL_BROWSER = "http://",
         invoked: {
             context: require("./invocationEvents"),
             event: "invoked",
-            trigger: function (onInvokedInfo) {
-                onInvokedInfo = JSON.parse(onInvokedInfo);
-
+            trigger: function () {
+                 var onInvokedInfo = JSON.parse(qnx.callExtensionMethod('invocation.invokeRequest'));
                 _event.trigger("invoked", onInvokedInfo);
+            },
+            isPersistent: function () {
+                var application = window.qnx.webplatform.getApplication(), 
+                uri = application.getenv('uri');
+                return application.invocation.getStartupMode() !== 0;
             }
         }
     };
-
 
 module.exports = {
     invoke: function (success, fail, args) {

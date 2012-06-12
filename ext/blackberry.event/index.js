@@ -28,9 +28,12 @@ module.exports = {
                 action = _actionMap[eventName];
 
             _event.add(action);
-
+            
             if (success) {
                 success();
+            }
+            if (action && action.isPersistent && action.isPersistent()) {
+                action.trigger();
             }
         }
         catch (e) {
