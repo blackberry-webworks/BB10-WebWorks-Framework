@@ -26,9 +26,10 @@ module.exports = {
             },
             
             output = "",//webworks.js output
-            version = fs.readFileSync("version", "utf-8").trim(),
             clientFilesPath,
-            webworksHash,
+            wwVersion = fs.readFileSync("version", "utf-8").trim(),
+            wwHash,
+            wwInfoModule,
             
             //output sections
             pre_injection,
@@ -58,14 +59,19 @@ module.exports = {
         
         //Hash the sections
         shasum.update((pre_injection + post_injection).replace(/\\r\\n/g, "\\n"));//convert CRLF to LF
-        webworksHash = shasum.digest('hex');
+        wwHash = shasum.digest('hex');
         
-        //Create webworks-version to be placed in bar and respresent the framework version[hash].
+        wwInfoModule = "module.exports = {\n" +
+            "\thash: \"" + wwHash + "\",\n" +
+            "\tversion: \"" + wwVersion + "\"\n" +
+            "};";
+        
+        //Create webworks-info to be placed in bar and respresent the framework version[hash].
         //This is neccessary to determine if the apps webworks.js is compatible with the framework.
-        fs.writeFileSync(__dirname.replace(/\\/g, '/') + "/../../lib/webworks-version.js", "module.exports = \"" + webworksHash + "\";\n");
+        fs.writeFileSync(__dirname.replace(/\\/g, '/') + "/../../lib/webworks-info.js", wwInfoModule);
         
         //Inject a define into the webworks.js that will represent its version[hash]
-        hash_injection = include(["lib/webworks-version.js"], transformCallback);
+        hash_injection = include(["lib/webworks-info.js"], transformCallback);
         
         //output
         output = pre_injection + hash_injection + post_injection;
@@ -77,6 +83,6 @@ module.exports = {
         }
         
         //Create webworks.js file
-        fs.writeFileSync(clientFilesPath + "/webworks-" + version + ".js", output);
+        fs.writeFileSync(clientFilesPath + "/webworks-" + wwVersion + ".js", output);
     }
 };

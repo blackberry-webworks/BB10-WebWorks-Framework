@@ -55,7 +55,7 @@ describe("extensions", function () {
         it("returns 412 when the client webworks.js is incompatible with the framework", function () {
             var reqWithHash = {
                 params: {
-                    ext: "?webworksVersion=2af67c1a4739f6f3f307dcc7601d35fc"//random hash for client webworks.js
+                    ext: "?hash=2af67c1a4739f6f3f307dcc7601d35fc&version=1.0.0.7"//random hash/version for client webworks.js
                 }
             };
             
