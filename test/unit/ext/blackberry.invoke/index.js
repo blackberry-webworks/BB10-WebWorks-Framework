@@ -18,17 +18,32 @@ var _apiDir = __dirname + "./../../../../ext/blackberry.invoke/",
     _libDir = __dirname + "./../../../../lib/",
     events = require(_libDir + "event"),
     eventExt = require(__dirname + "./../../../../ext/blackberry.event/index"),
+    mockedInvocation,
     index;
 
 describe("blackberry.invoke index", function () {
 
     beforeEach(function () {
-        GLOBAL.qnx = {callExtensionMethod : function () {}};
+        mockedInvocation = {
+            addEventListener: jasmine.createSpy("invocation addEventListener"),
+            removeEventListener: jasmine.createSpy("invocation removeEventListener"),
+            getStartupMode: jasmine.createSpy("getStartupMode")
+        };
+        GLOBAL.window.qnx = {
+            callExtensionMethod : function () {},
+            webplatform: {
+                getApplication: function () {
+                    return {
+                        invocation: mockedInvocation
+                    };
+                }
+            }
+        };
         index = require(_apiDir + "index");
     });
 
     afterEach(function () {
-        GLOBAL.qnx = null;
+        GLOBAL.window.qnx = null;
         index = null;
     });
 

@@ -32,9 +32,6 @@ module.exports = {
             if (success) {
                 success();
             }
-            if (action && action.isPersistent && action.isPersistent()) {
-                action.trigger();
-            }
         }
         catch (e) {
             if (fail) {

@@ -27,10 +27,6 @@ var APP_URL_BROWSER = "http://",
             trigger: function () {
                 var onInvokedInfo = JSON.parse(qnx.callExtensionMethod('invocation.invokeRequest'));
                 _event.trigger("invoked", onInvokedInfo);
-            },
-            isPersistent: function () {
-                var application = window.qnx.webplatform.getApplication();
-                return application.invocation.getStartupMode() !== application.invocation.LAUNCH;
             }
         }
     };

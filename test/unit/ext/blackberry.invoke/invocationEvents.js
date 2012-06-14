@@ -16,16 +16,16 @@
 
 var _apiDir = __dirname + "./../../../../ext/blackberry.invoke/",
     _libDir = __dirname + "./../../../../lib/",
-    invocationEvents = require(_apiDir + "invocationEvents"),
+    invocationEvents,
     mockedInvocation;
 
 describe("blackberry.invoke invocationEvents", function () {
     beforeEach(function () {
         mockedInvocation = {
             addEventListener: jasmine.createSpy("invocation addEventListener"),
-            removeEventListener: jasmine.createSpy("invocation removeEventListener")
+            removeEventListener: jasmine.createSpy("invocation removeEventListener"),
+            getStartupMode: jasmine.createSpy("getStartupMode")
         };
-        GLOBAL.window = {};
         GLOBAL.window.qnx = {
             webplatform: {
                 getApplication: function () {
@@ -35,6 +35,7 @@ describe("blackberry.invoke invocationEvents", function () {
                 }
             }
         };
+        invocationEvents = require(_apiDir + "invocationEvents");
     });
 
     afterEach(function () {

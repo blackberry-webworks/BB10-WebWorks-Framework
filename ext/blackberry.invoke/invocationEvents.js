@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var _application = window.qnx.webplatform.getApplication(),
+    _startupMode = _application.invocation.getStartupMode();
 
 module.exports = {
     addEventListener: function (event, trigger) {
         if (event === "invoked") {
+            if (_startupMode !== _application.invocation.LAUNCH) {
+                trigger();
+                _startupMode = _application.invocation.INVOKE;
+            }
             window.qnx.webplatform.getApplication().invocation.addEventListener("Invoked", trigger);
         }
         else {
