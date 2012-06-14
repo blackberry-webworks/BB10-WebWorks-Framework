@@ -27,7 +27,10 @@ describe("blackberry.invoke index", function () {
         mockedInvocation = {
             addEventListener: jasmine.createSpy("invocation addEventListener"),
             removeEventListener: jasmine.createSpy("invocation removeEventListener"),
-            getStartupMode: jasmine.createSpy("getStartupMode")
+            getStartupMode: jasmine.createSpy("getStartupMode").andCallFake(function () {
+                return 0;
+            }),
+            LAUNCH: 0
         };
         GLOBAL.window.qnx = {
             callExtensionMethod : function () {},
@@ -39,6 +42,9 @@ describe("blackberry.invoke index", function () {
                 }
             }
         };
+        //since multiple tests are requiring invocation events we must unrequire
+        var name = require.resolve(_apiDir + "invocationEvents");
+        delete require.cache[name];
         index = require(_apiDir + "index");
     });
 

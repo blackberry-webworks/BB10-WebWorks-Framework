@@ -17,6 +17,7 @@
 var _apiDir = __dirname + "./../../../../ext/blackberry.invoke/",
     _libDir = __dirname + "./../../../../lib/",
     invocationEvents,
+    startupMode,
     mockedInvocation;
 
 describe("blackberry.invoke invocationEvents", function () {
@@ -24,7 +25,10 @@ describe("blackberry.invoke invocationEvents", function () {
         mockedInvocation = {
             addEventListener: jasmine.createSpy("invocation addEventListener"),
             removeEventListener: jasmine.createSpy("invocation removeEventListener"),
-            getStartupMode: jasmine.createSpy("getStartupMode")
+            getStartupMode: jasmine.createSpy("getStartupMode").andCallFake(function () {
+                return startupMode;
+            }),
+            LAUNCH: 0
         };
         GLOBAL.window.qnx = {
             webplatform: {
@@ -35,20 +39,30 @@ describe("blackberry.invoke invocationEvents", function () {
                 }
             }
         };
+        startupMode = 1;
+        //since multiple tests are requiring invocation events we must unrequire
+        var name = require.resolve(_apiDir + "invocationEvents");
+        delete require.cache[name];
         invocationEvents = require(_apiDir + "invocationEvents");
     });
 
     afterEach(function () {
         mockedInvocation = null;
-        GLOBAL.qnx = null;
+        GLOBAL.window.qnx = null;
     });
 
     describe("addEventListener", function () {
-        var trigger = function () {};
+        var trigger = jasmine.createSpy("trigger");
 
         it("calls framework setOnInvoked for 'invoked' event", function () {
             invocationEvents.addEventListener("invoked", trigger);
             expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("Invoked", trigger);
+        });
+
+        it("calls framework setOnInvoked right away when startupMode is Invoke", function () {
+            invocationEvents.addEventListener("invoked", trigger);
+            expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("Invoked", trigger);
+            expect(trigger).toHaveBeenCalled();
         });
     });
 
