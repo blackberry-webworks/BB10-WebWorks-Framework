@@ -21,7 +21,7 @@ module.exports = {
         if (event === "invoked") {
             if (_startupMode !== _application.invocation.LAUNCH) {
                 trigger();
-                _startupMode = _application.invocation.INVOKE;
+                _startupMode = _application.invocation.LAUNCH;
             }
             window.qnx.webplatform.getApplication().invocation.addEventListener("Invoked", trigger);
         }
