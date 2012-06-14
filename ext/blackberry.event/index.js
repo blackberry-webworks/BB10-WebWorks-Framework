@@ -28,7 +28,7 @@ module.exports = {
                 action = _actionMap[eventName];
 
             _event.add(action);
-            
+
             if (success) {
                 success();
             }

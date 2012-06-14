@@ -134,7 +134,7 @@ describe("blackberry.invoke index", function () {
             expect(qnx.callExtensionMethod).not.toHaveBeenCalled();
         });
     });
-    
+
     describe("'invoked' event", function () {
         it("can register for 'invoked' event", function () {
             var evts = ["invoked"],
@@ -144,13 +144,13 @@ describe("blackberry.invoke index", function () {
             spyOn(events, "add");
 
             evts.forEach(function (e) {
-                args = {eventName : encodeURIComponent(e)}; 
+                args = {eventName : encodeURIComponent(e)};
                 index.registerEvents(success);
                 eventExt.add(null, null, args);
                 expect(success).toHaveBeenCalled();
                 expect(events.add).toHaveBeenCalled();
                 expect(events.add.mostRecentCall.args[0].event).toEqual(e);
-                expect(events.add.mostRecentCall.args[0].trigger).toEqual(jasmine.any(Function));                
+                expect(events.add.mostRecentCall.args[0].trigger).toEqual(jasmine.any(Function));
             });
         });
 

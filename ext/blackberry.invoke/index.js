@@ -101,7 +101,7 @@ module.exports = {
         
         success();
     },
-    
+
     registerEvents: function (success, fail, args, env) {
         try {
             _eventExt.registerEvents(_actionMap);
