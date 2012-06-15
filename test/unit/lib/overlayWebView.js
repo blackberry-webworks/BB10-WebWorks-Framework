@@ -1,20 +1,13 @@
-describe("webview", function () {
+describe("Overlay Webview", function () {
     var webview,
         libPath = "./../../../", 
         mockedController,
         mockedWebview,
-        mockedApplication,
+        mockedApplicationWindow,
         request = require(libPath + "lib/request");
 
     beforeEach(function () {
-        webview = require(libPath + "lib/webview");
-        mockedController = {
-            enableWebInspector: undefined,
-            enableCrossSiteXHR: undefined,
-            visible: undefined,
-            active: undefined,
-            setGeometry: jasmine.createSpy()            
-        };
+        webview = require(libPath + "lib/overlayWebView");
         mockedWebview = {
             id: 42,
             enableCrossSiteXHR: undefined,
@@ -22,15 +15,15 @@ describe("webview", function () {
             active: undefined,
             zOrder: undefined,
             url: undefined,
-            setFileSystemSandbox: undefined,
             setGeometry: jasmine.createSpy(),
             onNetworkResourceRequested: undefined,
             destroy: jasmine.createSpy(),
             executeJavaScript: jasmine.createSpy(),
-            windowGroup: undefined
+            windowGroup: undefined,
+            addEventListener: jasmine.createSpy()
         };
-        mockedApplication = {
-            windowVisible: undefined
+        mockedApplicationWindow = {
+            visible: undefined
         };
         GLOBAL.qnx = {
             callExtensionMethod: jasmine.createSpy(),
@@ -44,8 +37,8 @@ describe("webview", function () {
                     runs(createFunction);
                     return mockedWebview;
                 },
-                getApplication: function () {
-                    return mockedApplication;
+                getApplicationWindow: function () {
+                    return mockedApplicationWindow;
                 }
             }
         };
@@ -67,10 +60,11 @@ describe("webview", function () {
                 expect(mockedWebview.enableCrossSiteXHR).toEqual(true);
                 expect(mockedWebview.visible).toEqual(true);
                 expect(mockedWebview.active).toEqual(true);
-                expect(mockedWebview.zOrder).toEqual(0);
+                expect(mockedWebview.zOrder).toEqual(1);
                 expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, screen.width, screen.height);
-                expect(mockedWebview.setFileSystemSandbox).toEqual(false);
-                expect(mockedApplication.windowVisible).toEqual(true);
+
+                expect(mockedApplicationWindow.visible).toEqual(true);
+
                 expect(request.init).toHaveBeenCalledWith(mockedWebview);
                 expect(mockedWebview.onNetworkResourceRequested).toEqual(request.init(mockedWebview).networkResourceRequestedHandler);
             });
