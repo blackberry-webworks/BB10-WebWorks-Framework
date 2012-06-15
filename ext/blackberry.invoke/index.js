@@ -25,7 +25,7 @@ var APP_URL_BROWSER = "http://",
             context: require("./invocationEvents"),
             event: "invoked",
             trigger: function () {
-                var onInvokedInfo = JSON.parse(qnx.callExtensionMethod('invocation.invokeRequest'));
+                var onInvokedInfo = JSON.parse(window.qnx.webplatform.getApplication().invocation.getRequest());
                 _event.trigger("invoked", onInvokedInfo);
             }
         }
