@@ -72,4 +72,5 @@ describe("blackberry.device client", function () {
 		//	expect(mockedWebworks.defineReadOnlyField).toHaveBeenCalledWith(client, "hardwareid", somevalue);
 		//	expect(mockedWebworks.defineReadOnlyField).toHaveBeenCalledWith(client, "version", somevalue);
         //});
-});
+	}
+);

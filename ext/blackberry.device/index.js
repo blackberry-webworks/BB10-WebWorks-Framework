@@ -19,7 +19,7 @@ var _ppsUtils = require("../../lib/pps/ppsUtils"),
 /*
  * Read the PPS object once and cache it for future calls
  */	
-function readDeviceProperties () {
+function readDeviceProperties() {
     var PPSUtils = _ppsUtils.createObject();
 
     PPSUtils.init();

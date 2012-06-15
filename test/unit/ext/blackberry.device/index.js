@@ -22,14 +22,14 @@ var _apiDir = __dirname + "./../../../../ext/blackberry.device/",
     mode = "0";
 
 describe("blackberry.device index", function () {
-    beforeEach(function () {		 
+    beforeEach(function () {
         GLOBAL.JNEXT = {};
         ppsUtils = require(_libDir + "pps/ppsUtils");
         index = require(_apiDir + "index");
         mockedPPS = {
             init: jasmine.createSpy(),
             open: jasmine.createSpy().andReturn(true),
-            read: jasmine.createSpy().andReturn({"hardwareid":"0x8500240a","scmbundle": "10.0.6.99"}),
+            read: jasmine.createSpy().andReturn({"hardwareid" : "0x8500240a", "scmbundle" : "10.0.6.99"}),
             close: jasmine.createSpy()
         };
     });
