@@ -99,8 +99,8 @@ JNEXT.FileTransfer = function () {
             } else if (strEventResult === "error") { 
                 args.result = strEventResult;
                 args.code = arData[3];
-                args.source = arData[4];
-                args.target = arData[5];
+                args.source = unescape(arData[4]);
+                args.target = unescape(arData[5]);
             }
 
             _event.trigger(_eventId, args);

@@ -49,10 +49,14 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
 
     FILE *upload_file = NULL;
 
+    std::string source_escaped(curl_easy_escape(curl, curl_easy_escape(curl, uploadInfo->sourceFile.c_str(), 0), 0));
+    std::string target_escaped(curl_easy_escape(curl, curl_easy_escape(curl, uploadInfo->targetURL.c_str(), 0), 0));
+
+
     // Initialize the easy interface for curl
     curl = curl_easy_init();
     if (!curl) {
-        return buildUploadErrorString(CONNECTION_ERR, uploadInfo->sourceFile, uploadInfo->targetURL);
+        return buildUploadErrorString(CONNECTION_ERR, source_escaped, target_escaped);
     }
 
     // Set up the form and fill in the file upload fields
@@ -60,7 +64,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
         upload_file = fopen(uploadInfo->sourceFile.c_str(), "r");
 
         if (!upload_file) {
-            return buildUploadErrorString(FILE_NOT_FOUND_ERR, uploadInfo->sourceFile, uploadInfo->targetURL);
+            return buildUploadErrorString(FILE_NOT_FOUND_ERR, source_escaped, target_escaped);
         }
 
         // Find the file size
@@ -140,9 +144,9 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
 
             result_string = buildUploadSuccessString(bytes_sent, http_code, write_data);
         } else if (http_code == 404) {
-            result_string = buildUploadErrorString(INVALID_URL_ERR, uploadInfo->sourceFile, uploadInfo->targetURL);
+            result_string = buildUploadErrorString(INVALID_URL_ERR, source_escaped, target_escaped);
         } else {
-            result_string = buildUploadErrorString(CONNECTION_ERR, uploadInfo->sourceFile, uploadInfo->targetURL);
+            result_string = buildUploadErrorString(CONNECTION_ERR, source_escaped, target_escaped);
         }
     } else {
         FileTransferErrorCodes error_code;
@@ -160,7 +164,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
             break;
         }
 
-        result_string = buildUploadErrorString(error_code, uploadInfo->sourceFile, uploadInfo->targetURL);
+        result_string = buildUploadErrorString(error_code, source_escaped, target_escaped);
     }
 
     // Clean up
