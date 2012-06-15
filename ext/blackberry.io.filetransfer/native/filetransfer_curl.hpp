@@ -52,7 +52,7 @@ public:
     static size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
 private:
     std::string buildUploadSuccessString(const int bytesSent, const int responseCode, const std::string& response);
-    std::string buildUploadErrorString(const int errorCode, const std::string& sourceFile, const std::string& targetURL);
+    std::string buildUploadErrorString(const int errorCode, const std::string& sourceFile, const std::string& targetURL, const int httpStatus);
 };
 
 } // namespace webworks

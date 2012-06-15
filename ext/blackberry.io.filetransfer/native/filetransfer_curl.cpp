@@ -52,11 +52,12 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     std::string source_escaped(curl_easy_escape(curl, curl_easy_escape(curl, uploadInfo->sourceFile.c_str(), 0), 0));
     std::string target_escaped(curl_easy_escape(curl, curl_easy_escape(curl, uploadInfo->targetURL.c_str(), 0), 0));
 
+    int http_status = -1;
 
     // Initialize the easy interface for curl
     curl = curl_easy_init();
     if (!curl) {
-        return buildUploadErrorString(CONNECTION_ERR, source_escaped, target_escaped);
+        return buildUploadErrorString(CONNECTION_ERR, source_escaped, target_escaped, http_status);
     }
 
     // Set up the form and fill in the file upload fields
@@ -64,7 +65,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
         upload_file = fopen(uploadInfo->sourceFile.c_str(), "r");
 
         if (!upload_file) {
-            return buildUploadErrorString(FILE_NOT_FOUND_ERR, source_escaped, target_escaped);
+            return buildUploadErrorString(FILE_NOT_FOUND_ERR, source_escaped, target_escaped, http_status);
         }
 
         // Find the file size
@@ -135,18 +136,17 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     result = curl_easy_perform(curl);
 
     if (result == CURLE_OK) {
-        int http_code;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_status);
 
-        if (http_code >= 200 && http_code < 300) {
+        if (http_status >= 200 && http_status < 300) {
             double bytes_sent;
             curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_UPLOAD, &bytes_sent);
 
-            result_string = buildUploadSuccessString(bytes_sent, http_code, write_data);
-        } else if (http_code == 404) {
-            result_string = buildUploadErrorString(INVALID_URL_ERR, source_escaped, target_escaped);
+            result_string = buildUploadSuccessString(bytes_sent, http_status, write_data);
+        } else if (http_status == 404) {
+            result_string = buildUploadErrorString(INVALID_URL_ERR, source_escaped, target_escaped, http_status);
         } else {
-            result_string = buildUploadErrorString(CONNECTION_ERR, source_escaped, target_escaped);
+            result_string = buildUploadErrorString(CONNECTION_ERR, source_escaped, target_escaped, http_status);
         }
     } else {
         FileTransferErrorCodes error_code;
@@ -164,7 +164,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
             break;
         }
 
-        result_string = buildUploadErrorString(error_code, source_escaped, target_escaped);
+        result_string = buildUploadErrorString(error_code, source_escaped, target_escaped, http_status);
     }
 
     // Clean up
@@ -192,7 +192,7 @@ std::string FileTransferCurl::buildUploadSuccessString(const int bytesSent, cons
     return ss.str();
 }
 
-std::string FileTransferCurl::buildUploadErrorString(const int errorCode, const std::string& sourceFile, const std::string& targetURL)
+std::string FileTransferCurl::buildUploadErrorString(const int errorCode, const std::string& sourceFile, const std::string& targetURL, const int httpStatus)
 {
     std::stringstream ss;
     ss << "upload error ";
@@ -201,6 +201,8 @@ std::string FileTransferCurl::buildUploadErrorString(const int errorCode, const 
     ss << sourceFile;
     ss << " ";
     ss << targetURL;
+    ss << " ";
+    ss << httpStatus;
 
     return ss.str();
 }

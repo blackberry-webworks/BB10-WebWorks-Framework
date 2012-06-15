@@ -53,6 +53,7 @@ _self.upload = function (filePath, server, successCallback, errorCallback, optio
             obj.code = args.code;
             obj.source = args.source;
             obj.target = args.target;
+            obj.http_status = args.http_status;
 
             errorCallback(obj);
         }

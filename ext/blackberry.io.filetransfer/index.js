@@ -84,7 +84,7 @@ JNEXT.FileTransfer = function () {
     };
 
     self.onEvent = function (strData) {
-        var arData = strData.split(" ", 6),
+        var arData = strData.split(" ", 7),
             _eventId = arData[0],
             strEventDesc = arData[1],
             strEventResult = arData[2],
@@ -101,6 +101,7 @@ JNEXT.FileTransfer = function () {
                 args.code = arData[3];
                 args.source = unescape(arData[4]);
                 args.target = unescape(arData[5]);
+                args.http_status = arData[6];
             }
 
             _event.trigger(_eventId, args);
