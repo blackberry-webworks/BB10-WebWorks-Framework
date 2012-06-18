@@ -26,20 +26,20 @@ function testDeviceReadOnly(field) {
 }
 
 describe("blackberry.device", function () {
-    it('blackberry.device.hardwareid should exist', function () {
-        testDeviceValue("hardwareid");
+    it('blackberry.device.hardwareId should exist', function () {
+        testDeviceValue("hardwareId");
     });
 
-    it('blackberry.identity.hardwareid should be read-only', function () {
-        testDeviceReadOnly("hardwareid");
+    it('blackberry.identity.hardwareId should be read-only', function () {
+        testDeviceReadOnly("hardwareId");
     });
 	
-	it('blackberry.device.version should exist', function () {
-        testDeviceValue("version");
+	it('blackberry.device.softwareVersion should exist', function () {
+        testDeviceValue("softwareVersion");
     });
 
-    it('blackberry.identity.version should be read-only', function () {
-        testDeviceReadOnly("version");
+    it('blackberry.identity.softwareVersion should be read-only', function () {
+        testDeviceReadOnly("softwareVersion");
     });
 
 });

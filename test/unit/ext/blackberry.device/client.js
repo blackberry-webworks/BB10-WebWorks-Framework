@@ -19,8 +19,8 @@ var _ID = "blackberry.device",
     client,
     mockedWebworks = {},
     fields = [
-        "hardwareid",
-		"version"
+        "hardwareId",
+		"softwareVersion"
     ],
     execSyncArgs = [];
 
@@ -60,11 +60,11 @@ describe("blackberry.device client", function () {
         });
 
         it("hardwareid", function () {
-            expect(mockedWebworks.execSync.argsForCall).toContain(execSyncArgs[fields.indexOf("hardwareid")]);
+            expect(mockedWebworks.execSync.argsForCall).toContain(execSyncArgs[fields.indexOf("hardwareId")]);
         });				
 		
 		it("version", function () {            
-			expect(mockedWebworks.execSync.argsForCall).toContain(execSyncArgs[fields.indexOf("version")]);            
+			expect(mockedWebworks.execSync.argsForCall).toContain(execSyncArgs[fields.indexOf("softwareVersion")]);            
         });
 		
 		//TODO is there a way to do this? Seems like toHaveBeenCalledWith only work is the function is called once

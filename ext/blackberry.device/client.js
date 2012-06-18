@@ -27,7 +27,7 @@ function getFieldValue(field) {
     return value;
 }
 
-window.webworks.defineReadOnlyField(_self, "hardwareid", getFieldValue("hardwareid"));
-window.webworks.defineReadOnlyField(_self, "version", getFieldValue("version"));
+window.webworks.defineReadOnlyField(_self, "hardwareId", getFieldValue("hardwareId"));
+window.webworks.defineReadOnlyField(_self, "softwareVersion", getFieldValue("softwareVersion"));
 
 module.exports = _self;

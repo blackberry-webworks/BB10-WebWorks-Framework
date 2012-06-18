@@ -32,7 +32,7 @@ function readDeviceProperties() {
 }
 
 module.exports = {
-    hardwareid: function (success, fail, args, env) {
+    hardwareId: function (success, fail, args, env) {
 		if (!_deviceprops) {
 			readDeviceProperties();          
 		}   
@@ -44,7 +44,7 @@ module.exports = {
 		}
     },		
 	
-	version: function (success, fail, args, env) {        
+	softwareVersion: function (success, fail, args, env) {        
 		if (!_deviceprops) {
 			readDeviceProperties();          
 		}   

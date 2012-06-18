@@ -41,13 +41,13 @@ describe("blackberry.device index", function () {
         mockedPPS = null;
     });
     
-	it("can call fail if failed to open PPS object for hardwareid", function () {		
+	it("can call fail if failed to open PPS object for hardwareId", function () {		
 		var fail = jasmine.createSpy();
 
 		mockedPPS.open = jasmine.createSpy().andReturn(false);
 		spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
 
-		index.hardwareid(null, fail, null, null);
+		index.hardwareId(null, fail, null, null);
 
 		expect(mockedPPS.init).toHaveBeenCalled();
 		expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
@@ -56,13 +56,13 @@ describe("blackberry.device index", function () {
 		expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
 	});
 
-	it("can call fail if failed to open PPS object for version", function () {		
+	it("can call fail if failed to open PPS object for softwareVersion", function () {		
 		var fail = jasmine.createSpy();
 
 		mockedPPS.open = jasmine.createSpy().andReturn(false);
 		spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
 
-		index.version(null, fail, null, null);
+		index.softwareVersion(null, fail, null, null);
 
 		expect(mockedPPS.init).toHaveBeenCalled();
 		expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
@@ -76,7 +76,7 @@ describe("blackberry.device index", function () {
 
 		spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
 
-		index.hardwareid(success, null, null, null);
+		index.hardwareId(success, null, null, null);
 
 		expect(mockedPPS.init).toHaveBeenCalled();
 		expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
@@ -85,12 +85,12 @@ describe("blackberry.device index", function () {
 		expect(success).toHaveBeenCalledWith("0x8500240a");
 	});			
 	
-	it("can call success with version", function () {
+	it("can call success with softwareVersion", function () {
 		var success = jasmine.createSpy();
 
 		spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
 
-		index.version(success, null, null, null);
+		index.softwareVersion(success, null, null, null);
 
 		// The PPS objects should have been init in the test above; once the PPS has been read it is cached
 		expect(mockedPPS.init).not.toHaveBeenCalled();
