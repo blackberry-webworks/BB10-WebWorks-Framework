@@ -63,4 +63,6 @@ _self.invoke = function (request, onSuccess, onError) {
     return window.webworks.execAsync(_ID, "invoke", {request: request});
 };
 
+window.webworks.execSync(_ID, "registerEvents", null);
+
 module.exports = _self;

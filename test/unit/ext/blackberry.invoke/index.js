@@ -16,6 +16,8 @@
 
 var _apiDir = __dirname + "./../../../../ext/blackberry.invoke/",
     _libDir = __dirname + "./../../../../lib/",
+    events = require(_libDir + "event"),
+    eventExt = require(__dirname + "./../../../../ext/blackberry.event/index"),
     mockedInvocation,
     index;
 
@@ -23,10 +25,17 @@ describe("blackberry.invoke index", function () {
 
     beforeEach(function () {
         mockedInvocation = {
-            invoke: jasmine.createSpy("invocation.invoke")
+            invoke: jasmine.createSpy("invocation.invoke"),
+            addEventListener: jasmine.createSpy("invocation addEventListener"),
+            removeEventListener: jasmine.createSpy("invocation removeEventListener"),
+            getStartupMode: jasmine.createSpy("getStartupMode").andCallFake(function () {
+                return 0;
+            }),
+            LAUNCH: 0
         };
         GLOBAL.window = {};
         GLOBAL.window.qnx = {
+            callExtensionMethod : function () {},
             webplatform: {
                 getApplication: function () {
                     return {
@@ -35,12 +44,16 @@ describe("blackberry.invoke index", function () {
                 }
             }
         };
+
+        //since multiple tests are requiring invocation events we must unrequire
+        var name = require.resolve(_apiDir + "invocationEvents");
+        delete require.cache[name];
         index = require(_apiDir + "index");
     });
 
     afterEach(function () {
         mockedInvocation = null;
-        GLOBAL.qnx = null;
+        GLOBAL.window.qnx = null;
         index = null;
     });
 
@@ -68,5 +81,39 @@ describe("blackberry.invoke index", function () {
             uri: "http://www.rim.com"
         }, jasmine.any(Function));
         expect(successCB).toHaveBeenCalled();
+    });
+
+    describe("'invoked' event", function () {
+        it("can register for 'invoked' event", function () {
+            var evts = ["invoked"],
+                args,
+                success = jasmine.createSpy();
+
+            spyOn(events, "add");
+
+            evts.forEach(function (e) {
+                args = {eventName : encodeURIComponent(e)};
+                index.registerEvents(success);
+                eventExt.add(null, null, args);
+                expect(success).toHaveBeenCalled();
+                expect(events.add).toHaveBeenCalled();
+                expect(events.add.mostRecentCall.args[0].event).toEqual(e);
+                expect(events.add.mostRecentCall.args[0].trigger).toEqual(jasmine.any(Function));
+            });
+        });
+
+        it("can un-register from 'invoked' event", function () {
+            var evts = ["invoked"],
+                args;
+            spyOn(events, "remove");
+
+            evts.forEach(function (e) {
+                args = {eventName : encodeURIComponent(e)}; 
+                eventExt.remove(null, null, args);
+                expect(events.remove).toHaveBeenCalled();
+                expect(events.remove.mostRecentCall.args[0].event).toEqual(e);
+                expect(events.remove.mostRecentCall.args[0].trigger).toEqual(jasmine.any(Function));
+            });
+        });
     });
 });

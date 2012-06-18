@@ -20,7 +20,19 @@ var _event = require("../../lib/event"),
         "uri",
         "type",
         "data"
-    ];
+    ],
+    _event = require("./../../lib/event"),
+    _eventExt = require("./../blackberry.event/index"),
+    _actionMap = {
+        invoked: {
+            context: require("./invocationEvents"),
+            event: "invoked",
+            trigger: function () {
+                var onInvokedInfo = JSON.parse(window.qnx.webplatform.getApplication().invocation.getRequest());
+                _event.trigger("invoked", onInvokedInfo);
+            }
+        }
+    };
 
 module.exports = {
     invoke: function (success, fail, args) {
@@ -44,5 +56,15 @@ module.exports = {
 
         window.qnx.webplatform.getApplication().invocation.invoke(request, callback);
         success();
-    }
+    },
+
+    registerEvents: function (success, fail, args, env) {
+        try {
+            _eventExt.registerEvents(_actionMap);
+            success();
+        } catch (e) {
+            fail(-1, e);
+        }
+    },
+
 };
