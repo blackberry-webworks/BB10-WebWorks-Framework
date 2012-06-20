@@ -132,7 +132,6 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
     curl_easy_setopt(curl, CURLOPT_URL, uploadInfo->targetURL.c_str());
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
     // Perform file transfer (blocking)
     result = curl_easy_perform(curl);
