@@ -35,6 +35,7 @@ struct FileUploadInfo {
     std::vector<std::string> params;
     FileTransfer *pParent;
     bool chunkedMode;
+    int chunkSize;
 };
 
 enum FileTransferErrorCodes {
@@ -45,6 +46,7 @@ enum FileTransferErrorCodes {
 
 class FileTransferCurl {
 public:
+    static int MAX_CHUNK_SIZE;
     FileTransferCurl();
     ~FileTransferCurl();
     std::string Upload(FileUploadInfo *uploadInfo);

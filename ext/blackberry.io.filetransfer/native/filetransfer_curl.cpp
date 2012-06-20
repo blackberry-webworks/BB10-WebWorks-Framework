@@ -22,10 +22,9 @@
 
 #include "filetransfer_curl.hpp"
 
-// Set maximum chunk size to 1 MB
-#define MAX_CHUNK_SIZE 1048576
-
 namespace webworks {
+
+int FileTransferCurl::MAX_CHUNK_SIZE = 1048576;
 
 FileTransferCurl::FileTransferCurl()
 {
@@ -42,6 +41,8 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     CURL *curl;
     CURLcode result;
     std::string result_string;
+
+    MAX_CHUNK_SIZE = uploadInfo->chunkSize;
 
     struct curl_httppost *formpost = NULL;
     struct curl_httppost *lastptr = NULL;
@@ -125,7 +126,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
 
     // Allow redirects
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-    curl_easy_setopt(curl, CURLOPT_POSTREDIR,  CURL_REDIR_POST_ALL);
+    curl_easy_setopt(curl, CURLOPT_POSTREDIR, CURL_REDIR_POST_ALL);
 
     // Attach the different components
     curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);

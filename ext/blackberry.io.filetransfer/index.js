@@ -30,7 +30,8 @@ module.exports = {
                     "fileName": "image.jpg",
                     "mimeType": "image/jpeg",
                     "params": {},
-                    "chunkedMode": true
+                    "chunkedMode": true,
+                    "chunkSize": 1024
                 }
             },
             undefined_params = [];
@@ -46,6 +47,11 @@ module.exports = {
         // validate params
         if (undefined_params.length !== 0) {
             fail(-1, undefined_params + (undefined_params.length === 1 ? " is " : " are ") + "null");
+            return;
+        }
+
+        if (args.options && args.options.chunkSize <= 0) {
+            fail(-1, "chunkSize must be a postive number");
             return;
         }
 

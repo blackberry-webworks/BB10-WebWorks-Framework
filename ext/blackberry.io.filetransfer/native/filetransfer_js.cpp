@@ -98,6 +98,7 @@ std::string FileTransfer::StartUploadThread(const std::string& jsonObject)
     upload_info->fileName = optionsObject["fileName"].asString();
     upload_info->mimeType = optionsObject["mimeType"].asString();
     upload_info->chunkedMode = optionsObject["chunkedMode"].asBool();
+    upload_info->chunkSize = optionsObject["chunkSize"].asInt()*1024;
 
     const Json::Value paramsObject = optionsObject["params"];
     const Json::Value::Members paramsKeys = paramsObject.getMemberNames();
