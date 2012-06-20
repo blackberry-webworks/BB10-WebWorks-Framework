@@ -50,7 +50,8 @@ describe("blackberry.io.filetransfer index", function () {
                         "fileName": "test.gif",
                         "mimeType": "image/gif",
                         "params": { "test": "test" },
-                        "chunkedMode": false
+                        "chunkedMode": false,
+                        "chunkSize": 512
                     }))
                 },
                 expected_args = {
@@ -62,7 +63,8 @@ describe("blackberry.io.filetransfer index", function () {
                         "fileName": "test.gif",
                         "mimeType": "image/gif",
                         "params": { "test": "test" },
-                        "chunkedMode": false
+                        "chunkedMode": false,
+                        "chunkSize": 512
                     }
                 },
                 successCB = jasmine.createSpy(),
@@ -90,7 +92,8 @@ describe("blackberry.io.filetransfer index", function () {
                         "fileName": "image.jpg",
                         "mimeType": "image/jpeg",
                         "params": {},
-                        "chunkedMode": true
+                        "chunkedMode": true,
+                        "chunkSize": 1024
                     }
                 },
                 successCB = jasmine.createSpy(),
@@ -108,6 +111,24 @@ describe("blackberry.io.filetransfer index", function () {
                     "_eventId": encodeURIComponent(JSON.stringify("1")),
                     "filePath": encodeURIComponent(JSON.stringify("")),
                     "server": encodeURIComponent(JSON.stringify(""))
+                },
+                successCB = jasmine.createSpy(),
+                failCB = jasmine.createSpy();
+
+            index.upload(successCB, failCB, mocked_args, null);
+
+            expect(successCB).not.toHaveBeenCalled();
+            expect(failCB).toHaveBeenCalled();
+        });
+
+        it("should fail if chunkSize is not positive", function () {
+            var mocked_args = {
+                    "_eventId": encodeURIComponent(JSON.stringify("1")),
+                    "filePath": encodeURIComponent(JSON.stringify("2")),
+                    "server": encodeURIComponent(JSON.stringify("3")),
+                    "options": encodeURIComponent(JSON.stringify({
+                        "chunkSize": -1
+                    }))
                 },
                 successCB = jasmine.createSpy(),
                 failCB = jasmine.createSpy();
