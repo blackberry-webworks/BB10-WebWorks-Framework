@@ -24,7 +24,6 @@
 
 namespace webworks {
 
-// int FileTransferCurl::MAX_CHUNK_SIZE = 1048576;
 int max_chunk_size = 1048576;
 
 FileTransferCurl::FileTransferCurl()
@@ -236,4 +235,3 @@ size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
 
 
 } // namespace webworks
-
