@@ -24,7 +24,8 @@
 
 namespace webworks {
 
-int FileTransferCurl::MAX_CHUNK_SIZE = 1048576;
+// int FileTransferCurl::MAX_CHUNK_SIZE = 1048576;
+int max_chunk_size = 1048576;
 
 FileTransferCurl::FileTransferCurl()
 {
@@ -42,7 +43,7 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     CURLcode result;
     std::string result_string;
 
-    MAX_CHUNK_SIZE = uploadInfo->chunkSize;
+    max_chunk_size = uploadInfo->chunkSize;
 
     struct curl_httppost *formpost = NULL;
     struct curl_httppost *lastptr = NULL;
@@ -208,14 +209,14 @@ std::string FileTransferCurl::buildUploadErrorString(const int errorCode, const 
     return ss.str();
 }
 
-size_t FileTransferCurl::UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
+size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     char *read_data = static_cast<char *>(ptr);
     FILE *file = static_cast<FILE *>(userdata);
     size_t amount = 0;
 
-    if (MAX_CHUNK_SIZE < (size * nmemb)) {
-        amount = fread(ptr, 1, MAX_CHUNK_SIZE, file);
+    if (max_chunk_size < (size * nmemb)) {
+        amount = fread(ptr, 1, max_chunk_size, file);
     } else {
         amount = fread(ptr, size, nmemb, file);
     }
@@ -223,7 +224,7 @@ size_t FileTransferCurl::UploadReadCallback(void *ptr, size_t size, size_t nmemb
     return amount;
 }
 
-size_t FileTransferCurl::UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
+size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     std::string *write_data = static_cast<std::string *>(userdata);
 

@@ -44,14 +44,17 @@ enum FileTransferErrorCodes {
     CONNECTION_ERR = 3
 };
 
+extern int max_chunk_size;
+
+size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
+size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
+
+
 class FileTransferCurl {
 public:
-    static int MAX_CHUNK_SIZE;
     FileTransferCurl();
     ~FileTransferCurl();
     std::string Upload(FileUploadInfo *uploadInfo);
-    static size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
-    static size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
 private:
     std::string buildUploadSuccessString(const int bytesSent, const int responseCode, const std::string& response);
     std::string buildUploadErrorString(const int errorCode, const std::string& sourceFile, const std::string& targetURL, const int httpStatus);
