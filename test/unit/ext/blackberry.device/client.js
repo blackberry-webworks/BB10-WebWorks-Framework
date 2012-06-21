@@ -26,8 +26,6 @@ var _ID = "blackberry.device",
 
 beforeEach(function () {
     GLOBAL.window = GLOBAL;
-
-    
 });
 
 afterEach(function () {
@@ -61,16 +59,15 @@ describe("blackberry.device client", function () {
 
         it("hardwareid", function () {
             expect(mockedWebworks.execSync.argsForCall).toContain(execSyncArgs[fields.indexOf("hardwareId")]);
-        });				
-		
-		it("version", function () {            
-			expect(mockedWebworks.execSync.argsForCall).toContain(execSyncArgs[fields.indexOf("softwareVersion")]);            
         });
-		
-		//TODO is there a way to do this? Seems like toHaveBeenCalledWith only work is the function is called once
-		//it("readonly fields set", function () {            
-		//	expect(mockedWebworks.defineReadOnlyField).toHaveBeenCalledWith(client, "hardwareid", somevalue);
-		//	expect(mockedWebworks.defineReadOnlyField).toHaveBeenCalledWith(client, "version", somevalue);
-        //});
+
+		it("softwareVersion", function () {
+			expect(mockedWebworks.execSync.argsForCall).toContain(execSyncArgs[fields.indexOf("softwareVersion")]);
+        });
+
+		it("readonly fields set", function () {
+			expect(mockedWebworks.defineReadOnlyField).toHaveBeenCalledWith(client, "hardwareId", null);
+			expect(mockedWebworks.defineReadOnlyField).toHaveBeenCalledWith(client, "softwareVersion", null);
+        });
 	}
 );

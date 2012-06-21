@@ -18,7 +18,7 @@ var _ppsUtils = require("../../lib/pps/ppsUtils"),
 
 /*
  * Read the PPS object once and cache it for future calls
- */	
+ */
 function readDeviceProperties() {
     var PPSUtils = _ppsUtils.createObject();
 
@@ -26,7 +26,7 @@ function readDeviceProperties() {
 
     if (PPSUtils.open("/pps/services/deviceproperties", "0")) {
         _deviceprops = PPSUtils.read();
-    }   
+    }
 
     PPSUtils.close();
 }
@@ -34,20 +34,19 @@ function readDeviceProperties() {
 module.exports = {
     hardwareId: function (success, fail, args, env) {
 		if (!_deviceprops) {
-			readDeviceProperties();          
-		}   
+			readDeviceProperties();
+		}
 
 		if (_deviceprops) {
 			success(_deviceprops.hardwareid);
 		} else {
 			fail(-1, "Cannot open PPS object");
 		}
-    },		
-	
-	softwareVersion: function (success, fail, args, env) {        
+    },
+	softwareVersion: function (success, fail, args, env) {
 		if (!_deviceprops) {
-			readDeviceProperties();          
-		}   
+			readDeviceProperties();
+		}
 
 		if (_deviceprops) {
 			success(_deviceprops.scmbundle);

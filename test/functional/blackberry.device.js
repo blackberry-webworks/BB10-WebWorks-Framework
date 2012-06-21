@@ -33,7 +33,7 @@ describe("blackberry.device", function () {
     it('blackberry.identity.hardwareId should be read-only', function () {
         testDeviceReadOnly("hardwareId");
     });
-	
+
 	it('blackberry.device.softwareVersion should exist', function () {
         testDeviceValue("softwareVersion");
     });

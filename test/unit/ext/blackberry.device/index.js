@@ -40,8 +40,8 @@ describe("blackberry.device index", function () {
         index = null;
         mockedPPS = null;
     });
-    
-	it("can call fail if failed to open PPS object for hardwareId", function () {		
+
+	it("can call fail if failed to open PPS object for hardwareId", function () {
 		var fail = jasmine.createSpy();
 
 		mockedPPS.open = jasmine.createSpy().andReturn(false);
@@ -52,11 +52,11 @@ describe("blackberry.device index", function () {
 		expect(mockedPPS.init).toHaveBeenCalled();
 		expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
 		expect(mockedPPS.read).not.toHaveBeenCalled();
-		expect(mockedPPS.close).toHaveBeenCalled();            
+		expect(mockedPPS.close).toHaveBeenCalled();
 		expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
 	});
 
-	it("can call fail if failed to open PPS object for softwareVersion", function () {		
+	it("can call fail if failed to open PPS object for softwareVersion", function () {
 		var fail = jasmine.createSpy();
 
 		mockedPPS.open = jasmine.createSpy().andReturn(false);
@@ -67,7 +67,7 @@ describe("blackberry.device index", function () {
 		expect(mockedPPS.init).toHaveBeenCalled();
 		expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
 		expect(mockedPPS.read).not.toHaveBeenCalled();
-		expect(mockedPPS.close).toHaveBeenCalled();            
+		expect(mockedPPS.close).toHaveBeenCalled();
 		expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
 	});
 
@@ -83,8 +83,8 @@ describe("blackberry.device index", function () {
 		expect(mockedPPS.read).toHaveBeenCalled();
 		expect(mockedPPS.close).toHaveBeenCalled();
 		expect(success).toHaveBeenCalledWith("0x8500240a");
-	});			
-	
+	});
+
 	it("can call success with softwareVersion", function () {
 		var success = jasmine.createSpy();
 
@@ -98,5 +98,5 @@ describe("blackberry.device index", function () {
 		expect(mockedPPS.read).not.toHaveBeenCalled();
 		expect(mockedPPS.close).not.toHaveBeenCalled();
 		expect(success).toHaveBeenCalledWith("10.0.6.99");
-	});			
+	});
 });
