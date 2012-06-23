@@ -15,7 +15,8 @@
  */
 
 var filetransfer,
-    _event = require("../../lib/event");
+    _event = require("../../lib/event"),
+    _webview = require("../../lib/webview");
 
 module.exports = {
     upload: function (success, fail, args, env) {
@@ -31,7 +32,8 @@ module.exports = {
                     "mimeType": "image/jpeg",
                     "params": {},
                     "chunkedMode": true,
-                    "chunkSize": 1024
+                    "chunkSize": 1024,
+                    "windowGroup" : _webview.windowGroup()
                 }
             },
             undefined_params = [];
@@ -78,10 +80,10 @@ module.exports = {
 // JavaScript wrapper for JNEXT plugin
 ///////////////////////////////////////////////////////////////////
 
-JNEXT.FileTransfer = function () {   
+JNEXT.FileTransfer = function () {
     var self = this;
 
-    self.upload = function (args) {  
+    self.upload = function (args) {
         return JNEXT.invoke(self.m_id, "upload " + JSON.stringify(args));
     };
 

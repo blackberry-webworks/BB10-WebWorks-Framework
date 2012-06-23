@@ -18,6 +18,7 @@
 #define FILETRANSFER_CURL_H_
 
 #include <curl/curl.h>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -36,6 +37,7 @@ struct FileUploadInfo {
     FileTransfer *pParent;
     bool chunkedMode;
     int chunkSize;
+    std::string windowGroup;
 };
 
 enum FileTransferErrorCodes {
@@ -49,6 +51,7 @@ extern int max_chunk_size;
 size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
 size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
 
+typedef std::map<std::string, bool> DomainVerifyMap;
 
 class FileTransferCurl {
 public:
@@ -56,6 +59,10 @@ public:
     ~FileTransferCurl();
     std::string Upload(FileUploadInfo *uploadInfo);
 private:
+    DomainVerifyMap *m_pVerifyMap;
+    void loadVerifyList();
+    void saveVerifyList();
+    std::string parseDomain(const std::string& url);
     std::string buildUploadSuccessString(const int bytesSent, const int responseCode, const std::string& response);
     std::string buildUploadErrorString(const int errorCode, const std::string& sourceFile, const std::string& targetURL, const int httpStatus);
 };

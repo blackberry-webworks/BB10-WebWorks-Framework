@@ -15,7 +15,10 @@
  */
 
 #include <curl/curl.h>
+#include <dialog_bps.hpp>
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -28,12 +31,19 @@ int max_chunk_size = 1048576;
 
 FileTransferCurl::FileTransferCurl()
 {
+    m_pVerifyMap = new DomainVerifyMap();
+
     curl_global_init(CURL_GLOBAL_ALL);
+    loadVerifyList();
 }
 
 FileTransferCurl::~FileTransferCurl()
 {
     curl_global_cleanup();
+
+    if (m_pVerifyMap) {
+        delete m_pVerifyMap;
+    }
 }
 
 std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
@@ -132,10 +142,68 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
     curl_easy_setopt(curl, CURLOPT_URL, uploadInfo->targetURL.c_str());
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1);
+
+    bool blockedDomain = false;
+    const std::string parsedDomain(parseDomain(uploadInfo->targetURL.c_str()));
+    const DomainVerifyMap::iterator findDomain = m_pVerifyMap->find(parsedDomain);
+
+    if (findDomain != m_pVerifyMap->end()) {
+        if (findDomain->second) {
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+        } else {
+            blockedDomain = true;
+        }
+    }
 
     // Perform file transfer (blocking)
     result = curl_easy_perform(curl);
+
+    if (result == CURLE_SSL_CACERT)
+    {
+        if (!blockedDomain) {
+            DialogConfig *dialogConfig = new DialogConfig();
+            DialogBPS *dialog = new DialogBPS();
+            dialogConfig->size = "large";
+            dialogConfig->windowGroup = uploadInfo->windowGroup;
+            dialogConfig->message = "The certificate for the domain " + parsedDomain + " could not be verified.\n\nDo you want to continue connecting to this server?";
+            dialogConfig->buttons.push_back("Allow");
+            dialogConfig->buttons.push_back("Allow Always");
+            dialogConfig->buttons.push_back("Deny");
+            dialogConfig->buttons.push_back("Deny Always");
+
+            int button = dialog->Show(dialogConfig);
+
+            if (dialogConfig) {
+                delete dialogConfig;
+            }
+
+            if (dialog) {
+                delete dialog;
+            }
+
+            switch (button) {
+                case 0:
+                case 1:
+                    // restart transfer
+                    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+                    result = curl_easy_perform(curl);
+                    if (button == 0)
+                        break;
+                    m_pVerifyMap->insert(DomainVerifyMap::value_type(parsedDomain, true));
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    m_pVerifyMap->insert(DomainVerifyMap::value_type(parsedDomain, false));
+                    break;
+                default:
+                    break;
+            }
+            saveVerifyList();
+        }
+    }
 
     if (result == CURLE_OK) {
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_status);
@@ -152,18 +220,17 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
         }
     } else {
         FileTransferErrorCodes error_code;
-        switch (result)
-        {
-        case CURLE_READ_ERROR:
-        case CURLE_FILE_COULDNT_READ_FILE:
-            error_code = FILE_NOT_FOUND_ERR;
-            break;
-        case CURLE_URL_MALFORMAT:
-            error_code = INVALID_URL_ERR;
-            break;
-        default:
-            error_code = CONNECTION_ERR;
-            break;
+        switch (result) {
+            case CURLE_READ_ERROR:
+            case CURLE_FILE_COULDNT_READ_FILE:
+                error_code = FILE_NOT_FOUND_ERR;
+                break;
+            case CURLE_URL_MALFORMAT:
+                error_code = INVALID_URL_ERR;
+                break;
+            default:
+                error_code = CONNECTION_ERR;
+                break;
         }
 
         result_string = buildUploadErrorString(error_code, source_escaped, target_escaped, http_status);
@@ -179,6 +246,54 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     curl_slist_free_all(headerlist);
 
     return result_string;
+}
+
+std::string FileTransferCurl::parseDomain(const std::string &url)
+{
+    int index = std::string("https://").length();
+    return url.substr(index, url.substr(index, url.length()).find_first_of("/"));
+}
+
+void FileTransferCurl::loadVerifyList()
+{
+    std::string fname = std::getenv("HOME");
+    fname.append("/../app/native/verifiedDomainList");
+
+    std::string line;
+    std::ifstream domainList(fname.c_str());
+
+    if (domainList.is_open()) {
+        while (domainList.good()) {
+            std::string strDomain;
+            std::string strAllowed;
+
+            std::getline(domainList, strDomain, ',');
+            std::getline(domainList, strAllowed, ',');
+            m_pVerifyMap->insert(DomainVerifyMap::value_type(strDomain, static_cast<bool>(std::atoi(strAllowed.c_str()))));
+        }
+
+        domainList.close();
+    }
+}
+
+void FileTransferCurl::saveVerifyList()
+{
+    DomainVerifyMap::iterator it;
+    std::string fname = std::getenv("HOME");
+    fname.append("/../app/native/verifiedDomainList");
+
+    if (m_pVerifyMap->size() > 0)
+    {
+        std::ofstream domainList(fname.c_str());
+
+        if (domainList.is_open()) {
+            for (it = m_pVerifyMap->begin(); it != m_pVerifyMap->end(); it++) {
+                domainList << it->first << "," << it->second;
+            }
+
+            domainList.close();
+        }
+    }
 }
 
 std::string FileTransferCurl::buildUploadSuccessString(const int bytesSent, const int responseCode, const std::string& response)

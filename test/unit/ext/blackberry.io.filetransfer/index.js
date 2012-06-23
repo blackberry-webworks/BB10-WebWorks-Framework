@@ -15,6 +15,7 @@
  */
 
 var root = __dirname + "/../../../../",
+    webview = require(root + "lib/webview"),
     index;
 
 describe("blackberry.io.filetransfer index", function () {
@@ -26,6 +27,7 @@ describe("blackberry.io.filetransfer index", function () {
             invoke: jasmine.createSpy()
         };
 
+        spyOn(webview, "windowGroup").andReturn(42);
         index = require(root + "ext/blackberry.io.filetransfer/index");
     });
 
@@ -64,7 +66,8 @@ describe("blackberry.io.filetransfer index", function () {
                         "mimeType": "image/gif",
                         "params": { "test": "test" },
                         "chunkedMode": false,
-                        "chunkSize": 512
+                        "chunkSize": 512,
+                        "windowGroup" : 42
                     }
                 },
                 successCB = jasmine.createSpy(),
@@ -93,7 +96,8 @@ describe("blackberry.io.filetransfer index", function () {
                         "mimeType": "image/jpeg",
                         "params": {},
                         "chunkedMode": true,
-                        "chunkSize": 1024
+                        "chunkSize": 1024,
+                        "windowGroup" : 42
                     }
                 },
                 successCB = jasmine.createSpy(),
