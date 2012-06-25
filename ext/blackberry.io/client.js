@@ -14,20 +14,32 @@
  * limitations under the License.
  */
 
-var io,
+var io = {},
     ID = "blackberry.io";
+
+function getFieldValue(field) {
+    var value;
+
+    try {
+        value = window.webworks.execSync(ID, field);
+    } catch (e) {
+        console.error(e);
+    }
+
+    return value;
+}
+
+function defineGetter(field) {
+    Object.defineProperty(io, field, {
+        get: function () {
+            return getFieldValue(field);
+        }
+    });
+}
 
 Object.defineProperty(io, "sandbox", {
     get: function () {
-        var sandbox;
-
-        try {
-            sandbox = window.webworks.execSync(ID, "sandbox");
-        } catch (e) {
-            console.error(e);
-        }
-
-        return sandbox;
+        return getFieldValue("sandbox");
     },
 
     set: function (value) {
@@ -39,18 +51,8 @@ Object.defineProperty(io, "sandbox", {
     }
 });
 
-Object.defineProperty(io, "home", {
-    get: function () {
-        var home;
-
-        try {
-            home = window.webworks.execSync(ID, "home");
-        } catch (e) {
-            console.error(e);
-        }
-
-        return home;
-    }
-});
+defineGetter("home");
+defineGetter("sharedFolder");
+defineGetter("SDCard");
 
 module.exports = io;

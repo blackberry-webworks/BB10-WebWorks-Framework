@@ -13,27 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var _webview = require("./../../lib/webview");
+var _util = require("./../../lib/utils"),
+    _webview;
 
 module.exports = {
     sandbox: function (success, fail, args, env) {
+        var value;
+
+        _webview = _util.requireWebview();
+
         if (args) {
-            var value = JSON.parse(decodeURIComponent(args["sandbox"]));
-            console.log("sandbox value = " + value);
+            value = JSON.parse(decodeURIComponent(args["sandbox"]));
             _webview.setSandbox(JSON.parse(value));
 
             if (success) {
                 success();
             }
         } else {
-            success(_webview.getSandbox());
+            value = _webview.getSandbox();
+            success(value === "1"); // always return "0" or "1" even after explicitly setting value to true or false
         }
     },
 
     home: function (success, fail, args, env) {
         success(window.qnx.webplatform.getApplication().getEnv("HOME"));
-    }
+    },
 
-    // shared
-    // SD card
+    sharedFolder: function (success, fail, args, env) {
+        var home = window.qnx.webplatform.getApplication().getEnv("HOME");
+        success(home + "/../shared");
+    },
+
+    SDCard: function (success, fail, args, env) {
+        var home = window.qnx.webplatform.getApplication().getEnv("HOME");
+        success(home + "/../../../removable/sdcard");
+    }
 };
