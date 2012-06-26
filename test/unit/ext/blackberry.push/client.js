@@ -292,7 +292,8 @@ describe("blackberry.push", function () {
             var extractPayloadError = "blackberry.push.PushService.extractPushPayload: the invoke object was invalid and no PushPayload could be extracted from it";
 
             it("returns a PushPayload object", function () {
-                var invokeObject = { "data" : "ABC" },
+                var invokeObject = { "data" : "ABC", "action" : "bb.action.PUSH" },
+                    calledObject = { "data" : "ABC" },
                     returnPayload = { "valid" : true },
                     pushService = new client.PushService(),
                     pushPayload;
@@ -302,11 +303,25 @@ describe("blackberry.push", function () {
 
                 expect(pushPayload).toBeDefined();
                 expect(pushPayload).toEqual(jasmine.any(client.PushPayload));
-                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "extractPushPayload", invokeObject);
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "extractPushPayload", calledObject);
             });
 
             it("checks that there is a data field in the invoke object", function () {
-                var invokeObject = {},
+                var invokeObject = { "action" : "bb.action.PUSH" },
+                    pushService = new client.PushService();
+
+                mockedWebworks.execSync = jasmine.createSpy();
+
+                function extractPayload() {
+                    pushService.extractPushPayload(invokeObject);
+                }
+
+                expect(extractPayload).toThrow(extractPayloadError);
+                expect(mockedWebworks.execSync).not.toHaveBeenCalled();
+            });
+
+            it("checks that the invoke action is bb.action.PUSH", function () {
+                var invokeObject = { "data" : "ABC" },
                     pushService = new client.PushService();
 
                 mockedWebworks.execSync = jasmine.createSpy();
@@ -320,7 +335,8 @@ describe("blackberry.push", function () {
             });
 
             it("checks that the returned payload is valid", function () {
-                var invokeObject = { "data" : "ABC" },
+                var invokeObject = { "data" : "ABC", "action" : "bb.action.PUSH" },
+                    calledObject = { "data" : "ABC" },
                     returnPayload = { "valid" : false },
                     pushService = new client.PushService();
 
@@ -331,7 +347,7 @@ describe("blackberry.push", function () {
                 }
 
                 expect(extractPayload).toThrow(extractPayloadError);
-                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "extractPushPayload", invokeObject);
+                expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "extractPushPayload", calledObject);
             });
         });
 
