@@ -141,7 +141,7 @@ PushService.prototype.extractPushPayload = function (invokeObject) {
 
     error_string = "blackberry.push.PushService.extractPushPayload: the invoke object was invalid and no PushPayload could be extracted from it";
 
-    if (!invokeObject.data) {
+    if (!invokeObject.data || invokeObject.action !== "bb.action.PUSH") {
         throw error_string;
     }
 
@@ -156,13 +156,10 @@ PushService.prototype.extractPushPayload = function (invokeObject) {
     // Data is returned as byte array.  Convert to blob.
     if (payload.data) {
         data_array = new Uint8Array(payload.data);
+        window.BlobBuilder = window.WebKitBlobBuilder || window.BlobBuilder;
 
         if (window.BlobBuilder) {
             blob_builder = new window.BlobBuilder();
-            blob_builder.append(data_array.buffer);
-            payload.data = blob_builder.getBlob("arraybuffer");
-        } else if (window.WebKitBlobBuilder) {
-            blob_builder = new window.WebKitBlobBuilder();
             blob_builder.append(data_array.buffer);
             payload.data = blob_builder.getBlob("arraybuffer");
         } else {
