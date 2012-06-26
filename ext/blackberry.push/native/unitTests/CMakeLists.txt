@@ -6,9 +6,10 @@ endif ()
 set(srcs
     test_main.cpp
     ../push_js.cpp
+    ../push_ndk.cpp
     ../../../../dependencies/JsonCpp/jsoncpp-src-0.5.0/src/lib_json/json_reader.cpp
     ../../../../dependencies/JsonCpp/jsoncpp-src-0.5.0/src/lib_json/json_value.cpp
-    ../../../../dependencies/JsonCpp/jsoncpp-src-0.5.0/src/lib_json/json_writer.cpp    
+    ../../../../dependencies/JsonCpp/jsoncpp-src-0.5.0/src/lib_json/json_writer.cpp
     ../../../../dependencies/jnext_1_0_8_3/jncore/jnext-extensions/common/plugin.cpp
     ../../../../dependencies/gtest/src/gmock-gtest-all.cc
 )

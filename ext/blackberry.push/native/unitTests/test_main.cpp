@@ -17,68 +17,61 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <json/reader.h>
-#include <json/writer.h>
 #include <semaphore.h>
 #include <string>
 #include <map>
-#include "../push_js.hpp"
+#include "../push_ndk.hpp"
 
 // Mock Object
-class MockPush : public Push {
+class MockPushNDK : public webworks::PushNDK {
 public:
-    MockPush() : Push("") {
+    MockPushNDK() : webworks::PushNDK(NULL) {
         sem_init(&m_waitSemaphore, 0, 0);
     }
 
-    virtual ~MockPush() {
+    virtual ~MockPushNDK() {
         sem_destroy(&m_waitSemaphore);
     }
 
-    MOCK_METHOD1(onCreateSessionComplete, void(const PushStatus&));
-    MOCK_METHOD2(onCreateChannelComplete, void(const PushStatus&, const std::string&));
-    MOCK_METHOD1(onDestroyChannelComplete, void(const PushStatus&));
-    MOCK_METHOD1(onRegisterToLaunchComplete, void(const PushStatus&));
-    MOCK_METHOD1(onUnregisterFromLaunchComplete, void(const PushStatus&));
+    MOCK_METHOD1(onCreateSessionComplete, void(const webworks::PushStatus&));
+    MOCK_METHOD2(onCreateChannelComplete, void(const webworks::PushStatus&, const std::string&));
+    MOCK_METHOD1(onDestroyChannelComplete, void(const webworks::PushStatus&));
+    MOCK_METHOD1(onRegisterToLaunchComplete, void(const webworks::PushStatus&));
+    MOCK_METHOD1(onUnregisterFromLaunchComplete, void(const webworks::PushStatus&));
 
-    void startServiceConcrete() {
-        Json::FastWriter writer;
-        Json::Value options;
-        options["invokeTargetId"] = Json::Value("net.rim.blackberry.pushtest.target1");
-        options["appId"] = Json::Value("1-RDce63it6363");
-        options["ppgUrl"] = Json::Value("http://pushapi.eval.blackberry.com");
+    void StartServiceConcrete() {
+        std::string invokeTargetId = "net.rim.blackberry.pushtest.target1";
+        std::string appId = "1-RDce63it6363";
+        std::string ppgUrl = "http://pushapi.eval.blackberry.com";
 
-        std::string command = "startService ";
-        command.append(writer.write(options));
-        InvokeMethod(command);
+        StartService(invokeTargetId, appId, ppgUrl);
     }
 
-    void createChannelConcrete() {
-        InvokeMethod("createChannel");
+    void CreateChannelConcrete() {
+        CreateChannel();
     }
 
-    void destroyChannelConcrete() {
-        InvokeMethod("destroyChannel");
+    void DestroyChannelConcrete() {
+        DestroyChannel();
     }
 
-    std::string extractPushPayloadConcrete(const std::string& invokeData) {
-        std::string command = "extractPushPayload ";
-        command.append(invokeData);
-        return InvokeMethod(command);
+    std::string ExtractPushPayloadConcrete(const std::string& invokeData) {
+        return ExtractPushPayload(invokeData);
     }
 
-    void registerToLaunchConcrete() {
-        InvokeMethod("registerToLaunch");
+    void RegisterToLaunchConcrete() {
+        RegisterToLaunch();
     }
 
-    void unregisterFromLaunchConcrete() {
-        InvokeMethod("unregisterFromLaunch");
+    void UnregisterFromLaunchConcrete() {
+        UnregisterFromLaunch();
     }
 
-    void waitForCallback() {
+    void WaitForCallback() {
         sem_wait(&m_waitSemaphore);
     }
 
-    void doneCallback() {
+    void DoneCallback() {
         sem_post(&m_waitSemaphore);
     }
 
@@ -90,99 +83,96 @@ private:
 // Unit tests
 
 TEST(PushService, CanStartService) {
-    MockPush *mock_push = new MockPush;
+    MockPushNDK *mock_push = new MockPushNDK;
 
-    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::doneCallback));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::DoneCallback));
 
-    mock_push->startServiceConcrete();
-    mock_push->waitForCallback();
+    mock_push->StartServiceConcrete();
+    mock_push->WaitForCallback();
 
     delete mock_push;
 }
 
 TEST(PushService, CanCreateChannel) {
-    MockPush *mock_push = new MockPush;
+    MockPushNDK *mock_push = new MockPushNDK;
 
-    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::createChannelConcrete));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::CreateChannelConcrete));
 
-    EXPECT_CALL(*mock_push, onCreateChannelComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR), ::testing::_))
+    EXPECT_CALL(*mock_push, onCreateChannelComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR), ::testing::_))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::doneCallback));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::DoneCallback));
 
-    mock_push->startServiceConcrete();
-    mock_push->waitForCallback();
+    mock_push->StartServiceConcrete();
+    mock_push->WaitForCallback();
 
     delete mock_push;
 }
 
 TEST(PushService, CanRegisterToLaunch) {
-    MockPush *mock_push = new MockPush;
+    MockPushNDK *mock_push = new MockPushNDK;
 
-    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::registerToLaunchConcrete));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::RegisterToLaunchConcrete));
 
-    EXPECT_CALL(*mock_push, onRegisterToLaunchComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onRegisterToLaunchComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::doneCallback));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::DoneCallback));
 
-    mock_push->startServiceConcrete();
-    mock_push->waitForCallback();
+    mock_push->StartServiceConcrete();
+    mock_push->WaitForCallback();
 
     delete mock_push;
 }
 
 TEST(PushService, CanUnregisterFromLaunch) {
-    MockPush *mock_push = new MockPush;
+    MockPushNDK *mock_push = new MockPushNDK;
 
-    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::unregisterFromLaunchConcrete));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::UnregisterFromLaunchConcrete));
 
-    EXPECT_CALL(*mock_push, onUnregisterFromLaunchComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onUnregisterFromLaunchComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::doneCallback));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::DoneCallback));
 
-    mock_push->startServiceConcrete();
-    mock_push->waitForCallback();
+    mock_push->StartServiceConcrete();
+    mock_push->WaitForCallback();
 
     delete mock_push;
 }
 
 TEST(PushService, CanDestroyChannel) {
-    MockPush *mock_push = new MockPush;
+    MockPushNDK *mock_push = new MockPushNDK;
 
-    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onCreateSessionComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::createChannelConcrete));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::CreateChannelConcrete));
 
-    EXPECT_CALL(*mock_push, onCreateChannelComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR), ::testing::_))
+    EXPECT_CALL(*mock_push, onCreateChannelComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR), ::testing::_))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::destroyChannelConcrete));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::DestroyChannelConcrete));
 
-    EXPECT_CALL(*mock_push, onDestroyChannelComplete(::testing::Property(&PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
+    EXPECT_CALL(*mock_push, onDestroyChannelComplete(::testing::Property(&webworks::PushStatus::getCode, bb::communications::push::PUSH_NO_ERR)))
         .Times(1)
-        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPush::doneCallback));
+        .WillOnce(::testing::InvokeWithoutArgs(mock_push, &MockPushNDK::DoneCallback));
 
-    mock_push->startServiceConcrete();
-    mock_push->waitForCallback();
+    mock_push->StartServiceConcrete();
+    mock_push->WaitForCallback();
 
     delete mock_push;
 }
 
 TEST(PushService, CanExtractPushPayload) {
-    MockPush *mock_push = new MockPush;
+    MockPushNDK *mock_push = new MockPushNDK;
 
-    Json::FastWriter writer;
-    Json::Value invoke_data;
+    std::string invoke_data = "cHVzaERhdGE6anNvbjp7InB1c2hJZCI6IkNlM3JjMHlDTVRxLTYzNDc1ODg1NzQzMzA2LjQiLCJwdXNoRGF0YUxlbiI6MTEsImFwcExldmVsQWNrIjowLCJodHRwSGVhZGVycyI6eyJDb250ZW50LVR5cGUiOiJ0ZXh0L3BsYWluOyBjaGFyc2V0PVVURi04IiwiQ29ubmVjdGlvbiI6ImNsb3NlIiwiUHVzaC1NZXNzYWdlLUlEIjoiQ2UzcmMweUNNVHEtNjM0NzU4ODU3NDMzMDYuNCIsIlgtUklNLVBVU0gtU0VSVklDRS1JRCI6IjEtUkRjZTYzaXQ2MzYzIiwieC1yaW0tZGV2aWNlaWQiOiIyOWRkZTQ1NyIsIkNvbnRlbnQtTGVuZ3RoIjoiMTEifX0KAEhlbGxvIHdvcmxk";
 
-    invoke_data["data"] = Json::Value("cHVzaERhdGE6anNvbjp7InB1c2hJZCI6IkNlM3JjMHlDTVRxLTYzNDc1ODg1NzQzMzA2LjQiLCJwdXNoRGF0YUxlbiI6MTEsImFwcExldmVsQWNrIjowLCJodHRwSGVhZGVycyI6eyJDb250ZW50LVR5cGUiOiJ0ZXh0L3BsYWluOyBjaGFyc2V0PVVURi04IiwiQ29ubmVjdGlvbiI6ImNsb3NlIiwiUHVzaC1NZXNzYWdlLUlEIjoiQ2UzcmMweUNNVHEtNjM0NzU4ODU3NDMzMDYuNCIsIlgtUklNLVBVU0gtU0VSVklDRS1JRCI6IjEtUkRjZTYzaXQ2MzYzIiwieC1yaW0tZGV2aWNlaWQiOiIyOWRkZTQ1NyIsIkNvbnRlbnQtTGVuZ3RoIjoiMTEifX0KAEhlbGxvIHdvcmxk");
-
-    std::string payload_data = mock_push->extractPushPayloadConcrete(writer.write(invoke_data));
+    std::string payload_data = mock_push->ExtractPushPayloadConcrete(invoke_data);
 
     Json::Reader reader;
     Json::Value payload_obj;
@@ -229,14 +219,10 @@ TEST(PushService, CanExtractPushPayload) {
 }
 
 TEST(PushService, ChecksForInvalidPushPayload) {
-    MockPush *mock_push = new MockPush;
+    MockPushNDK *mock_push = new MockPushNDK;
 
-    Json::FastWriter writer;
-    Json::Value invoke_data;
-
-    invoke_data["data"] = Json::Value("ABC");
-
-    std::string payload_data = mock_push->extractPushPayloadConcrete(writer.write(invoke_data));
+    std::string invoke_data = "ABC";
+    std::string payload_data = mock_push->ExtractPushPayloadConcrete(invoke_data);
 
     Json::Reader reader;
     Json::Value payload_obj;
