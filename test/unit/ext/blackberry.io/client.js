@@ -38,7 +38,7 @@ var _ID = "blackberry.io",
 
 describe("blackberry.io client", function () {
     beforeEach(function () {
-        client = require(_apiDir + "/client"),
+        client = require(_apiDir + "/client");
         GLOBAL.window.webworks = mockedWebworks;
     });
 
