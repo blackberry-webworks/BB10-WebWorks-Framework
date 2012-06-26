@@ -45,7 +45,6 @@ module.exports = {
     },
 
     SDCard: function (success, fail, args, env) {
-        var home = window.qnx.webplatform.getApplication().getEnv("HOME");
-        success(home + "/../../../removable/sdcard");
+        success("/accounts/1000/removable/sdcard");
     }
 };
