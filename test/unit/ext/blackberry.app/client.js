@@ -117,8 +117,6 @@ describe("blackberry.app client", function () {
     
     describe("exit", function () {
         it("should call execSync", function () {
-            mockedWebworks.execSync = jasmine.createSpy();
-            GLOBAL.window.webworks = mockedWebworks;
             client.exit();
             expect(mockedWebworks.execSync).toHaveBeenCalledWith("blackberry.app", "exit");
         });

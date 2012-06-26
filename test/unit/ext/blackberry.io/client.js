@@ -16,7 +16,7 @@
 var _ID = "blackberry.io",
     _extDir = __dirname + "./../../../../ext",
     _apiDir = _extDir + "/" + _ID,
-    client = require(_apiDir + "/client"),
+    client,
     sandbox,
     mockedWebworks = {
         execSync: jasmine.createSpy("execSync").andCallFake(function (service, action, args) {
@@ -36,15 +36,16 @@ var _ID = "blackberry.io",
         })
     };
 
-beforeEach(function () {
-    GLOBAL.window.webworks = mockedWebworks;
-});
-
-afterEach(function () {
-    delete GLOBAL.window;
-});
-
 describe("blackberry.io client", function () {
+    beforeEach(function () {
+        client = require(_apiDir + "/client"),
+        GLOBAL.window.webworks = mockedWebworks;
+    });
+
+    afterEach(function () {
+        delete GLOBAL.window;
+    });
+
     it("sandbox getter calls execSync", function () {
         expect(client.sandbox).toEqual(false);
         expect(mockedWebworks.execSync).toHaveBeenCalledWith(_ID, "sandbox");
