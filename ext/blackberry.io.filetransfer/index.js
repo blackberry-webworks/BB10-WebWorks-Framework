@@ -55,7 +55,7 @@ module.exports = {
             return;
         }
 
-        if (args.options && args.options.chunkedMode && args.options.chunkSize <= 0) {
+        if (args.options && args.options.chunkedMode !== false && args.options.chunkSize <= 0) {
             fail(-1, "chunkSize must be a positive number");
             return;
         }
@@ -143,15 +143,15 @@ JNEXT.FileTransfer = function () {
         if (strEventDesc === "upload") {
             if (strEventResult === "success") {
                 args.result = strEventResult;
-                args.bytesSent = parseInt(arData[3]);
-                args.responseCode = parseInt(arData[4]);
+                args.bytesSent = parseInt(arData[3], 10);
+                args.responseCode = parseInt(arData[4], 10);
                 args.response = escape(strData.split(" ").slice(5).join(" "));
             } else if (strEventResult === "error") {
                 args.result = strEventResult;
-                args.code = parseInt(arData[3]);
+                args.code = parseInt(arData[3], 10);
                 args.source = unescape(arData[4]);
                 args.target = unescape(arData[5]);
-                args.http_status = parseInt(arData[6]);
+                args.http_status = parseInt(arData[6], 10);
             }
 
             _event.trigger(_eventId, args);
@@ -165,10 +165,10 @@ JNEXT.FileTransfer = function () {
                 args.fullPath = escape(strData.split(" ").slice(6).join(" "));
             } else if (strEventResult === "error") {
                 args.result = strEventResult;
-                args.code = parseInt(arData[3]);
+                args.code = parseInt(arData[3], 10);
                 args.source = unescape(arData[4]);
                 args.target = unescape(arData[5]);
-                args.http_status = parseInt(arData[6]);
+                args.http_status = parseInt(arData[6], 10);
             }
 
             _event.trigger(_eventId, args);
