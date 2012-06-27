@@ -55,7 +55,7 @@ module.exports = {
             return;
         }
 
-        if (args.options && args.options.chunkSize <= 0) {
+        if (args.options && args.options.chunkedMode && args.options.chunkSize <= 0) {
             fail(-1, "chunkSize must be a positive number");
             return;
         }
