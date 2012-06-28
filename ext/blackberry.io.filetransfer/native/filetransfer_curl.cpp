@@ -33,8 +33,6 @@
 
 namespace webworks {
 
-int max_chunk_size = 1048576;
-
 FileTransferCurl::FileTransferCurl()
 {
     m_pVerifyMap = new DomainVerifyMap();
@@ -160,8 +158,6 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
     CURLcode result;
     std::string result_string;
 
-    max_chunk_size = uploadInfo->chunkSize;
-
     struct curl_httppost *formpost = NULL;
     struct curl_httppost *lastptr = NULL;
     struct curl_slist *headerlist = NULL;
@@ -192,9 +188,14 @@ std::string FileTransferCurl::Upload(FileUploadInfo *uploadInfo)
         int file_size = ftell(upload_file);
         rewind(upload_file);
 
+        uploadAttributes uploadAtt;
+
+        uploadAtt.file = upload_file;
+        uploadAtt.max_chunk_size = uploadInfo->chunkSize;
+
         curl_formadd(&formpost,
                      &lastptr,
-                     CURLFORM_STREAM, upload_file,
+                     CURLFORM_STREAM, &uploadAtt,
                      CURLFORM_CONTENTSLENGTH, file_size,
                      CURLFORM_COPYNAME, uploadInfo->fileKey.c_str(),
                      CURLFORM_FILENAME, uploadInfo->fileName.c_str(),
@@ -486,10 +487,14 @@ size_t FileTransferCurl::DownloadWriteCallback(void *ptr, size_t size, size_t nm
     return written;
 }
 
-size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
+size_t FileTransferCurl::UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     char *read_data = static_cast<char *>(ptr);
-    FILE *file = static_cast<FILE *>(userdata);
+    uploadAttributes *uploadAtt = static_cast<uploadAttributes *>(userdata);
+
+    FILE *file = uploadAtt->file;
+    int max_chunk_size = uploadAtt->max_chunk_size;
+
     size_t amount = 0;
 
     if (max_chunk_size < (size * nmemb)) {
@@ -501,7 +506,7 @@ size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
     return amount;
 }
 
-size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
+size_t FileTransferCurl::UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     std::string *write_data = static_cast<std::string *>(userdata);
 

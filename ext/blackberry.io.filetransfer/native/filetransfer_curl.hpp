@@ -50,17 +50,17 @@ struct FileDownloadInfo {
     std::string windowGroup;
 };
 
+struct uploadAttributes {
+    FILE *file;
+    int max_chunk_size;
+};
+
 enum FileTransferErrorCodes {
     FILE_NOT_FOUND_ERR = 1,
     INVALID_URL_ERR = 2,
     CONNECTION_ERR = 3,
     PERMISSIONS_ERR  = 4
 };
-
-extern int max_chunk_size;
-
-size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
-size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
 
 typedef std::map<std::string, bool> DomainVerifyMap;
 
@@ -72,6 +72,8 @@ public:
     std::string Download(FileDownloadInfo *downloadInfo);
     static size_t DownloadWriteCallback(void *ptr, size_t size, size_t nmemb, FILE *stream);
     static int mkdir_p (const char *pathname, mode_t mode);
+    static size_t UploadReadCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
+    static size_t UploadWriteCallback(void *ptr, size_t size, size_t nmemb, void *userdata);
 private:
     DomainVerifyMap *m_pVerifyMap;
     void loadVerifyList();
