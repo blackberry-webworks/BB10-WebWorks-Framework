@@ -29,7 +29,7 @@ var _ID = "blackberry.push",
         "DEVICE_PIN_NOT_FOUND" : 10007,
         "EXPIRED_AUTHENTICATION_TOKEN_PROVIDED_TO_PPG" : 10008,
         "INVALID_AUTHENTICATION_TOKEN_PROVIDED_TO_PPG" : 10009,
-        "TOO_MANY_DEVICES_WITH_ACTIVE_CREATE_CHANNELS" : 10010,
+        "PPG_SUBSCRIBER_LIMIT_REACHED" : 10010,
         "INVALID_OS_VERSION_OR_DEVICE_MODEL_NUMBER" : 10011,
         "CHANNEL_SUSPENDED_BY_PROVIDER" : 10012,
         "CREATE_SESSION_NOT_DONE" : 10100,
@@ -96,7 +96,7 @@ describe("blackberry.push", function () {
             expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("DEVICE_PIN_NOT_FOUND")]);
             expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("EXPIRED_AUTHENTICATION_TOKEN_PROVIDED_TO_PPG")]);
             expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("INVALID_AUTHENTICATION_TOKEN_PROVIDED_TO_PPG")]);
-            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("TOO_MANY_DEVICES_WITH_ACTIVE_CREATE_CHANNELS")]);
+            expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("PPG_SUBSCRIBER_LIMIT_REACHED")]);
             expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("INVALID_OS_VERSION_OR_DEVICE_MODEL_NUMBER")]);
             expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("CHANNEL_SUSPENDED_BY_PROVIDER")]);
             expect(mockedWebworks.defineReadOnlyField.argsForCall).toContain(defineROFieldArgs[Object.getOwnPropertyNames(constants).indexOf("CREATE_SESSION_NOT_DONE")]);
