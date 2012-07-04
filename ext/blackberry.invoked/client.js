@@ -17,9 +17,6 @@
 var _self = {},
     _ID = "blackberry.invoked";
 
-_self.invoked = function (request, onSuccess, onError) {
-};
-
 window.webworks.execSync(_ID, "registerEvents", null);
 
 module.exports = _self;
