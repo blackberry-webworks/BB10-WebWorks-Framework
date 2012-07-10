@@ -13,7 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var _event = require("../../lib/event");
+var _event = require("../../lib/event"),
+    _actionMap = {
+        onCardStartPeek: {
+            context: require("./invocationEvents"),
+            event: "onCardStartPeek",
+            trigger: function (peekType) {
+                _event.trigger("onCardStartPeek", peekType);
+            }
+        },
+        onCardEndPeek: {
+            context: require("./invocationEvents"),
+            event: "onCardEndPeek",
+            trigger: function () {
+                _event.trigger("onCardEndPeek");
+            }
+        },
+        onCardChildClosed: {
+            context: require("./invocationEvents"),
+            event: "onCardChildClosed",
+            trigger: function (info) {
+                _event.trigger("onCardChildClosed", info);
+            }
+        }
+    };
 
 module.exports = {
     invoke: function (success, fail, args) {
@@ -103,6 +126,27 @@ module.exports = {
 
         window.qnx.webplatform.getApplication().invocation.queryTargets(request, callback);
         success();
+    },
+
+    closeChildCard: function (success, fail) {
+        try {
+            window.qnx.webplatform.getApplication().invocation.closeChildCard();
+            success();
+        } catch (e) {
+            fail(-1, e);
+        }
+    },
+
+    registerEvents: function (success, fail, args, env) {
+        try {
+            var utils = require("./../../lib/utils"),
+                eventExt = utils.loadExtensionModule("event", "index");
+
+            eventExt.registerEvents(_actionMap);
+            success();
+        } catch (e) {
+            fail(-1, e);
+        }
     }
 
 };

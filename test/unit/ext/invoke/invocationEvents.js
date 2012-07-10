@@ -18,17 +18,14 @@ var _apiDir = __dirname + "./../../../../ext/invoke/",
     _libDir = __dirname + "./../../../../lib/",
     invocationEvents,
     startupMode,
-    mockedInvocation;
+    mockedInvocation,
+    trigger;
 
 describe("invoke invocationEvents", function () {
     beforeEach(function () {
         mockedInvocation = {
             addEventListener: jasmine.createSpy("invocation addEventListener"),
             removeEventListener: jasmine.createSpy("invocation removeEventListener"),
-            getStartupMode: jasmine.createSpy("getStartupMode").andCallFake(function () {
-                return startupMode;
-            }),
-            LAUNCH: 0
         };
         GLOBAL.window = GLOBAL;
         GLOBAL.window.qnx = {
@@ -40,39 +37,52 @@ describe("invoke invocationEvents", function () {
                 }
             }
         };
-        startupMode = 1;
+
         //since multiple tests are requiring invocation events we must unrequire
         var name = require.resolve(_apiDir + "invocationEvents");
         delete require.cache[name];
         invocationEvents = require(_apiDir + "invocationEvents");
+        trigger = function () {};
     });
 
     afterEach(function () {
         mockedInvocation = null;
         GLOBAL.window.qnx = null;
+        trigger = null;
     });
 
-    describe("addEventListener", function () {
-        var trigger = jasmine.createSpy("trigger");
-
-        it("calls framework setOnInvoked for 'invoked' event", function () {
-            invocationEvents.addEventListener("invoked", trigger);
-            expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("Invoked", trigger);
+    describe("onCardStartPeek", function () {
+        it("add proper event to invocation for 'onCardStartPeek'", function () {
+            invocationEvents.addEventListener("onCardStartPeek", trigger);
+            expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("cardPeekStarted", trigger);
         });
 
-        it("calls framework setOnInvoked right away when startupMode is Invoke", function () {
-            invocationEvents.addEventListener("invoked", trigger);
-            expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("Invoked", trigger);
-            expect(trigger).toHaveBeenCalled();
+        it("remove proper event from invocation for 'onCardStartPeek", function () {
+            invocationEvents.removeEventListener("onCardStartPeek", trigger);
+            expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("cardPeekStarted", trigger);
         });
     });
 
-    describe("removeEventListener", function () {
-        var trigger = function () {};
+    describe("onCardEndPeek", function () {
+        it("add proper event to invocation for 'onCardEndPeek'", function () {
+            invocationEvents.addEventListener("onCardEndPeek", trigger);
+            expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("cardPeekEnded", trigger);
+        });
 
-        it("calls framework setOnInvoked for 'invoked' event", function () {
-            invocationEvents.removeEventListener("invoked", trigger);
-            expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("Invoked", trigger);
+        it("remove proper event from invocation for 'onCardEndPeek", function () {
+            invocationEvents.removeEventListener("onCardEndPeek", trigger);
+            expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("cardPeekEnded", trigger);
+        });
+    });
+    describe("onCardChildClosed", function () {
+        it("add proper event to invocation for 'onCardChildClosed'", function () {
+            invocationEvents.addEventListener("onCardChildClosed", trigger);
+            expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("childCardClosed", trigger);
+        });
+
+        it("remove proper event from invocation for 'onCardChildClosed", function () {
+            invocationEvents.removeEventListener("onCardChildClosed", trigger);
+            expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("childCardClosed", trigger);
         });
     });
 });
