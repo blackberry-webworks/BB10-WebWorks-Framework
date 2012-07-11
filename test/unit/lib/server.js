@@ -83,10 +83,10 @@ describe("server", function () {
             req.params.action = "exec";
 
             server.handle(req, res);
-            expect(res.send).toHaveBeenCalledWith(200, {
+            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
                 code: 1,
                 data: ["MyFeatureId"]
-            });
+            })));
         });
 
         it("returns the result and code -1 when fail callback called", function () {
@@ -98,11 +98,11 @@ describe("server", function () {
             req.params.action = "exec";
 
             server.handle(req, res);
-            expect(res.send).toHaveBeenCalledWith(200, {
+            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
                 code: -1,
                 data: null,
                 msg: "ErrorMessage"
-            });
+            })));
         });
     });
     
@@ -145,7 +145,7 @@ describe("server", function () {
         it("returns 403 if the feature is not white listed", function () {
             spyOn(Whitelist.prototype, "isFeatureAllowed").andReturn(false);
             server.handle(req, res);
-            expect(res.send).toHaveBeenCalledWith(403, jasmine.any(Object));
+            expect(res.send).toHaveBeenCalledWith(403, jasmine.any(String));
         });
         
         it("calls the action method on the feature", function () {
@@ -165,10 +165,10 @@ describe("server", function () {
             
             server.handle(req, res);
             
-            expect(res.send).toHaveBeenCalledWith(200, {
+            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
                 code: 1,
                 data: expectedResult
-            });
+            })));
         });
         
         it("returns the result and code -1 when fail callback called", function () {
@@ -181,11 +181,11 @@ describe("server", function () {
             
             server.handle(req, res);
             
-            expect(res.send).toHaveBeenCalledWith(200, {
+            expect(res.send).toHaveBeenCalledWith(200, encodeURIComponent(JSON.stringify({
                 code: -1,
                 data: null,
                 msg: expectedResult
-            });
+            })));
         });
     });
 });  
