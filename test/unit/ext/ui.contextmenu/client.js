@@ -20,7 +20,7 @@ var _ID = "blackberry.ui.contextmenu",
     mockedWebworks = {
         execAsync: jasmine.createSpy("execAsync").andCallFake(function (service, action, args) {
             return true;
-        })
+        }),
     };
 
 describe("blackberry.ui.contextmenu client", function () {
@@ -28,6 +28,7 @@ describe("blackberry.ui.contextmenu client", function () {
     beforeEach(function () {
         GLOBAL.window.webworks = mockedWebworks;
         client = require(_apiDir + "/client");
+        spyOn(console, "log");
     });
 
     it("enabled context menu calls execAsync", function () {
@@ -38,6 +39,27 @@ describe("blackberry.ui.contextmenu client", function () {
     it("disabled context menu calls execAsync", function () {
         client.enabled = false;
         expect(mockedWebworks.execAsync).toHaveBeenCalledWith(_ID, "enabled", {"enabled": false});
+    });
+
+    it("disabled context menu wont get called since incorrect value is passed", function () {
+        client.enabled = "false";
+        expect(console.log).toHaveBeenCalledWith("contextmenu.enabled only accepts boolean values");
+        expect(mockedWebworks.execAsync).wasNotCalledWith(_ID, "enabled", {"enabled": "false"});
+    });
+    it("disabled context menu wont get called since incorrect value is passed", function () {
+        client.enabled = 0;
+        expect(console.log).toHaveBeenCalledWith("contextmenu.enabled only accepts boolean values");
+        expect(mockedWebworks.execAsync).wasNotCalledWith(_ID, "enabled", {"enabled": "0"});
+    });
+    it("disabled context menu wont get called since incorrect value is passed", function () {
+        client.enabled = 1;
+        expect(console.log).toHaveBeenCalledWith("contextmenu.enabled only accepts boolean values");
+        expect(mockedWebworks.execAsync).wasNotCalledWith(_ID, "enabled", {"enabled": "1"});
+    });
+    it("disabled context menu wont get called since incorrect value is passed", function () {
+        client.enabled = "true";
+        expect(console.log).toHaveBeenCalledWith("contextmenu.enabled only accepts boolean values");
+        expect(mockedWebworks.execAsync).wasNotCalledWith(_ID, "enabled", {"enabled": "true"});
     });
 
 });
