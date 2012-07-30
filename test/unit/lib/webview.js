@@ -31,7 +31,9 @@ describe("webview", function () {
             destroy: jasmine.createSpy(),
             executeJavaScript: jasmine.createSpy(),
             windowGroup: undefined,
-            enableWebEventRedirect: jasmine.createSpy()
+            enableWebEventRedirect: jasmine.createSpy(),
+            addKnownSSLCertificate: jasmine.createSpy(),
+            continueSSLHandshaking: jasmine.createSpy()
         };
         mockedApplication = {
             windowVisible: undefined
@@ -139,6 +141,26 @@ describe("webview", function () {
             webview.create();
             webview.notifyApplicationOrientationDone();
             expect(mockedWebview.notifyApplicationOrientationDone).toHaveBeenCalled();
+        });
+    });
+
+    describe("SSL Exception Methods", function () {
+        it("addKnownSSLException", function () {
+            var url = 'https://bojaps.com',
+                certificateInfo = {
+                    test : 'test'
+                };
+            webview.create();
+            webview.addKnownSSLCertificate(url, certificateInfo);
+            expect(mockedWebview.addKnownSSLCertificate).toHaveBeenCalledWith(url, certificateInfo);
+        });
+
+        it("continue SSL Hanshaking", function () {
+            var streamId = 8,
+                SSLAction = 'SSLActionReject';
+            webview.create();
+            webview.continueSSLHandshaking(streamId, SSLAction);
+            expect(mockedWebview.continueSSLHandshaking).toHaveBeenCalledWith(streamId, SSLAction);
         });
     });
 
