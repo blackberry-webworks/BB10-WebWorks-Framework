@@ -80,7 +80,6 @@ describe("blackberry.ui.contextmenu index", function () {
         expect(webview.addEventListener).toHaveBeenCalledWith('DocumentLoaded', jasmine.any(Function));
     });
 
-
     it("enabled is called with false on the webview.setContextMenuEnabled method", function () {
         contextmenu.enabled(success, null, {
             "enabled": encodeURIComponent(JSON.stringify(false))
@@ -104,6 +103,26 @@ describe("blackberry.ui.contextmenu index", function () {
         }, null);
 
         expect(success).toHaveBeenCalled();
+    });
+    
+    it("cannot add custom items without an actionId", function () {
+        var fail = jasmine.createSpy();
+        contextmenu.addItem(null, fail, {
+            "contexts": encodeURIComponent(JSON.stringify(['ALL'])),
+            "action": encodeURIComponent(JSON.stringify({}))
+        }, null);
+
+        expect(fail).toHaveBeenCalled();
+    });
+    
+    it("cannot add custom items with actionId as an empty string", function () {
+        var fail = jasmine.createSpy();
+        contextmenu.addItem(null, fail, {
+            "contexts": encodeURIComponent(JSON.stringify(['ALL'])),
+            "action": encodeURIComponent(JSON.stringify({actionId: ''}))
+        }, null);
+
+        expect(fail).toHaveBeenCalled();
     });
     
     it("cannot add multiple custom menu items with the same actionId", function () {

@@ -134,8 +134,10 @@ function addItem(success, fail, args, env) {
         action = JSON.parse(decodeURIComponent(args["action"])),
         context;
     
-    // Check if item already has been added
-    if (!_actions.addCustomItem(action.actionId)) {
+    // Check actionId is valid or if item already has been added
+    if (!action.actionId || action.actionId === '') {
+        return fail('Cannot add item.  actionId is not valid');
+    } else if (!_actions.addCustomItem(action.actionId)) {
         return fail('Cannot add item.  A menu item with the actionId "' + action.actionId + '" already exists.');
     }
 
