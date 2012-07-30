@@ -45,8 +45,6 @@ describe("blackberry.invoke", function () {
         var request = {
                 uri: "http://www.google.com"
             },
-            onSuccess = jasmine.createSpy("client onSuccess"),
-            onError = jasmine.createSpy("client onError"),
             confirm;
 
         try {
@@ -55,11 +53,17 @@ describe("blackberry.invoke", function () {
             console.log(e);
         }
 
-        confirm = window.confirm("Did it invoke?");
+        waitsFor(function () {
+            return onSuccessFlag || onErrorFlag;
+        }, "The callback flag should be set to true", delay);
 
-        expect(confirm).toEqual(true);
-        expect(onSuccess).toHaveBeenCalled();
-        expect(onError).not.toHaveBeenCalled();
+        runs(function () {
+            confirm = window.confirm("Did it invoke?");
+
+            expect(confirm).toEqual(true);
+            expect(onSuccess).toHaveBeenCalled();
+            expect(onError).not.toHaveBeenCalled();
+        });
     });
 
     it('invoke should invoke blackberry.com with bound invocation', function () {
@@ -67,8 +71,6 @@ describe("blackberry.invoke", function () {
                 target: "sys.browser",
                 uri: "http://www.blackberry.com"
             },
-            onSuccess = jasmine.createSpy("client onSuccess"),
-            onError = jasmine.createSpy("client onError"),
             confirm;
 
         try {
@@ -77,11 +79,17 @@ describe("blackberry.invoke", function () {
             console.log(e);
         }
 
-        confirm = window.confirm("Did it invoke?");
+        waitsFor(function () {
+            return onSuccessFlag || onErrorFlag;
+        }, "The callback flag should be set to true", delay);
 
-        expect(confirm).toEqual(true);
-        expect(onSuccess).toHaveBeenCalled();
-        expect(onError).not.toHaveBeenCalled();
+        runs(function () {
+            confirm = window.confirm("Did it invoke?");
+
+            expect(confirm).toEqual(true);
+            expect(onSuccess).toHaveBeenCalled();
+            expect(onError).not.toHaveBeenCalled();
+        });
     });
 
     it('query should be able to perform a query on the device', function () {
@@ -89,11 +97,9 @@ describe("blackberry.invoke", function () {
                 "action": "bb.action.VIEW",
                 "uri": "file://",
                 "type": "application/pdf",
-                "target_type": ["VIEWER", "APPLICATION"],
+                "target_type": ["CARD", "VIEWER", "APPLICATION"],
                 "action_type": "ALL"
             },
-            onSuccessFlag = false,
-            onErrorFlag = false,
             onSuccess = function (responseArray) {
                 var defaultExists = true;
 
@@ -120,7 +126,7 @@ describe("blackberry.invoke", function () {
 
                             if (target.key === "com.adobe.AdobeReader.viewer") {
                                 defaultExists = true;
-                                expect(target.type).toEqual("VIEWER");
+                                expect(target.type).toEqual("CARD");
                             }
                         });
                         expect(defaultExists).toBeTruthy();
