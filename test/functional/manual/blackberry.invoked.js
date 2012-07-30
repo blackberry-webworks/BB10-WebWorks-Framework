@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Research In Motion Limited.
+ * Copyright 2012 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,6 @@ describe("blackberry.invoked", function () {
         onError = null;
         onSuccessFlag = false;
         onErrorFlag = false;
-    });
-
-    it('blackberry.invoked should exist', function () {
-        expect(blackberry.invoked).toBeDefined();
     });
 
     describe("Cards", function () {
