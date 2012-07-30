@@ -162,27 +162,27 @@ describe("blackberry.invoke", function () {
         var request = {
                 target: "net.rim.webworks.invoke.invoke.card.type",
             },
-            onCardChildClosed,
-            onCardStartPeek,
-            onCardEndPeek,
+            onChildCardClosed,
+            onChildCardStartPeek,
+            onChildCardEndPeek,
             confirm;
 
         beforeEach(function () {
-            onCardChildClosed = jasmine.createSpy("onCardChildClosed event");
-            onCardStartPeek = jasmine.createSpy("onCardStartPeek event");
-            onCardEndPeek = jasmine.createSpy("onCardEndPeek event");
-            blackberry.event.addEventListener("onCardChildClosed", onCardChildClosed);
-            blackberry.event.addEventListener("onCardStartPeek", onCardStartPeek);
-            blackberry.event.addEventListener("onCardEndPeek", onCardEndPeek);
+            onChildCardClosed = jasmine.createSpy("onChildCardClosed event");
+            onChildCardStartPeek = jasmine.createSpy("onChildCardStartPeek event");
+            onChildCardEndPeek = jasmine.createSpy("onChildCardEndPeek event");
+            blackberry.event.addEventListener("onChildCardClosed", onChildCardClosed);
+            blackberry.event.addEventListener("onChildCardStartPeek", onChildCardStartPeek);
+            blackberry.event.addEventListener("onChildCardEndPeek", onChildCardEndPeek);
         });
 
         afterEach(function () {
-            onCardChildClosed = null;
-            onCardStartPeek = null;
-            onCardEndPeek = null;
-            blackberry.event.removeEventListener("onCardChildClosed", onCardStartPeek);
-            blackberry.event.removeEventListener("onCardStartPeek", onCardStartPeek);
-            blackberry.event.removeEventListener("onCardEndPeek", onCardEndPeek);
+            onChildCardClosed = null;
+            onChildCardStartPeek = null;
+            onChildCardEndPeek = null;
+            blackberry.event.removeEventListener("onChildCardClosed", onChildCardClosed);
+            blackberry.event.removeEventListener("onChildCardStartPeek", onChildCardStartPeek);
+            blackberry.event.removeEventListener("onChildCardEndPeek", onChildCardEndPeek);
             confirm = null;
         });
 
@@ -260,10 +260,10 @@ describe("blackberry.invoke", function () {
             });
         });
 
-        it('invoke should receive onCardChildClosed event when child card was closed', function () {
+        it('invoke should receive onChildCardClosed event when child card was closed', function () {
             request.target = "net.rim.webworks.invoke.invoke.card.type";
 
-            alert("To get onCardChildClosed event this test will invoke card and close it without user interaction.");
+            alert("To get onChildCardClosed event this test will invoke card and close it without user interaction.");
 
             try {
                 blackberry.invoke.invoke(request, onSuccess, onError);
@@ -285,17 +285,17 @@ describe("blackberry.invoke", function () {
                         waits(delay);
 
                         runs(function () {
-                            expect(onCardChildClosed).toHaveBeenCalled();
+                            expect(onChildCardClosed).toHaveBeenCalled();
                         });
                     });
                 }
             });
         });
 
-        it('invoke should receive onCardStartPeek event when child card was picked', function () {
+        it('invoke should receive onChildCardStartPeek event when child card was picked', function () {
             request.target = "net.rim.webworks.invoke.invoke.card.type";
 
-            alert("To get onCardStartPeek event when card invoked you'll need to press peek then peek it and close if appropriate.");
+            alert("To get onChildCardStartPeek event when card invoked you'll need to press peek then peek it and close if appropriate.");
 
             try {
                 blackberry.invoke.invoke(request, onSuccess, onError);
@@ -313,16 +313,16 @@ describe("blackberry.invoke", function () {
                     waits(delay * 5);
 
                     runs(function () {
-                        expect(onCardStartPeek).toHaveBeenCalled();
+                        expect(onChildCardStartPeek).toHaveBeenCalled();
                     });
                 }
             });
         });
 
-        it('invoke should receive onCardEndPeek event when child card was picked', function () {
+        it('invoke should receive onChildCardEndPeek event when child card was picked', function () {
             request.target = "net.rim.webworks.invoke.invoke.card.type";
 
-            alert("To get onCardEndPeek event when card invoked you'll need to press peek then peek it and close if appropriate.");
+            alert("To get onChildCardEndPeek event when card invoked you'll need to press peek then peek it and close if appropriate.");
 
             try {
                 blackberry.invoke.invoke(request, onSuccess, onError);
@@ -340,7 +340,7 @@ describe("blackberry.invoke", function () {
                     waits(delay * 5);
 
                     runs(function () {
-                        expect(onCardEndPeek).toHaveBeenCalled();
+                        expect(onChildCardEndPeek).toHaveBeenCalled();
                     });
                 }
             });

@@ -18,13 +18,13 @@ var _application = window.qnx.webplatform.getApplication();
 module.exports = {
     addEventListener: function (event, trigger) {
         switch (event) {
-        case "onCardStartPeek":
+        case "onChildCardStartPeek":
             window.qnx.webplatform.getApplication().invocation.addEventListener("cardPeekStarted", trigger);
             break;
-        case "onCardEndPeek":
+        case "onChildCardEndPeek":
             window.qnx.webplatform.getApplication().invocation.addEventListener("cardPeekEnded", trigger);
             break;
-        case "onCardChildClosed":
+        case "onChildCardClosed":
             window.qnx.webplatform.getApplication().invocation.addEventListener("childCardClosed", trigger);
             break;
         default:
@@ -34,13 +34,13 @@ module.exports = {
     },
     removeEventListener: function (event, trigger) {
         switch (event) {
-        case "onCardStartPeek":
+        case "onChildCardStartPeek":
             window.qnx.webplatform.getApplication().invocation.removeEventListener("cardPeekStarted", trigger);
             break;
-        case "onCardEndPeek":
+        case "onChildCardEndPeek":
             window.qnx.webplatform.getApplication().invocation.removeEventListener("cardPeekEnded", trigger);
             break;
-        case "onCardChildClosed":
+        case "onChildCardClosed":
             window.qnx.webplatform.getApplication().invocation.removeEventListener("childCardClosed", trigger);
             break;
         default:

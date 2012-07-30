@@ -249,7 +249,7 @@ describe("invoke index", function () {
             });
 
             it("can register for events", function () {
-                var evts = ["onCardStartPeek", "onCardEndPeek", "onCardChildClosed"],
+                var evts = ["onChildCardStartPeek", "onChildCardEndPeek", "onChildCardClosed"],
                     args;
 
                 spyOn(events, "add");
@@ -266,7 +266,7 @@ describe("invoke index", function () {
             });
 
             it("call successCB when all went well", function () {
-                var eventName = "onCardChildClosed",
+                var eventName = "onChildCardClosed",
                     args = {eventName: encodeURIComponent(eventName)};
 
                 spyOn(events, "add");
@@ -278,7 +278,7 @@ describe("invoke index", function () {
             });
 
             it("call errorCB when there was an error", function () {
-                var eventName = "onCardChildClosed",
+                var eventName = "onChildCardClosed",
                     args = {eventName: encodeURIComponent(eventName)};
 
                 spyOn(events, "add").andCallFake(function () {
@@ -293,7 +293,7 @@ describe("invoke index", function () {
             });
 
             it("can un-register from events", function () {
-                var evts = ["onCardStartPeek", "onCardEndPeek", "onCardChildClosed"],
+                var evts = ["onChildCardStartPeek", "onChildCardEndPeek", "onChildCardClosed"],
                     args;
 
                 spyOn(events, "remove");
@@ -319,7 +319,7 @@ describe("invoke index", function () {
             });
 
             it("call errorCB when there was exception occured", function () {
-                var eventName = "onCardChildClosed",
+                var eventName = "onChildCardClosed",
                     args = {eventName: encodeURIComponent(eventName)};
 
                 spyOn(events, "remove").andCallFake(function () {

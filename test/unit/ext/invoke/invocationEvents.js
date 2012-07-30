@@ -51,37 +51,37 @@ describe("invoke invocationEvents", function () {
         trigger = null;
     });
 
-    describe("onCardStartPeek", function () {
-        it("add proper event to invocation for 'onCardStartPeek'", function () {
-            invocationEvents.addEventListener("onCardStartPeek", trigger);
+    describe("onChildCardStartPeek", function () {
+        it("add proper event to invocation for 'onChildCardStartPeek'", function () {
+            invocationEvents.addEventListener("onChildCardStartPeek", trigger);
             expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("cardPeekStarted", trigger);
         });
 
-        it("remove proper event from invocation for 'onCardStartPeek", function () {
-            invocationEvents.removeEventListener("onCardStartPeek", trigger);
+        it("remove proper event from invocation for 'onChildCardStartPeek", function () {
+            invocationEvents.removeEventListener("onChildCardStartPeek", trigger);
             expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("cardPeekStarted", trigger);
         });
     });
 
-    describe("onCardEndPeek", function () {
-        it("add proper event to invocation for 'onCardEndPeek'", function () {
-            invocationEvents.addEventListener("onCardEndPeek", trigger);
+    describe("onChildCardEndPeek", function () {
+        it("add proper event to invocation for 'onChildCardEndPeek'", function () {
+            invocationEvents.addEventListener("onChildCardEndPeek", trigger);
             expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("cardPeekEnded", trigger);
         });
 
-        it("remove proper event from invocation for 'onCardEndPeek", function () {
-            invocationEvents.removeEventListener("onCardEndPeek", trigger);
+        it("remove proper event from invocation for 'onChildCardEndPeek", function () {
+            invocationEvents.removeEventListener("onChildCardEndPeek", trigger);
             expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("cardPeekEnded", trigger);
         });
     });
-    describe("onCardChildClosed", function () {
-        it("add proper event to invocation for 'onCardChildClosed'", function () {
-            invocationEvents.addEventListener("onCardChildClosed", trigger);
+    describe("onChildCardClosed", function () {
+        it("add proper event to invocation for 'onChildCardClosed'", function () {
+            invocationEvents.addEventListener("onChildCardClosed", trigger);
             expect(mockedInvocation.addEventListener).toHaveBeenCalledWith("childCardClosed", trigger);
         });
 
-        it("remove proper event from invocation for 'onCardChildClosed", function () {
-            invocationEvents.removeEventListener("onCardChildClosed", trigger);
+        it("remove proper event from invocation for 'onChildCardClosed", function () {
+            invocationEvents.removeEventListener("onChildCardClosed", trigger);
             expect(mockedInvocation.removeEventListener).toHaveBeenCalledWith("childCardClosed", trigger);
         });
     });

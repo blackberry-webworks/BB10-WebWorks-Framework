@@ -15,25 +15,25 @@
  */
 var _event = require("../../lib/event"),
     _actionMap = {
-        onCardStartPeek: {
+        onChildCardStartPeek: {
             context: require("./invocationEvents"),
-            event: "onCardStartPeek",
+            event: "onChildCardStartPeek",
             trigger: function (peekType) {
-                _event.trigger("onCardStartPeek", peekType);
+                _event.trigger("onChildCardStartPeek", peekType);
             }
         },
-        onCardEndPeek: {
+        onChildCardEndPeek: {
             context: require("./invocationEvents"),
-            event: "onCardEndPeek",
+            event: "onChildCardEndPeek",
             trigger: function () {
-                _event.trigger("onCardEndPeek");
+                _event.trigger("onChildCardEndPeek");
             }
         },
-        onCardChildClosed: {
+        onChildCardClosed: {
             context: require("./invocationEvents"),
-            event: "onCardChildClosed",
+            event: "onChildCardClosed",
             trigger: function (info) {
-                _event.trigger("onCardChildClosed", info);
+                _event.trigger("onChildCardClosed", info);
             }
         }
     };
