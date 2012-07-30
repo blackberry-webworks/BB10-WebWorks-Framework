@@ -69,8 +69,15 @@ describe("blackberry.ui.contextmenu index", function () {
             }
         };
         overlayWebView.create();
+        spyOn(webview, 'addEventListener').andCallFake(function (eventId, callback) {
+            callback();
+        });
         contextmenu = require(_apiDir + "/index");
         success = jasmine.createSpy("success");
+    });
+
+    it("adds a DocumentLoaded listener to the client webview", function () {
+        expect(webview.addEventListener).toHaveBeenCalledWith('DocumentLoaded', jasmine.any(Function));
     });
 
 

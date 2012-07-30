@@ -250,7 +250,7 @@ function init() {
         }
     });
     _webview.addEventListener('DocumentLoaded', function () {
-       restoreDefaultMenu();
+        restoreDefaultMenu();
     });
 }
 
