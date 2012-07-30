@@ -93,7 +93,7 @@ describe("invoke index", function () {
                     "myProperty": "myValue",
                     "action": "bb.action.OPEN",
                     "type": "image/*",
-                    "target_type": ["APPLICATION", "VIEWER"]
+                    "target_type": ["APPLICATION", "VIEWER", "CARD"]
                 },
                 whitelistRequest = JSON.parse(JSON.stringify(request)),
                 args = {
@@ -113,7 +113,7 @@ describe("invoke index", function () {
                 request = {
                     "action": "bb.action.OPEN",
                     "type": "image/*",
-                    "target_type": ["APPLICATION", "VIEWER"]
+                    "target_type": ["APPLICATION", "VIEWER", "CARD"]
                 },
                 args = {
                     "request": encodeURIComponent(JSON.stringify(request))
@@ -164,13 +164,33 @@ describe("invoke index", function () {
             expect(fail).not.toHaveBeenCalled();
         });
 
+        it("can perform a query for card targets", function () {
+            var success = jasmine.createSpy(),
+                fail = jasmine.createSpy(),
+                request = {
+                    "action": "bb.action.OPEN",
+                    "type": "image/*",
+                    "target_type": ["CARD"]
+                },
+                args = {
+                    "request": encodeURIComponent(JSON.stringify(request))
+                };
+
+            index.query(success, fail, args);
+            request["target_type"] = "CARD";
+            expect(mockedInvocation.queryTargets).toHaveBeenCalledWith(request, jasmine.any(Function));
+            expect(success).toHaveBeenCalled();
+            expect(fail).not.toHaveBeenCalled();
+        });
+
+
         it("can perform a query for all targets", function () {
             var success = jasmine.createSpy(),
                 fail = jasmine.createSpy(),
                 request = {
                     "action": "bb.action.OPEN",
                     "type": "image/*",
-                    "target_type": ["APPLICATION", "VIEWER"]
+                    "target_type": ["APPLICATION", "VIEWER", "CARD"]
                 },
                 args = {
                     "request": encodeURIComponent(JSON.stringify(request))

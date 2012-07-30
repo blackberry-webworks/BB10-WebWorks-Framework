@@ -80,7 +80,7 @@ module.exports = {
                 "perimeter",
                 "brokering_mod"
             ],
-            expectedTypes = ["APPLICATION", "VIEWER"],
+            expectedTypes = ["APPLICATION", "VIEWER", "CARD"],
             request = {},
             callback = function (error, response) {
                 _event.trigger("invoke.queryEventId", {"error": error, "response": response});
