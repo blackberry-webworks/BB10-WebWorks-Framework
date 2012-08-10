@@ -24,14 +24,10 @@
 
 using namespace std;
 
-long getMemory();
-string convertLongToString(long l);
-
 /**
  * Default constructor.
  */
-Memory::Memory(const std::string& id) : m_id(id)
-{
+Memory::Memory(const std::string& id) : m_id(id) {
     m_thread = 0;
 }
 
@@ -46,8 +42,8 @@ Memory::~Memory() {
  * extension.
  */
 char* onGetObjList() {
-	static char name[] = "Memory";
-	return name;
+    static char name[] = "Memory";
+    return name;
 }
 
 /**
@@ -55,18 +51,18 @@ char* onGetObjList() {
  * an object is created on the JavaScript server side.
  */
 JSExt* onCreateObject(const string& className, const string& id) {
-	if (className == "Memory") {
-		return new Memory(id);
-	}
+    if (className == "Memory") {
+        return new Memory(id);
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
  * Method used by JNext to determine if the object can be deleted.
  */
 bool Memory::CanDelete() {
-	return true;
+    return true;
 }
 
 /**
@@ -76,14 +72,14 @@ bool Memory::CanDelete() {
  * called on the JavaScript side with this native objects id.
  */
 string Memory::InvokeMethod(const string& command) {
-	// Determine which function should be executed
-	if (command == "getMemoryNative") {
-		return convertLongToString(getMemory());
-	} else if (command == "monitorMemoryNative") {
-		return MonitorMemoryNative();
-	} else {
-		return "Unsupported Method";
-	}
+    // Determine which function should be executed
+    if (command == "getMemoryNative") {
+        return convertLongToString(getMemory());
+    } else if (command == "monitorMemoryNative") {
+        return MonitorMemoryNative();
+    } else {
+        return "Unsupported Method";
+    }
 }
 
 /**
@@ -92,18 +88,15 @@ string Memory::InvokeMethod(const string& command) {
  * to retrieve the memory usage until the native object is destroyed on the
  * JavaScript side.
  */
-void* MemoryThread(void* parent)
-{
-	fprintf(stderr, "native side: thread init started\n");
-	Memory *pParent = static_cast<Memory *>(parent);
+void* MemoryThread(void* parent) {
+    Memory *pParent = static_cast<Memory *>(parent);
 
-	while (true) {
-		long fm = getMemory();
-		pParent->SendMemoryInfo(fm);
-		sleep(1);
-	}
+    // Endless loop that collect memory information and send it to JNext JavaScript side
+    while (true) {
+        pParent->SendMemoryInfo();
+        sleep(1);
+    }
 
-	fprintf(stderr, "native side: thread init done\n");
     return NULL;
 }
 
@@ -113,17 +106,18 @@ void* MemoryThread(void* parent)
  * true if the thread was created successfully and false othrewise.
  */
 bool Memory::StartThread() {
-	if (!m_thread) {
-		pthread_attr_t thread_attr;
-		pthread_attr_init(&thread_attr);
-		pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
+    if (!m_thread) {
+        pthread_attr_t thread_attr;
+        pthread_attr_init(&thread_attr);
+        pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
 
-		pthread_create(&m_thread, &thread_attr, MemoryThread, static_cast<void *>(this));
-		pthread_attr_destroy(&thread_attr);
-		return true;
-	} else {
-		return false;
-	}
+        pthread_create(&m_thread, &thread_attr, MemoryThread,
+                static_cast<void *>(this));
+        pthread_attr_destroy(&thread_attr);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /**
@@ -132,25 +126,24 @@ bool Memory::StartThread() {
  * monitoring was initialized.
  */
 string Memory::MonitorMemoryNative() {
-	if (StartThread()) {
-		return "Memory monitored";
-	} else {
-		return "Memory already being monitored";
-	}
+    if (StartThread()) {
+        return "Memory monitored";
+    } else {
+        return "Memory already being monitored";
+    }
 }
 
 /**
  * Method used by the getMemoryUsage thread to pass the amount of free memory
  * on the JavaScript side by firing an event.
  */
-void Memory::SendMemoryInfo(long fm) {
-    std::string eventString = "FreeMemory " + convertLongToString(fm);
-	NotifyEvent(eventString);
+void Memory::SendMemoryInfo() {
+    std::string eventString = "FreeMemory " + convertLongToString(getMemory());
+    NotifyEvent(eventString);
 }
 
 // Notifies JavaScript of an event
-void Memory::NotifyEvent(const std::string& event)
-{
+void Memory::NotifyEvent(const std::string& event) {
     std::string eventString = m_id + " ";
     eventString.append(event);
     SendPluginEvent(eventString.c_str(), m_pContext);
@@ -159,21 +152,21 @@ void Memory::NotifyEvent(const std::string& event)
 /**
  * Method that retreives the current free memory of OS.
  */
-long getMemory() {
-	struct stat statbuf;
-	paddr_t freemem;
+long Memory::getMemory() {
+    struct stat statbuf;
+    paddr_t freemem;
 
-	stat("/proc", &statbuf);
-	freemem = (paddr_t)statbuf.st_size;
+    stat("/proc", &statbuf);
+    freemem = (paddr_t) statbuf.st_size;
 
-	return freemem;
+    return freemem;
 }
 
 /**
  * Utility function to convert a long into a string.
  */
-string convertLongToString(long l) {
-	stringstream ss;
-	ss << l;
-	return ss.str();
+string Memory::convertLongToString(long l) {
+    stringstream ss;
+    ss << l;
+    return ss.str();
 }

@@ -18,32 +18,33 @@
 
 #include <string>
 #include <pthread.h>
-#include "../common/plugin.h"
+#include "../public/plugin.h"
 
 class Memory: public JSExt {
 
 public:
-	explicit Memory(const std::string& id);
-	virtual ~Memory();
+    explicit Memory(const std::string& id);
+    virtual ~Memory();
 
 // Interfaces of JSExt
-public:
-	virtual bool CanDelete();
-	virtual std::string InvokeMethod(const std::string& command);
+    virtual bool CanDelete();
+    virtual std::string InvokeMethod(const std::string& command);
 
-public:
-	void SendMemoryInfo(long fm);
-	void NotifyEvent(const std::string& event);
-
-private:
-	string MonitorMemoryNative();
-	bool StartThread();
-	void StopThread();
+// Methods for the memory thread
+    void SendMemoryInfo();
+    void NotifyEvent(const std::string& event);
 
 private:
+// Utility functions relate to memory function
+    long getMemory();
+    string convertLongToString(long l);
+
+// Memory monitoring thread function
+    string MonitorMemoryNative();
+    bool StartThread();
+
     std::string m_id;
     pthread_t m_thread;
 };
-
 
 #endif /* MEMORY_JS_HPP_ */
