@@ -33,8 +33,8 @@ function init() {
     utils = requireLocal("../chrome/lib/utils");
 }
 
-function handleTouchEnd(actionId) {
-    window.qnx.webplatform.getController().remoteExec(1, 'executeMenuAction', [actionId]);
+function handleTouchEnd(item) {
+    window.qnx.webplatform.getController().remoteExec(1, 'executeMenuAction', [item]);
 }
 
 contextmenu = {
@@ -70,7 +70,7 @@ contextmenu = {
             menuItem.appendChild(menuImage);
             menuItem.appendChild(document.createTextNode(options[i].label));
             menuItem.setAttribute("class", "menuItem");
-            menuItem.ontouchend = handleTouchEnd.bind(this, options[i].actionId);
+            menuItem.ontouchend = handleTouchEnd.bind(this, options[i]);
             menuItem.addEventListener('mousedown', contextmenu.handleMouseDown, false);
             menu.appendChild(menuItem);
         }
