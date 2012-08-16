@@ -43,6 +43,17 @@
                 list.populateList(targets, args[1]);
                 list.show();
             }
+
+            function showTargetsForMenuService(item) {
+                var list    = require('listBuilder'),
+                    header  = item.label,
+                    targets = item.children.items;
+                list.init();
+                list.setHeader(header);
+                list.populateListForMenuService(targets);
+                list.show();
+            }
+
             function showDialog(args) {
                 var dialog = require('dialog');
                 dialog.showDialog(args);

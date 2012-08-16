@@ -68,6 +68,31 @@ listBuilder = {
         // subdivs will have a click handler to run stuff
         // hide menu after handling a click
     },
+    populateListForMenuService: function (targets, request) {
+        var listContent = document.getElementById('listContent'),
+            listItem,
+            i;
+
+        // Reset listContent
+        listContent.innerHTML = "";
+        // create a bunch of subdivs
+        for (i in targets) {
+            listItem = document.createElement('div');
+            listItem.appendChild(document.createTextNode(targets[i].label));
+            listItem.setAttribute('class', 'listItem');
+            listItem.addEventListener('mousedown', handleMouseDown, false);
+            listItem.ontouchend = invokeApp.bind(this, targets[i].invoke.target);
+            listItems[targets[i].invoke.target] = {
+                target : targets[i].invoke.target,
+                action : targets[i].invoke.action,
+                type: targets[i].invoke.mime,
+                data : window.btoa(targets[i].invoke.data)
+            };
+            listContent.appendChild(listItem);
+        }
+        // subdivs will have a click handler to run stuff
+        // hide menu after handling a click
+    },
     show: function () {
         // set css class to visible
         var listContainer = document.getElementById('listContainer');
