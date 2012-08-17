@@ -18,7 +18,18 @@ var childProcess = require("child_process"),
     fs = require("fs"),
     path = require("path"),
     jWorkflow = require("jWorkflow"),
-    _c = require("./conf");
+    _c = require("./conf"),
+    _buildIgnore = require("./native-ignore");
+
+function checkBuild(array, ext, target) {
+    if (array.indexOf(ext) > -1) {
+        console.log("====================================================================");
+        console.log("WARNING: Skipping build for " + ext + "/" + target);
+        console.log("====================================================================");
+        return false;
+    }
+    return true;
+}
 
 function _getCmd(ext) {
     var cmd = "",
@@ -60,16 +71,23 @@ function _getCmd(ext) {
             fs.mkdirSync(deviceDir);
         }
 
-        cmd += CP_CMD + _c.DEPENDENCIES_CONFIGURE_QSK + " " +
-            simDir + AND_CMD + CP_CMD + _c.DEPENDENCIES_CONFIGURE_QSK +
-            " " + deviceDir + AND_CMD +
-            CD_CMD + simDir + AND_CMD +
-            configureX86 + AND_CMD +
-            MAKE_CMD + AND_CMD + stripX86 + AND_CMD +
-            CD_CMD + deviceDir + AND_CMD +
-            configureARM + AND_CMD +
-            MAKE_CMD + AND_CMD + stripARM;
+        if (checkBuild(_buildIgnore.simulator, ext, "simulator")) {
+            cmd += CP_CMD + _c.DEPENDENCIES_CONFIGURE_QSK + " " +
+                simDir + AND_CMD + CD_CMD + simDir + AND_CMD +
+                configureX86 + AND_CMD + MAKE_CMD + AND_CMD +
+                stripX86;
+        }
 
+        if (checkBuild(_buildIgnore.device, ext, "device")) {
+            if (cmd.length > 0) {
+                cmd += " " + AND_CMD + " ";
+            }
+
+            cmd += CP_CMD + _c.DEPENDENCIES_CONFIGURE_QSK + " " +
+                deviceDir + AND_CMD + CD_CMD + deviceDir + AND_CMD +
+                configureARM + AND_CMD + MAKE_CMD + AND_CMD +
+                stripARM;
+        }
     }
 
     return cmd;
