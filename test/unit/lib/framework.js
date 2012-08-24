@@ -45,7 +45,8 @@ describe("framework", function () {
             destroy: jasmine.createSpy(),
             executeJavaScript: jasmine.createSpy(),
             windowGroup: undefined,
-            addEventListener: jasmine.createSpy()
+            addEventListener: jasmine.createSpy(),
+            allowRunWhenBackgrounded: jasmine.createSpy()
         };
         mockedApplicationWindow = {
             visible: undefined
@@ -76,7 +77,7 @@ describe("framework", function () {
         controllerWebView = require(srcPath + "controllerWebView");
         rotationHelper = require(srcPath + 'rotationHelper');
         spyOn(rotationHelper, "addWebview");
-        spyOn(webview, "create").andCallFake(function (done) {
+        spyOn(webview, "create").andCallFake(function (config, done) {
             done();
         });
         spyOn(overlayWebView, "create").andCallFake(function (done) {
@@ -106,12 +107,7 @@ describe("framework", function () {
 
     it("on start passing callback and setting object parameters to create method of webview", function () {
         framework.start();
-        expect(webview.create).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Object));
-    });
-
-    it("setting object should have debugEnabled to be defined", function () {
-        framework.start();
-        expect((webview.create.mostRecentCall.args)[1].debugEnabled).toBeDefined();
+        expect(webview.create).toHaveBeenCalledWith(jasmine.any(Object), jasmine.any(Function));
     });
 
     it("can start a webview instance with a url", function () {
