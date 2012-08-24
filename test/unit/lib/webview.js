@@ -31,7 +31,8 @@ describe("webview", function () {
             destroy: jasmine.createSpy(),
             executeJavaScript: jasmine.createSpy(),
             windowGroup: undefined,
-            enableWebEventRedirect: jasmine.createSpy()
+            enableWebEventRedirect: jasmine.createSpy(),
+            allowRunWhenBackgrounded: jasmine.createSpy()
         };
         mockedApplication = {
             windowVisible: undefined
@@ -70,7 +71,7 @@ describe("webview", function () {
     describe("create", function () {
         it("sets up the visible webview", function () {
             spyOn(request, "init").andCallThrough();
-            webview.create();
+            webview.create({});
             waits(1);
             runs(function () {
                 expect(mockedWebview.enableCrossSiteXHR).toEqual(true);
@@ -84,29 +85,45 @@ describe("webview", function () {
                 expect(mockedWebview.enableWebEventRedirect.argsForCall[2]).toEqual(['PropertyCurrentContextEvent', 3]);
                 expect(request.init).toHaveBeenCalledWith(mockedWebview);
                 expect(mockedWebview.onNetworkResourceRequested).toEqual(request.init(mockedWebview).networkResourceRequestedHandler);
+                expect(mockedWebview.allowRunWhenBackgrounded).wasNotCalled();
             });
         });
 
         it("calls the ready function", function () {
             var chuck = jasmine.createSpy();
-            webview.create(chuck);
+            webview.create({}, chuck);
             waits(1);
             runs(function () {
                 expect(chuck).toHaveBeenCalled();
             });
         });
-
+        
+        it("calls the allowRunWhenBackgrounded function when the run_when_backgrounded permission is set in config.xml", function () {
+            webview.create({"permissions": ["run_when_backgrounded"]});
+            waits(1);
+            runs(function () {
+                expect(mockedWebview.allowRunWhenBackgrounded).toHaveBeenCalled();
+            });
+        });
+        
+        it("calls the allowRunWhenBackgrounded function when the blackberry.push feature is set in config.xml", function () {
+            webview.create({"accessList": [{"features": [{"id": "blackberry.push"}], "uri": "WIDGET_LOCAL", "allowSubDomain": true}]});
+            waits(1);
+            runs(function () {
+                expect(mockedWebview.allowRunWhenBackgrounded).toHaveBeenCalled();
+            });
+        });        
     });
 
     describe("file system sandbox", function () {
         it("setSandbox", function () {
-            webview.create();
+            webview.create({});
             webview.setSandbox(false);
             expect(mockedWebview.setFileSystemSandbox).toBeFalsy();
         });
 
         it("getSandbox", function () {
-            webview.create();
+            webview.create({});
             webview.setSandbox(false);
             expect(webview.getSandbox()).toBeFalsy();
         });
@@ -114,7 +131,7 @@ describe("webview", function () {
 
     describe("id", function () {
         it("can get the id for the webiew", function () {
-            webview.create();
+            webview.create({});
             webview.id();
             expect(mockedWebview.id).toEqual(42);
         });
@@ -122,7 +139,7 @@ describe("webview", function () {
 
     describe("geometry", function () {
         it("can set geometry", function () {
-            webview.create();
+            webview.create({});
             webview.setGeometry(0, 0, 100, 200);
             expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, 100, 200);
         });
@@ -130,41 +147,40 @@ describe("webview", function () {
 
     describe("application orientation", function () {
         it("can set application orientation", function () {
-            webview.create();
+            webview.create({});
             webview.setApplicationOrientation(90);
             expect(mockedWebview.setApplicationOrientation).toHaveBeenCalledWith(90);
         });
 
         it("can notifyApplicationOrientationDone", function () {
-            webview.create();
+            webview.create({});
             webview.notifyApplicationOrientationDone();
             expect(mockedWebview.notifyApplicationOrientationDone).toHaveBeenCalled();
         });
     });
 
     describe("methods other than create", function () {
-
         it("calls the underlying destroy", function () {
-            webview.create(mockedWebview);
+            webview.create({});
             webview.destroy();
             expect(mockedWebview.destroy).toHaveBeenCalled();
         });
 
         it("sets the url property", function () {
             var url = "http://AWESOMESAUCE.com";
-            webview.create(mockedWebview);
+            webview.create({});
             webview.setURL(url);
             expect(mockedWebview.url).toEqual(url);
         });
 
         it("calls the underlying executeJavaScript", function () {
             var js = "var awesome='Jasmine BDD'";
-            webview.create(mockedWebview);
+            webview.create({});
             webview.executeJavascript(js);
             expect(mockedWebview.executeJavaScript).toHaveBeenCalledWith(js);
         });
         it("calls the underlying windowGroup property", function () {
-            webview.create(mockedWebview);
+            webview.create({});
             expect(webview.windowGroup()).toEqual(mockedWebview.windowGroup);
         });
     });
