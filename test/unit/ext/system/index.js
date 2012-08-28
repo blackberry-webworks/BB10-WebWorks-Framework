@@ -194,199 +194,167 @@ describe("system index", function () {
             expect(failCB).toHaveBeenCalledWith(-1, jasmine.any(String));
         });
     });
+    
+    /*
+        Helpers for device property tests
+     */
+    function failDevicePropertiesHelper(prop) {
+        var fail = jasmine.createSpy(),
+            mockPPS = {
+                open: jasmine.createSpy().andReturn(false),
+                close: jasmine.createSpy()
+            };
+
+        window.qnx.webplatform.pps.create = jasmine.createSpy().andReturn(mockPPS);
+
+        sysIndex[prop](null, fail, null, null);
+
+        expect(mockPPS.open).toHaveBeenCalledWith(window.qnx.webplatform.pps.FileMode.RDONLY);
+        expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
+    }
+
+    function successDevicePropertiesHelper(prop, readObj, expectedValue) {
+        var success = jasmine.createSpy(),
+            mockPPS = {
+                open: jasmine.createSpy().andReturn(true),
+                close: jasmine.createSpy()
+            };
+
+        window.qnx.webplatform.pps.create = jasmine.createSpy().andReturn(mockPPS);
+
+        sysIndex[prop](success, null, null, null);
+
+        expect(mockPPS.onFirstReadComplete).toBeDefined();
+        mockPPS.onFirstReadComplete(readObj);
+
+        expect(mockPPS.open).toHaveBeenCalledWith(window.qnx.webplatform.pps.FileMode.RDONLY);
+        expect(mockPPS.close).toHaveBeenCalled();            
+        expect(success).toHaveBeenCalledWith(expectedValue);
+    }
 
     describe("device properties", function () {
-        var ppsUtils,
-            mockedPPS,
-            path = "/pps/services/deviceproperties",
-            mode = "0";
+        var pps = require(libDir + "pps/pps");
 
         beforeEach(function () {
-            GLOBAL.JNEXT = {};
-            ppsUtils = require(libDir + "pps/ppsUtils");
             sysIndex = require(apiDir + "index");
-            mockedPPS = {
-                init: jasmine.createSpy(),
-                open: jasmine.createSpy().andReturn(true),
-                read: jasmine.createSpy().andReturn({"hardwareid" : "0x8500240a", "scmbundle" : "10.0.6.99"}),
-                close: jasmine.createSpy()
+
+            GLOBAL.window = {
+                qnx: {
+                    webplatform: {
+                        pps: {
+                            FileMode: {
+                                RDONLY: "0"
+                            },
+                            PPSMode: {
+                                FULL: "0"
+                            }
+                        }
+                    }
+                }
             };
         });
 
         afterEach(function () {
-            GLOBAL.JNEXT = null;
-            ppsUtils = null;
+            GLOBAL.window = null;
             sysIndex = null;
-            mockedPPS = null;
         });
 
         it("can call fail if failed to open PPS object for hardwareId", function () {
-            var fail = jasmine.createSpy();
-
-            mockedPPS.open = jasmine.createSpy().andReturn(false);
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.hardwareId(null, fail, null, null);
-
-            expect(mockedPPS.init).toHaveBeenCalled();
-            expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).not.toHaveBeenCalled();
-            expect(mockedPPS.close).toHaveBeenCalled();
-            expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
+            failDevicePropertiesHelper('hardwareId');
         });
 
         it("can call fail if failed to open PPS object for softwareVersion", function () {
-            var fail = jasmine.createSpy();
-
-            mockedPPS.open = jasmine.createSpy().andReturn(false);
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.softwareVersion(null, fail, null, null);
-
-            expect(mockedPPS.init).toHaveBeenCalled();
-            expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).not.toHaveBeenCalled();
-            expect(mockedPPS.close).toHaveBeenCalled();
-            expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
+            failDevicePropertiesHelper('softwareVersion');
         });
 
         it("can call success with hardwareId", function () {
-            var success = jasmine.createSpy();
-
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.hardwareId(success, null, null, null);
-
-            expect(mockedPPS.init).toHaveBeenCalled();
-            expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).toHaveBeenCalled();
-            expect(mockedPPS.close).toHaveBeenCalled();
-            expect(success).toHaveBeenCalledWith("0x8500240a");
+            successDevicePropertiesHelper('hardwareId', {
+                deviceproperties: {
+                    hardwareid: "0x8500240a"
+                }
+            }, "0x8500240a");
         });
 
         it("can call success with softwareVersion", function () {
-            var success = jasmine.createSpy();
-
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.softwareVersion(success, null, null, null);
-
-            // The PPS objects should have been init in the test above; once the PPS has been read it is cached
-            expect(mockedPPS.init).not.toHaveBeenCalled();
-            expect(mockedPPS.open).not.toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).not.toHaveBeenCalled();
-            expect(mockedPPS.close).not.toHaveBeenCalled();
-            expect(success).toHaveBeenCalledWith("10.0.6.99");
+            successDevicePropertiesHelper('softwareVersion', {
+                deviceproperties: {
+                    scmbundle: "10.0.6.99"
+                }
+            }, "10.0.6.99");
         });
     });
 
     describe("device language", function () {
-        var ppsUtils,
-            mockedPPS,
-            path = "/pps/services/confstr/_CS_LOCALE",
-            mode = "0";
+        var pps = require(libDir + 'pps/pps');
 
         beforeEach(function () {
-            GLOBAL.JNEXT = {};
-            ppsUtils = require(libDir + "pps/ppsUtils");
-            sysIndex = require(apiDir + "index");
-            mockedPPS = {
-                init: jasmine.createSpy(),
-                open: jasmine.createSpy().andReturn(true),
-                read: jasmine.createSpy().andReturn({"_CS_LOCALE" : "en_US"}),
-                close: jasmine.createSpy()
+            GLOBAL.window = {
+                qnx: {
+                    webplatform: {
+                        pps: {
+                            FileMode: {
+                                RDONLY: "0"
+                            },
+                            PPSMode: {
+                                FULL: "0"
+                            }
+                        }
+                    }
+                }
             };
+
+            sysIndex = require(apiDir + "index");
         });
 
         afterEach(function () {
-            GLOBAL.JNEXT = null;
-            ppsUtils = null;
+            GLOBAL.window = null;
             sysIndex = null;
-            mockedPPS = null;
         });
 
         it("can call fail if failed to open PPS object for language", function () {
-            var fail = jasmine.createSpy();
-
-            mockedPPS.open = jasmine.createSpy().andReturn(false);
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.language(null, fail, null, null);
-
-            expect(mockedPPS.init).toHaveBeenCalled();
-            expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).not.toHaveBeenCalled();
-            expect(mockedPPS.close).toHaveBeenCalled();
-            expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
+            failDevicePropertiesHelper('language');
         });
 
         it("can call success with language", function () {
-            var success = jasmine.createSpy();
-
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.language(success, null, null, null);
-
-            expect(mockedPPS.init).toHaveBeenCalled();
-            expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).toHaveBeenCalled();
-            expect(mockedPPS.close).toHaveBeenCalled();
-            expect(success).toHaveBeenCalledWith("en_US");
+            successDevicePropertiesHelper('language', {
+                _CS_LOCALE: "en_US"
+            }, "en_US");
         });
     });
 
     describe("device region", function () {
-        var ppsUtils,
-            mockedPPS,
-            path = "/pps/services/locale/settings",
-            mode = "0";
+        var pps = require(libDir + 'pps/pps');
 
         beforeEach(function () {
-            GLOBAL.JNEXT = {};
-            ppsUtils = require(libDir + "pps/ppsUtils");
-            sysIndex = require(apiDir + "index");
-            mockedPPS = {
-                init: jasmine.createSpy(),
-                open: jasmine.createSpy().andReturn(true),
-                read: jasmine.createSpy().andReturn({"region" : "en_US"}),
-                close: jasmine.createSpy()
+            GLOBAL.window = {
+                qnx: {
+                    webplatform: {
+                        pps: {
+                            FileMode: {
+                                RDONLY: "0"
+                            },
+                            PPSMode: {
+                                FULL: "0"
+                            }
+                        }
+                    }
+                }
             };
         });
 
         afterEach(function () {
-            GLOBAL.JNEXT = null;
-            ppsUtils = null;
+            GLOBAL.window = null;
             sysIndex = null;
-            mockedPPS = null;
         });
 
         it("can call fail if failed to open PPS object for region", function () {
-            var fail = jasmine.createSpy();
-
-            mockedPPS.open = jasmine.createSpy().andReturn(false);
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.region(null, fail, null, null);
-
-            expect(mockedPPS.init).toHaveBeenCalled();
-            expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).not.toHaveBeenCalled();
-            expect(mockedPPS.close).toHaveBeenCalled();
-            expect(fail).toHaveBeenCalledWith(-1, jasmine.any(String));
+            failDevicePropertiesHelper('region');
         });
 
         it("can call success with region", function () {
-            var success = jasmine.createSpy();
-
-            spyOn(ppsUtils, "createObject").andReturn(mockedPPS);
-
-            sysIndex.region(success, null, null, null);
-
-            expect(mockedPPS.init).toHaveBeenCalled();
-            expect(mockedPPS.open).toHaveBeenCalledWith(path, mode);
-            expect(mockedPPS.read).toHaveBeenCalled();
-            expect(mockedPPS.close).toHaveBeenCalled();
-            expect(success).toHaveBeenCalledWith("en_US");
+            successDevicePropertiesHelper('region', {
+                region: 'en_US'
+            }, 'en_US');
         });
     });
 
