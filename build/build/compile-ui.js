@@ -62,7 +62,6 @@ module.exports = function (prev, baton) {
         easset,
         eassets;
 
-    //Push on the thirdparty modules
     thirdParty.push(path.join(_c.DEPENDENCIES, 'require/require.js'));
     thirdParty.push(path.join(_c.DEPENDENCIES, 'xui/xui.js'));
 
