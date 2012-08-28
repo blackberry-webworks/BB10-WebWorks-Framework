@@ -1,9 +1,38 @@
 describe("Cross Origin Request", function () {
+
+    function mixin (from, to) {
+        Object.getOwnPropertyNames(from).forEach(function (prop) {
+            if (Object.hasOwnProperty.call(from, prop)) {
+                Object.defineProperty(to, prop, Object.getOwnPropertyDescriptor(from, prop));
+            }
+        });
+        return to;
+    }
+
+    function testHtmlElement (htmlElement, attributes) {
+        var element = document.createElement(htmlElement);
+        mixin(attributes, htmlElement);
+        element.onload = jasmine.createSpy();
+        element.onerror = jasmine.createSpy();
+        expect(element.onload).hasBeenCalled();
+        expect(element.onerror).wasNotCalled();
+    }
+
+
     it("should allow cross origin xhr for a whitelisted domain", function () {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", 'http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png', false);
         xhr.send();
+        expect(xhr.readyState).toBe(4);
         expect(xhr.status).toBe(200);
+    });
+
+    it("should allow cross origin images for a whitelisted domain", function () {
+        testHtmlElement('img', {src: "http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png"});
+    });
+
+    xit("should allow scripts to run for a whitelisted domain", function () {
+        testHtmlElement('script', {type: "text/javascript", innerHTML: ""});
     });
     
     it("should not allow cross origin xhr for a non-whitelisted domain", function () {
