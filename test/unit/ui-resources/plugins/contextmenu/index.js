@@ -288,7 +288,7 @@ describe("ui-resources/contextmenu", function () {
     });
 
     it("can layout the header title correctly when there is no sub header text", function () {
-        // Override the getElemebyById to refer to the same object so we can spy on the context menu's changes
+        // Override the getElementById to refer to the same object so we can spy on the context menu's changes
         // to the headers
         document.staticElements.contextMenuHeadText = { innerText: undefined, style: {}};
         document.staticElements.contextMenuSubheadText = { innerText: undefined, style: {}};
