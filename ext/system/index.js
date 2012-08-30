@@ -19,6 +19,7 @@ var Whitelist = require("../../lib/policy/whitelist").Whitelist,
     _utils = require("../../lib/utils"),
     _ppsUtils = require("../../lib/pps/ppsUtils"),
     _ppsEvents = require("../../lib/pps/ppsEvents"),
+    _pps = require("../../lib/pps/pps"),
     // This object is used by action map and contains links between pps object fields monitored for change in that object helper methods
     // to analyze if the value is the one callback should be invoked and fields name and value format as would appear on return.
     // Set disableOnChange to true if not interested on change for a particular field but still interested to return its value.  
@@ -191,74 +192,35 @@ var Whitelist = require("../../lib/policy/whitelist").Whitelist,
                 _event.trigger("regionchanged", args.region);
             }
         }
-    },
-    _deviceprops;
+    };
 
 /*
  * Read the PPS object once and cache it for future calls
  */
-function readDeviceProperties() {
-    var PPSUtils = _ppsUtils.createObject();
-
-    PPSUtils.init();
-
-    if (PPSUtils.open("/pps/services/deviceproperties", "0")) {
-        _deviceprops = PPSUtils.read();
-    }
-
-    PPSUtils.close();
-}
-
 function getDeviceProperty(prop, success, fail) {
-    if (!_deviceprops) {
-        readDeviceProperties();
-    }
+    var successWrapper = function (data) {
+        success(data.deviceproperties[prop]);
+    };
 
-    if (_deviceprops) {
-        success(_deviceprops[prop]);
-    } else {
-        fail(-1, "Cannot open PPS object");
-    }
+    _pps.readPPSObject('/pps/services/deviceproperties', successWrapper, fail);
 }
 
 // Get device language object from /pps/services/confstr/_CS_LOCALE
 function readDeviceLanguage(success, fail) {
-    var PPSUtils = _ppsUtils.createObject(),
-        language = "";
+    var successWrapper = function (data) {
+        success(data._CS_LOCALE);
+    };
 
-    PPSUtils.init();
-
-    if (PPSUtils.open("/pps/services/confstr/_CS_LOCALE", "0")) {
-        language = PPSUtils.read()._CS_LOCALE;
-    }
-
-    PPSUtils.close();
-
-    if (language !== "") {
-        success(language);
-    } else {
-        fail(-1, "Cannot read the device language");
-    }
+    _pps.readPPSObject('/pps/services/confstr/_CS_LOCALE', successWrapper, fail);
 }
 
 // Get device region setting from /pps/services/locale/settings object
 function readDeviceRegion(success, fail) {
-    var PPSUtils = _ppsUtils.createObject(),
-        region = "";
+    var successWrapper = function (data) {
+        success(data.region);
+    };
 
-    PPSUtils.init();
-
-    if (PPSUtils.open("/pps/services/locale/settings", "0")) {
-        region = PPSUtils.read().region;
-    }
-
-    PPSUtils.close();
-
-    if (region !== "") {
-        success(region);
-    } else {
-        fail(-1, "Cannot read the device region setting");
-    }
+    _pps.readPPSObject('/pps/services/locale/settings', successWrapper, fail);
 }
 
 module.exports = {
