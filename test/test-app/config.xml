@@ -35,12 +35,15 @@
     <access uri="http://www.google-analytics.com/" subdomains="true"/>
     <access uri="http://www.rim.com" />
     <access uri="http://www.w3.org" subdomains="true" />
+    <access uri="http://open-stand.org" subdomains="true" />
     <access uri="http://benwerd.com/" />
     <access uri="http://www.youtube.com/" subdomains="true" />
     <access uri="http://ytimg.com/" subdomains="true" />
     <access uri="http://www.homestarrunner.com/" />
     <access uri="http://cachemanifest.heroku.com/" />
     <access uri="http://jquery.com/" subdomains="true"/>
+    <access uri="http://www.wikipedia.org//" subdomains="true"/>
+    <access uri="http://wikimedia.org//" subdomains="true"/>
   	
     <license href="http://www.apache.org/licenses/LICENSE-2.0">
         Licensed under the Apache License, Version 2.0 (the "License");

@@ -3,32 +3,48 @@ describe("Cross Origin Request", function () {
     function mixin (from, to) {
         Object.getOwnPropertyNames(from).forEach(function (prop) {
             if (Object.hasOwnProperty.call(from, prop)) {
-                Object.defineProperty(to, prop, Object.getOwnPropertyDescriptor(from, prop));
+                to[prop] = from[prop];
             }
         });
         return to;
     }
 
-    function testHtmlElement (htmlElement, attributes) {
-        var element = document.createElement(htmlElement);
-        mixin(attributes, htmlElement);
+    function testHtmlElement (htmlElement, attributes, shouldFail) {
+        var element = document.createElement(htmlElement),
+            wasLoaded = false;
+        mixin(attributes, element);
         element.onload = jasmine.createSpy();
         element.onerror = jasmine.createSpy();
-        expect(element.onload).hasBeenCalled();
-        expect(element.onerror).wasNotCalled();
+        document.body.appendChild(element);
+        waits(100);
+        waitsFor(function () {
+            return shouldFail? element.onerror.wasCalled: element.onload.wasCalled;
+        }, "the element to " + (shouldFail ? "un" : "") + "successfully load", 5000);
+        runs(function () {
+            expect(element.onload.wasCalled).toBe(!shouldFail);
+            expect(element.onerror.wasCalled).toBe(!!shouldFail);
+            document.body.removeChild(element);
+        });
     }
 
+    function whitelistedImgUrl () {
+        return 'http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png?v=' + new Date().getTime();
+    }
 
     it("should allow cross origin xhr for a whitelisted domain", function () {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", 'http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png', false);
+        xhr.open("GET", whitelistedImgUrl(), false);
         xhr.send();
         expect(xhr.readyState).toBe(4);
         expect(xhr.status).toBe(200);
     });
 
     it("should allow cross origin images for a whitelisted domain", function () {
-        testHtmlElement('img', {src: "http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png"});
+        testHtmlElement('img', {src: whitelistedImgUrl()});
+    });
+
+    it("should allow navigation for a whitelisted domain", function () {
+        testHtmlElement('iframe', {src: whitelistedImgUrl() });
     });
 
     xit("should allow scripts to run for a whitelisted domain", function () {
@@ -47,6 +63,16 @@ describe("Cross Origin Request", function () {
             message: "NETWORK_ERR: XMLHttpRequest Exception 101" 
         });
         //expect(console.error).toHaveBeenCalledWith('Access to "' + url + '" not allowed');
+    });
+
+    it("should not allow cross origin images for a non-whitelisted domain",  function () {
+        spyOn(window, "alert");
+        testHtmlElement('img', {src: "http://octodex.github.com/images/strongbadtocat.png"}, true);
+    });
+
+    it("should not allow navigation for a whitelisted domain", function () {
+        spyOn(window, "alert");
+        testHtmlElement('iframe', {src: "http://www.github.com/"});
     });
 
     describe("Within an iFrame", function () {
@@ -73,7 +99,7 @@ describe("Cross Origin Request", function () {
             expect(oddJob).wasNotCalled();
         });
 
-        it("should NOT allow navigation for a non-whitelisted domain", function () {
+        xit("should NOT allow navigation for a non-whitelisted domain", function () {
             var url = "http://www.nba.com/",
                 oddJob = jasmine.createSpy();
             ifr.src = url;
@@ -86,7 +112,7 @@ describe("Cross Origin Request", function () {
             expect(oddJob).hasBeenCalled();
         });
 
-        it("should allow api access for a whitelisted url", function () {
+        xit("should allow api access for a whitelisted url", function () {
             var url = "http://www.rim.com/",
                 scriptRef = ifr.contentDocument.createElement("script");
 
@@ -108,7 +134,7 @@ describe("Cross Origin Request", function () {
             expect(ifr.contentWindow.xhr.status).toBe(200);
         });
 
-        it("should NOT allow api access for a non-whitelisted url", function () {
+        xit("should NOT allow api access for a non-whitelisted url", function () {
             var url = "http://www.google.com/",
                 scriptRef = ifr.contentDocument.createElement("script");
 
