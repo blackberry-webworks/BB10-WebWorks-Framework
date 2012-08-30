@@ -27,6 +27,14 @@ describe("requestination ", function () {
         expect(Whitelist.prototype.isAccessAllowed).toHaveBeenCalled();
     });
 
+    it("checks whether the request is for an iframe when accessing the whitelist", function () {
+        spyOn(Whitelist.prototype, "isAccessAllowed").andReturn(true);
+        var url = "http://www.google.com",
+            requestObj = request.init(mockedWebview);
+        requestObj.networkResourceRequestedHandler(JSON.stringify({url: url, targetType: "TargetIsXMLHTTPRequest"}));
+        expect(Whitelist.prototype.isAccessAllowed).toHaveBeenCalledWith(url, true);
+    });
+
     it("can apply whitelist rules and allow valid urls", function () {
         spyOn(Whitelist.prototype, "isAccessAllowed").andReturn(true);
         var url = "http://www.google.com",
@@ -44,6 +52,16 @@ describe("requestination ", function () {
         expect(Whitelist.prototype.isAccessAllowed).toHaveBeenCalled();
         expect(JSON.parse(returnValue).setAction).toEqual("DENY");
         expect(mockedWebview.executeJavaScript.mostRecentCall.args[0]).toEqual("alert('Access to \"" + url + "\" not allowed')");
+    });
+
+    it("will not give a return value for xhr calls", function () {
+        spyOn(Whitelist.prototype, "isAccessAllowed").andReturn(false);
+        var url = "http://www.google.com",
+            requestObj = request.init(mockedWebview),
+            returnValue = requestObj.networkResourceRequestedHandler(JSON.stringify({url: url, targetType: "TargetIsXMLHTTPRequest"}));
+        expect(Whitelist.prototype.isAccessAllowed).toHaveBeenCalled();
+        expect(returnValue).toEqual(undefined);
+        expect(mockedWebview.executeJavaScript).wasNotCalled();
     });
 
     it("can call the server handler when certain urls are detected", function () {
