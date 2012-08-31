@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var _ppsUtils = require("../../lib/pps/ppsUtils"),
-    pps = require("../../lib/pps/pps");
 
 module.exports = {
     uuid: function (success, fail, args, env) {
-        pps.readPPSObject("/pps/services/private/deviceproperties", function (data) {
-            success(data.deviceproperties.devicepin);
-        });
+        window.qnx.webplatform.getDevice().getDevicePin(function (data) {
+            success(data);
+        }, fail);
     }
 };

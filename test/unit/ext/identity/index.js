@@ -16,25 +16,22 @@
 var _apiDir = __dirname + "./../../../../ext/identity/",
     _libDir = __dirname + "./../../../../lib/",
     index,
-    pps,
+    mockDevice,
     path = "/pps/services/private/deviceproperties",
     mode = "0";
 
 describe("identity index", function () {
     beforeEach(function () {
         index = require(_apiDir + "index");
-        pps = require(_libDir + "pps/pps");
+        mockDevice = {
+            getDevicePin: function (success, fail) {
+                success("0x12345");
+            }
+        };
         GLOBAL.window = {
             qnx: {
                 webplatform: {
-                    pps: {
-                        FileMode: {
-                            RDONLY: "0"
-                        },
-                        PPSMode: {
-                            FULL: "0"
-                        }
-                    }
+                    getDevice: jasmine.createSpy().andReturn(mockDevice)
                 }
             }
         };
@@ -48,25 +45,10 @@ describe("identity index", function () {
     describe("uuid", function () {
         it("can call success with devicepin", function () {
             var success = jasmine.createSpy(),
-                fail = jasmine.createSpy(),
-                mockPPS = {
-                    open: jasmine.createSpy().andReturn(true),
-                    close: jasmine.createSpy()
-                };
-
-            GLOBAL.window.qnx.webplatform.pps.create = jasmine.createSpy().andReturn(mockPPS);
+                fail = jasmine.createSpy();
 
             index.uuid(success, fail);
-
-            // Manually trigger the read event
-            expect(mockPPS.onFirstReadComplete).toBeDefined();
-            mockPPS.onFirstReadComplete({
-                deviceproperties: {
-                    devicepin: 'mypin'
-                }
-            });
-            
-            expect(success).toHaveBeenCalledWith('mypin');
+            expect(success).toHaveBeenCalledWith("0x12345");
         });
     });
 });
