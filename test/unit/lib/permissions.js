@@ -73,7 +73,7 @@ describe("permissions", function () {
 
     describe("init", function () {
         it("can set up a permissions object", function () {
-            webview.create();
+            webview.create({});
             waits(1);
             expect(permissions.init).toBeDefined();
             permissions.init(mockedWebview);
@@ -87,7 +87,7 @@ describe("permissions", function () {
     describe("permissons tests", function () {
 
         beforeEach(function () {
-            webview.create();
+            webview.create({});
             waits(1);
             expect(permissions.init).toBeDefined();
             permissions.init(mockedWebview);

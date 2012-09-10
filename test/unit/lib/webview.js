@@ -22,6 +22,7 @@ describe("webview", function () {
             active: undefined,
             zOrder: undefined,
             url: undefined,
+            autoDeferNetworkingAndJavaScript: undefined,
             setFileSystemSandbox: undefined,
             setGeometry: jasmine.createSpy(),
             setApplicationOrientation: jasmine.createSpy(),
@@ -72,13 +73,14 @@ describe("webview", function () {
     describe("create", function () {
         it("sets up the visible webview", function () {
             spyOn(request, "init").andCallThrough();
-            webview.create();
+            webview.create({});
             waits(1);
             runs(function () {
                 expect(mockedWebview.enableCrossSiteXHR).toEqual(true);
                 expect(mockedWebview.visible).toEqual(true);
                 expect(mockedWebview.active).toEqual(true);
                 expect(mockedWebview.zOrder).toEqual(0);
+                expect(mockedWebview.autoDeferNetworkingAndJavaScript).toEqual(true);
                 expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, screen.width, screen.height);
                 expect(mockedWebview.enableWebEventRedirect.argsForCall[0]).toEqual(['ContextMenuRequestEvent', 3]);
                 expect(mockedWebview.enableWebEventRedirect.argsForCall[1]).toEqual(['ContextMenuCancelEvent', 3]);
@@ -90,24 +92,39 @@ describe("webview", function () {
 
         it("calls the ready function", function () {
             var chuck = jasmine.createSpy();
-            webview.create(chuck);
+            webview.create({}, chuck);
             waits(1);
             runs(function () {
                 expect(chuck).toHaveBeenCalled();
             });
         });
-
+        
+        it("Sets autoDeferNetworkingAndJavaScript to false when the run_when_backgrounded permission is set in config.xml", function () {
+            webview.create({"permissions": ["run_when_backgrounded"]});
+            waits(1);
+            runs(function () {
+                expect(mockedWebview.autoDeferNetworkingAndJavaScript).toEqual(false);
+            });
+        });
+        
+        it("Sets autoDeferNetworkingAndJavaScript to false when the blackberry.push feature is set in config.xml", function () {
+            webview.create({"accessList": [{"features": [{"id": "blackberry.push"}], "uri": "WIDGET_LOCAL", "allowSubDomain": true}]});
+            waits(1);
+            runs(function () {
+                expect(mockedWebview.autoDeferNetworkingAndJavaScript).toEqual(false);
+            });
+        });        
     });
 
     describe("file system sandbox", function () {
         it("setSandbox", function () {
-            webview.create();
+            webview.create({});
             webview.setSandbox(false);
             expect(mockedWebview.setFileSystemSandbox).toBeFalsy();
         });
 
         it("getSandbox", function () {
-            webview.create();
+            webview.create({});
             webview.setSandbox(false);
             expect(webview.getSandbox()).toBeFalsy();
         });
@@ -115,7 +132,7 @@ describe("webview", function () {
 
     describe("id", function () {
         it("can get the id for the webiew", function () {
-            webview.create();
+            webview.create({});
             webview.id();
             expect(mockedWebview.id).toEqual(42);
         });
@@ -123,7 +140,7 @@ describe("webview", function () {
 
     describe("geometry", function () {
         it("can set geometry", function () {
-            webview.create();
+            webview.create({});
             webview.setGeometry(0, 0, 100, 200);
             expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, 100, 200);
         });
@@ -131,13 +148,13 @@ describe("webview", function () {
 
     describe("application orientation", function () {
         it("can set application orientation", function () {
-            webview.create();
+            webview.create({});
             webview.setApplicationOrientation(90);
             expect(mockedWebview.setApplicationOrientation).toHaveBeenCalledWith(90);
         });
 
         it("can notifyApplicationOrientationDone", function () {
-            webview.create();
+            webview.create({});
             webview.notifyApplicationOrientationDone();
             expect(mockedWebview.notifyApplicationOrientationDone).toHaveBeenCalled();
         });
@@ -145,35 +162,34 @@ describe("webview", function () {
 
     describe("plugin directory", function () {
         it("can set an extra plugin directory", function () {
-            webview.create();
+            webview.create({});
             webview.setExtraPluginDirectory('/usr/lib/browser/plugins');
             expect(mockedWebview.setExtraPluginDirectory).toHaveBeenCalledWith('/usr/lib/browser/plugins');
         });
     });
 
     describe("methods other than create", function () {
-
         it("calls the underlying destroy", function () {
-            webview.create(mockedWebview);
+            webview.create({});
             webview.destroy();
             expect(mockedWebview.destroy).toHaveBeenCalled();
         });
 
         it("sets the url property", function () {
             var url = "http://AWESOMESAUCE.com";
-            webview.create(mockedWebview);
+            webview.create({});
             webview.setURL(url);
             expect(mockedWebview.url).toEqual(url);
         });
 
         it("calls the underlying executeJavaScript", function () {
             var js = "var awesome='Jasmine BDD'";
-            webview.create(mockedWebview);
+            webview.create({});
             webview.executeJavascript(js);
             expect(mockedWebview.executeJavaScript).toHaveBeenCalledWith(js);
         });
         it("calls the underlying windowGroup property", function () {
-            webview.create(mockedWebview);
+            webview.create({});
             expect(webview.windowGroup()).toEqual(mockedWebview.windowGroup);
         });
     });
