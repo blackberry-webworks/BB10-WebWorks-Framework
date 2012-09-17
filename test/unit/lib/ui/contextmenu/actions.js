@@ -18,6 +18,7 @@ var _apiDir = __dirname + "./../../../../../ext/ui.contextmenu",
     libEvent = require(_libDir + 'event'),
     config = require(_libDir + './config.js'),
     webview = require(_libDir + 'webview'),
+    _overlayWebView = require(_libDir + 'overlayWebView'),
     invocation,
     actions,
     success,
@@ -35,7 +36,8 @@ var _apiDir = __dirname + "./../../../../../ext/ui.contextmenu",
         invocation : {
             TARGET_TYPE_ALL : '',
             ACTION_TYPE_MENU : '',
-            queryTargets : jasmine.createSpy()
+            queryTargets : jasmine.createSpy(),
+            invoke: jasmine.createSpy()
         },
         getEnv : jasmine.createSpy()
     },
@@ -73,6 +75,7 @@ describe("blackberry.ui.actions.handlers index", function () {
             };
         };
         GLOBAL.downloadSharedFile = jasmine.createSpy();
+        GLOBAL.showInvocationList = jasmine.createSpy();
         actions = require(_libDir + '/ui/contextmenu/actions');
         dialog = require(_libDir + './ui/dialog/index');
         invocation = window.qnx.webplatform.getApplication().invocation;
@@ -194,6 +197,82 @@ describe("blackberry.ui.actions.handlers index", function () {
         actions.removeCustomItem(actionId);
         actions.runHandler(actionId);
         expect(libEvent.trigger).not.toHaveBeenCalled();
+    });
+
+    it("menuServiceHandlers is defined", function () {
+        expect(actions.menuServiceHandlers).toBeDefined();
+    });
+
+    it("menuService is defined", function () {
+        expect(actions.menuServiceHandlers.menuService).toBeDefined();
+    });
+
+    it("menuservice handler is called and show invocationList", function () {
+        var item = {
+            "icon": "/usr/share/icons/bb_action_share.png",
+            "label": "Share",
+            "children": {
+                "title": "Share",
+                "items": [
+                    {
+                        "icon": "/apps/sys.cfs.dropbox.testRel_cfs_dropbox47dcff5d/public/native/icon.png",
+                        "label": "Dropbox",
+                        "invoke": {
+                            "type": "CARD",
+                            "target": "sys.cfs.dropbox.composer",
+                            "action": "bb.action.SHARE",
+                            "mime": "message/rfc822",
+                            "perimeter": "personal"
+                        }
+                    },
+                    {
+                        "icon": "/apps/sys.cfs.box.testRel_sys_cfs_boxc828e12c/public/assets/images/ic_app_box.png",
+                        "label": "Box",
+                        "invoke": {
+                            "type": "CARD",
+                            "target": "sys.cfs.box.composer",
+                            "action": "bb.action.SHARE",
+                            "mime": "message/rfc822",
+                            "perimeter": "personal"
+                        }
+                    },
+                    {
+                        "icon": "/apps/sys.NFCViewer.testRel_s_NFCViewer95276d9c/public/native/icon.png",
+                        "label": "Tag",
+                        "invoke": {
+                            "type": "CARD",
+                            "target": "sys.NFCViewer",
+                            "action": "bb.action.SHARE",
+                            "mime": "message/rfc822",
+                            "perimeter": "personal"
+                        }
+                    }
+                ]
+            }
+        };
+        spyOn(_overlayWebView, "executeJavascript");
+        actions.menuServiceHandlers.menuService(item);
+        expect(_overlayWebView.executeJavascript).toHaveBeenCalled();
+
+    });
+
+    it("menuservice handler is called and target is invoked", function () {
+        var item = {
+                "icon": "/apps/sys.NFCViewer.testRel_s_NFCViewer95276d9c/public/native/icon.png",
+                "label": "Tag",
+                "invoke": {
+                    "type": "CARD",
+                    "target": "sys.NFCViewer",
+                    "action": "bb.action.SHARE",
+                    "mime": "message/rfc822",
+                    "perimeter": "personal"
+                }
+            },
+            _currentContext = {
+                url: "http://www.mysite.com"
+            };
+        actions.menuServiceHandlers.menuService(item);
+        expect(window.qnx.webplatform.getApplication().invocation.invoke).toHaveBeenCalled();
     });
 
 });
