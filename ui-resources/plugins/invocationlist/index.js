@@ -203,6 +203,7 @@ function invokeApp(key) {
     var invokeRequest = listItems[key],
         args = [invokeRequest];
 
+debugger;
     showActivityIndicator();
 
     // Callback for invoking an invocation is to hide the invocation list screen
