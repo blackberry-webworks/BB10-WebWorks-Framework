@@ -232,7 +232,7 @@ function menuItemTouchMoveHandler(evt) {
     previousPeekIndex = currentPeekIndex;
 }
 
-function menuItemTouchEndHandler(evt) {
+function menuItemTouchEndHandler(option, evt) {
     var elements,
         i;
 
@@ -248,7 +248,7 @@ function menuItemTouchEndHandler(evt) {
             elements[i].active = false;
         }
 
-        window.qnx.webplatform.getController().remoteExec(1, 'executeMenuAction', [elements[currentPeekIndex].attributes.actionId.value]);
+        window.qnx.webplatform.getController().remoteExec(1, 'executeMenuAction', [elements[currentPeekIndex].attributes.actionId.value, option]);
         self.hideContextMenu();
     }
 }
@@ -362,7 +362,7 @@ function buildMenuItem(options) {
     menuItem.addEventListener('mousedown', self.mouseDownHandler);
     menuItem.addEventListener('touchstart', menuItemTouchStartHandler);
     menuItem.addEventListener('touchmove', menuItemTouchMoveHandler);
-    menuItem.addEventListener('touchend', menuItemTouchEndHandler);
+    menuItem.addEventListener('touchend', menuItemTouchEndHandler.bind(this, options));
 
     if (options.isDelete || options.actionId === 'Delete') {
         menuItem.isDelete = true;
