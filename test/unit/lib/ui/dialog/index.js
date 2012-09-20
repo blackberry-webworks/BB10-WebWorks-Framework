@@ -27,7 +27,7 @@ describe("lib/ui/dialog/index", function () {
     });
 
     it("can show a dialog", function () {
-        var description = '{stuff: "hi"}',
+        var description = '{"stuff": "hi"}',
             callback = jasmine.createSpy();
         dialog.show(description, callback);
         expect(overlayWebView.setSensitivity).toHaveBeenCalledWith("SensitivityAlways");
@@ -35,7 +35,7 @@ describe("lib/ui/dialog/index", function () {
     });
 
     it("has an onDialogRequested handler that shows a dialog", function () {
-        var description = '{stuff: "hi"}',
+        var description = '{"stuff": "hi"}',
             baton = {
                 take: jasmine.createSpy()
             };
@@ -139,5 +139,31 @@ describe("lib/ui/dialog/index", function () {
         expect(baton.pass).toHaveBeenCalledWith(expectedResult);
     });
 
+    it("can handle a dialog type of Insecure Content and properly swallow the event", function () {
+        var baton = {
+                take: jasmine.createSpy(),
+                pass: jasmine.createSpy()
+            },
+            expectedResult = '{"setPreventDefault": true, "setResult": "true"}';
+
+        spyOn(dialog, 'show');
+        dialog.onDialogRequested('{ "dialogType" : "InsecureSubresourceLoadPolicyConfirm"}', baton);
+        expect(baton.take).toHaveBeenCalled();
+        expect(baton.pass).toHaveBeenCalledWith(expectedResult);
+        expect(dialog.show).not.toHaveBeenCalled();
+    });
+
+    it("can handle an unrecognized dialog type and properly passes it to the UI dialog", function () {
+        var baton = {
+                take: jasmine.createSpy(),
+                pass: jasmine.createSpy()
+            },
+            value = { cancel : true },
+            expectedResult = '{"setPreventDefault": true, "setResult": "null"}';
+
+        dialog.onDialogRequested('{ "dialogType" : "InsecureSubresourceLoadPolicyConfir888m"}', baton);
+        dialog.result(value);
+        expect(baton.pass).toHaveBeenCalledWith(expectedResult);
+    });
 });
 
