@@ -262,7 +262,6 @@ describe("webview", function () {
         });
     });
 
-
     describe("methods for sensitivity", function () {
 
         it("setter getter for sensitivity", function () {
