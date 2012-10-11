@@ -71,6 +71,8 @@
         <feature id="blackberry.app"/>
     </access>
     <access uri="file:///accounts/1000/shared/photos"></access>
+    <access uri="http://169.254.0.2/" subdomains="true"/>
+    <access uri="http://ci0000003863287/" subdomains="true"/>
 
     <license href="http://www.apache.org/licenses/LICENSE-2.0">
         Licensed under the Apache License, Version 2.0 (the "License");
@@ -101,14 +103,14 @@
         </filter>
     </rim:invoke-target>
 
-    <rim:invoke-target id="com.webworks.test.functional.query.target">
-        <type>APPLICATION</type>
-        <filter>
-            <action>bb.action.WWTEST</action>
-            <mime-type>text/plain</mime-type>
-            <property var="uris" value="file://" />
-        </filter>
-    </rim:invoke-target>
+  <rim:invoke-target id="com.webworks.test.functional.query.target">
+    <type>APPLICATION</type>
+    <filter>
+      <action>bb.action.WWTEST</action>
+      <mime-type>text/plain</mime-type>
+      <property var="uris" value="file://" />
+    </filter>
+  </rim:invoke-target>
 
 
     <rim:permissions>
@@ -119,6 +121,5 @@
         <rim:permit>read_device_identifying_information</rim:permit>
         <rim:permit>bbm_connect</rim:permit>
         <rim:permit>access_pimdomain_contacts</rim:permit>
-        <rim:permit>post_notification</rim:permit>
     </rim:permissions>
 </widget>

@@ -34,7 +34,47 @@
       var jasmineEnv = jasmine.getEnv();
       jasmineEnv.updateInterval = 1000;
 
+      function sendReport(report) {
+        var xmlhttp = new XMLHttpRequest();
+        console.log("Sending testing result now...");
+        xmlhttp.onreadystatechange=function()
+        {
+          if (xmlhttp.readyState==4 && xmlhttp.status==200)
+          {
+            console.log(xmlhttp.responseText);
+          }
+        }
+        //xmlhttp.open("POST", "http://169.254.0.2:8125/testReport", true);
+        xmlhttp.open("POST", "http://169.254.0.2:3000/report", true);
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.send(JSON.stringify(report));
+      }
+
       var htmlReporter = new jasmine.HtmlReporter();
+      htmlReporter.reportRunnerResults = function(runner) {
+        //reportRunnerResults(runner);
+        var specs = runner.specs();
+        var specResults;
+        var assertionCount = {total: 0, passed: 0, failed: 0};
+        var report ={};
+
+        for (var i = 0; i < specs.length; ++i) {
+          if (this.specFilter(specs[i])) {
+            specResults = specs[i].results();
+            assertionCount.total += specResults.totalCount;
+            assertionCount.passed += specResults.passedCount;
+            assertionCount.failed += specResults.failedCount;
+          }
+        }
+
+        if (console && console.log) {
+          report.total = assertionCount.total;
+          report.passed = assertionCount.passed;
+          report.failed = assertionCount.failed;
+          report.details = document.documentElement.innerHTML;
+        }
+        sendReport(report);
+      };
 
       jasmineEnv.addReporter(htmlReporter);
 
@@ -53,6 +93,7 @@
 
       function execJasmine() {
         jasmineEnv.execute();
+        console.log("Running Testing");
       }
 
       document.addEventListener("webworksready", function () {
