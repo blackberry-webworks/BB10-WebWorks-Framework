@@ -16,27 +16,26 @@
 var libRoot = __dirname + "/../../../lib/";
 
 describe("event", function () {
-    var util = require(libRoot + "utils"),
-        event = require(libRoot + "event"),
-        webview = util.requireWebview();
+    var event = require(libRoot + "event"),
+        clientWebView = require(libRoot + "clientWebView");
 
     describe("trigger", function () {
-        it("can invoke the webview execute javascript", function () {
-            spyOn(webview, "executeJavascript");
+        it("can invoke the clientWebView execute javascript", function () {
+            spyOn(clientWebView, "executeJavascript");
             event.trigger("foo", {"id": 123});
-            expect(webview.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123}])) + "')");
+            expect(clientWebView.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123}])) + "')");
         });
 
         it("can invoke the webview execute javascript", function () {
-            spyOn(webview, "executeJavascript");
+            spyOn(clientWebView, "executeJavascript");
             event.trigger("foo");
-            expect(webview.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([])) + "')");
+            expect(clientWebView.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([])) + "')");
         });
 
         it("sends multiple arguments passed in across as a JSONified array", function () {
-            spyOn(webview, "executeJavascript");
+            spyOn(clientWebView, "executeJavascript");
             event.trigger("foo", {"id": 123, "foo": "hello world", list: [1, 2, 3]}, "Grrrrrrr", "Arrrrg");
-            expect(webview.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123, foo: "hello world", list: [1, 2, 3]}, "Grrrrrrr", 'Arrrrg'])) + "')");
+            expect(clientWebView.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123, foo: "hello world", list: [1, 2, 3]}, "Grrrrrrr", 'Arrrrg'])) + "')");
         });
     });
 

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var _util = require("./../../lib/utils"),
-    _webview;
+
+var _clientWebView;
 
 function getHomeDir() {
     var homeDir = window.qnx.webplatform.getApplication().getEnv("HOME");
@@ -31,17 +31,17 @@ module.exports = {
     sandbox: function (success, fail, args, env) {
         var value;
 
-        _webview = _util.requireWebview();
+        _clientWebView = require("../../lib/clientWebView");
 
         if (args && args["sandbox"]) {
             value = JSON.parse(decodeURIComponent(args["sandbox"]));
-            _webview.setSandbox(JSON.parse(value));
+            _clientWebView.setSandbox(JSON.parse(value));
 
             if (success) {
                 success();
             }
         } else {
-            value = _webview.getSandbox();
+            value = _clientWebView.getSandbox();
             success(value === "1"); // always return "0" or "1" even after explicitly setting value to true or false
         }
     },
