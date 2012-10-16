@@ -113,8 +113,9 @@ module.exports = function (src, baton) {
         utils.copyFile(_c.DEPENDENCIES_WEBPLATFORM_FRAMEWORK_LIB, webplatformDest);
         utils.copyFile(_c.DEPENDENCIES_WEBPLATFORM_I18N, webplatformDest);
     } else {
-        console.log("\n****WARNING: Webplatform could not be found.****");
+        console.log("\n****ERROR: Webplatform could not be found.****");
         console.log("****If building from the open-source community, please refer to the README for instructions on how to copy the Webplatform from a BB10 Webworks SDK installation.****\n");
+        exit 1;
     }
 
     //Remove public folder

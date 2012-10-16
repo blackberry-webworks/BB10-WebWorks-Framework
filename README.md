@@ -13,12 +13,12 @@
     - [*Mac*] `./configure` [from terminal]
     - [*Windows*] `bash configure` [from command prompt]
 5. Run `jake test` and check that jake runs and completes
-6. **Setup bbndk environment variable:**
-    - [*Mac*] Add `source \*BBNDK installation directory\*/bbndk-env.sh` to your bash profile
-    - [*Windows*] Run `\*BBNDK installation directory\*\bbndk-env.bat` from the currently opened command prompt. This script must be run from the command prompt window that you intend to run `jake` from.
+6. **Setup bbndk environment variables:** (must be done within each session, prior to jake)
+    - [*Mac*] `source \*BBNDK installation directory\*/bbndk-env.sh`
+    - [*Windows*] `\*BBNDK installation directory\*\bbndk-env.bat`
 7. [*open-source devs only*] **Webplatform setup:**
     If building from the open-source community, copy the following webplatform files from the latest BB10 Webworks SDK into ./dependencies/webplatform/framework/clientFiles/.
-    - Framework/dependencies/bootstrap/webplatform.js
+    - Framework/webplatform.js
     - Framework/ui-resources [folder]
     - Framework/i18n.js
 8. Run `jake` or `jake build` and check that the output folder is created under the "target/zip" subfolder. If on windows, run jake from command prompt.
