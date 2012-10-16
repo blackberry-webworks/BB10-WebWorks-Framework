@@ -13,7 +13,7 @@ if [ "$1" != "-scm" ]; then
 fi
 
 #If webplatform exists, configure and build it.
-if [ -d "./dependencies/webplatform/framework" ]; then
+if [ -f "./dependencies/webplatform/framework/configure" ]; then
     cd ./dependencies/webplatform/framework;
     if [[ "$OS" == *Windows* ]]; then
         source configure;
@@ -22,6 +22,7 @@ if [ -d "./dependencies/webplatform/framework" ]; then
     fi
     jake;
 else
+    mkdir -p ./dependencies/webplatform/framework/clientFiles;
     echo -e "\n****WARNING: Webplatform could not be found.****"
     echo -e "****If building from the open-source community, please refer to the README for instructions on how to copy the Webplatform from a BB10 Webworks SDK installation.****\n"
 fi
