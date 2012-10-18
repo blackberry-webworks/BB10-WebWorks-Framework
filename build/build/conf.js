@@ -38,6 +38,7 @@ module.exports = {
     DEPENDENCIES_JNEXT: path.normalize(__dirname + "/../../dependencies/jnext"),
     DEPENDENCIES_WEBPLATFORM_FRAMEWORK_LIB: path.normalize(__dirname + "/../../dependencies/webplatform/framework/clientFiles/webplatform.js"),
     DEPENDENCIES_WEBPLATFORM_FRAMEWORK_REQUIRE: path.normalize(__dirname + "/../../dependencies/require/require.js"),
+    DEPENDENCIES_WEBPLATFORM: path.normalize(__dirname + "/../../dependencies/webplatform"),
     DEPENDENCIES_WEBPLATFORM_UI: path.normalize(__dirname + "/../../dependencies/webplatform/framework/clientFiles/ui-resources"),
     DEPENDENCIES_WEBPLATFORM_I18N: path.normalize(__dirname + "/../../dependencies/webplatform/framework/clientFiles/i18n.js"),
     DEPENDENCIES_CONFIGURE_QSK: path.normalize(__dirname + "/../../dependencies/configure-qsk/configure-qsk"),
