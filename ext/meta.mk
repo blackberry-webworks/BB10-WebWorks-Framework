@@ -4,8 +4,8 @@ QNX_LIB=$(QNX_TARGET)/$(CPUVARDIR)/lib
 
 WEBWORKS_DIR=../../../../..
 
-CCFLAGS+=-Werror
-LDFLAGS+=-Wl,-rpath,./app/native/plugins/jnext,-z,defs,-s
+CCFLAGS+=-fstack-protector-strong -fPIC -D_FORTIFY_SOURCE=2 -Wtrampolines -Wall -Wextra -Wformat=2 -Werror
+LDFLAGS+=-Wl,-rpath,./app/native/plugins/jnext,-z,relro,-z,now -pie,-s
 
 EXTRA_LIBVPATH+=$(QNX_LIB) \
                 $(QNX_USR_LIB) \
@@ -17,9 +17,9 @@ EXTRA_INCVPATH+=$(QNX_INCLUDE) \
                 $(QNX_INCLUDE)/qt4/Qt \
                 $(QNX_INCLUDE)/qt4/QtCore \
                 $(WEBWORKS_DIR)/dependencies/jnext_1_0_8_3/jncore/jnext-extensions/common \
-                $(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.5.0/include
+                $(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.6.0-rc2/include
 
-EXTRA_SRCVPATH+=$(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.5.0/src/lib_json \
+EXTRA_SRCVPATH+=$(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.6.0-rc2/src/lib_json \
                 $(WEBWORKS_DIR)/dependencies/jnext_1_0_8_3/jncore/jnext-extensions/common
 
 ifeq ($(PLUGIN),yes)
@@ -28,9 +28,9 @@ endif
 
 ifeq ($(JSON),yes)
 	ifeq ($(UNITTEST),yes)
-	SRCS+=$(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.5.0/src/json_reader.cpp \
-		  $(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.5.0/src/json_value.cpp \
-	  	  $(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.5.0/src/json_writer.cpp
+	SRCS+=$(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.6.0-rc2/src/json_reader.cpp \
+		  $(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.6.0-rc2/src/json_value.cpp \
+	  	  $(WEBWORKS_DIR)/dependencies/JsonCpp/jsoncpp-src-0.6.0-rc2/src/json_writer.cpp
 	else
 	LDFLAGS+=-ljson
 	endif
