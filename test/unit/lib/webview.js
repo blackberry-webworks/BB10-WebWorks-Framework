@@ -217,6 +217,17 @@ describe("webview", function () {
             expect(mockedWebview.url).toEqual(url);
         });
 
+        it("currentLocation exists", function () {
+            expect(webview.currentLocation).toBeDefined();
+        });
+
+        it("sets the url property and get", function () {
+            var url = "http://AWESOMESAUCE.com";
+            webview.create(mockedWebview);
+            webview.setURL(url);
+            expect(webview.currentLocation).toEqual(url);
+        });
+
         it("calls the underlying executeJavaScript", function () {
             var js = "var awesome='Jasmine BDD'";
             webview.create(mockedWebview);

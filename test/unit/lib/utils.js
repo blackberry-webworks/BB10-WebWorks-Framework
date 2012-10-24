@@ -63,6 +63,32 @@ describe("Utils", function () {
         expect(utils.fileNameToImageMIME("test.svg")).toEqual("image/svg+xml");
     });
 
+    it("Verify that isRemote is defined", function () {
+        expect(utils.isRemote).toBeDefined();
+    });
+
+    it("Verify that isRemote returns properly for a remote url", function () {
+        expect(utils.isRemote("http://google.com")).toEqual(true);
+    });
+
+    it("Verify that isRemote returns properly for a remote url", function () {
+        expect(utils.isRemote("https://google.com")).toEqual(true);
+    });
+
+    it("Verify that isRemote returns properly for a remote url", function () {
+        expect(utils.isRemote("local:///test.html")).toEqual(false);
+    });
+
+    it("Verify that isRemote returns properly for a remote url", function () {
+        expect(utils.isRemote("test.html")).toEqual(false);
+    });
+
+    it("Verify that isRemote returns properly for a remote url", function () {
+        expect(utils.isRemote("file:///test.html")).toEqual(false);
+    });
+
+
+
     // A cascading method invoker, kinda like jWorkflow
     describe("series", function () {
         var tasks,
@@ -114,7 +140,7 @@ describe("Utils", function () {
             waitsFor(function () {
                 return seriesComplete;
             });
-           
+
             expect(callbackInvocations.length).toEqual(2);
             expect(callbackInvocations[0]).toEqual(0);
             expect(callbackInvocations[1]).toEqual('done');
@@ -133,7 +159,7 @@ describe("Utils", function () {
             waitsFor(function () {
                 return seriesComplete;
             });
-            
+
             expect(callbackInvocations.length).toEqual(5);
 
             for (i = 0; i < 4; i++) {
