@@ -179,7 +179,7 @@ describe("eventHandlers", function () {
             expect(eventHandlers.onNetworkError('{"type" : "NetworkError"}')).toEqual('{"setPreventDefault": true}');
             eventHandlers.networkCacheResponse(cached);
             expect(_event.trigger).not.toHaveBeenCalledWith();
-            expect(webview.setURL).toHaveBeenCalledWith("local:///ui-resources/NetworkError.html?redirect=undefined");
+            expect(webview.setURL).toHaveBeenCalledWith("local:///chrome/lib/public/NetworkError.html?redirect=undefined");
         });
     });
 
