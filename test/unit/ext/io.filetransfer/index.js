@@ -15,7 +15,7 @@
  */
 
 var root = __dirname + "/../../../../",
-    webview = require(root + "lib/webview"),
+    clientWebView = require(root + "lib/clientWebView"),
     index;
 
 describe("io.filetransfer index", function () {
@@ -27,7 +27,7 @@ describe("io.filetransfer index", function () {
             invoke: jasmine.createSpy()
         };
 
-        spyOn(webview, "windowGroup").andReturn(42);
+        spyOn(clientWebView, "windowGroup").andReturn(42);
         index = require(root + "ext/io.filetransfer/index");
     });
 

@@ -17,10 +17,7 @@ var _apiDir = __dirname + "./../../../../ext/io/",
     _libDir = __dirname + "./../../../../lib/",
     index = require(_apiDir + "/index"),
     utils = require(_libDir + "/utils"),
-    mockedWebview = {
-        setSandbox: jasmine.createSpy("setSandbox"),
-        getSandbox: jasmine.createSpy("getSandbox").andReturn("0")
-    },
+    clientWebView = require(_libDir + "clientWebView"),
     mockedApplication = {
         getEnv: jasmine.createSpy("getEnv").andReturn("/home")
     };
@@ -45,7 +42,8 @@ describe("blackberry.io index", function () {
 
     describe("sandbox", function () {
         beforeEach(function () {
-            spyOn(utils, "requireWebview").andReturn(mockedWebview);
+            spyOn(clientWebView, "setSandbox");
+            spyOn(clientWebView, "getSandbox").andReturn("0");
         });
 
         it("sandbox called with args will set webview sandbox", function () {
@@ -53,14 +51,14 @@ describe("blackberry.io index", function () {
             index.sandbox(success, null, {
                 "sandbox": encodeURIComponent(JSON.stringify(false))
             }, null);
-            expect(mockedWebview.setSandbox).toHaveBeenCalledWith(false);
+            expect(clientWebView.setSandbox).toHaveBeenCalledWith(false);
             expect(success).toHaveBeenCalled();
         });
 
         it("sandbox called without args will get webview sandbox", function () {
             var success = jasmine.createSpy("success");
             index.sandbox(success, null, null, null);
-            expect(mockedWebview.getSandbox).toHaveBeenCalled();
+            expect(clientWebView.getSandbox).toHaveBeenCalled();
             expect(success).toHaveBeenCalledWith(false);
         });
     });
