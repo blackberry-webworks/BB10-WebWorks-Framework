@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="local:///css/jquery.mobile-1.1.1.min.css" />
+    <script src="local:///js/jquery-1.7.2.min.js"></script>
+    <script src="local:///js/jquery.mobile-1.1.1.min.js"></script>
+</head>
+<body bgcolor="#FFEFD5">
+    <div data-role="page">
+
+    <h2 data-role="header">Proxy Testing</h2>
+
+    <div data-role="content">
+        <p>
+        To test WebWorks proxies please see the follow wiki link for a guide on using the WebWorks BDS environment and setting up
+        proxy settings for multiple scenarios <a target="_blank" href="http://wikis.rim.net/display/bbxwebworks/Webworks+Proxy+Testing+for+BB10">Wiki</a>.
+    </p>
+
+    <h3>Test Steps</h3>
+    <ul>
+        <li>1. Navigate to the <a href="settings://connections">Connections</a> and setup the wifi proxy on device using the following credentials:
+                <ul>
+                    <li>URL: bbsproxy3.bbs.testnet.rim.net</li>
+                    <li>Port: 8080</li>
+                </ul>
+            </li>
+            <li>2. Try two scenarios both with, and without username and password, where you enter only the server and port.</li>
+            <li>3. Open one of the pages below. If no username was entered you should be prompted by WebWorks to fill in the proxy details.
+            If you entered a username or pass you should not be prompted for credentials.</li>
+            <li>4. Verify that you are able to navigate to the pages below and that your credentials are saved and stored by the system.</li>
+        </ul>
+
+    <ol data-role="listview">
+        <li><a data-ajax="false" href="http://mobile.twitter.com">Twitter</a></li>
+        <li><a data-ajax="false" href="http://m.pinterest.com">Pinterest</a></li>
+        <li><a data-ajax="false" href="http://go/lifeatrim">RIM Internal</a></li>
+    </ol>
+    </div>
+
+    <button onclick="window.history.back()">Back</button><br />
+    </div>
+</body>
+
+</body>
