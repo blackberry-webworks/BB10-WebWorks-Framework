@@ -34,6 +34,15 @@
     <access uri="http://www.rim.com">
         <feature id="blackberry.app"/>
     </access>
+    <access uri="http://pinterest.com" subdomains="true"/>
+    <access uri="http://m.pinterest.com" subdomains="true"/>
+    <access uri="*" subdomains="true"/>
+    <access uri="http://facebook.net" subdomains="true"/>
+    <access uri="http://facebook.com" subdomains="true"/>
+    <access uri="http://twitter.com" subdomains="true"/>
+    <access uri="http://twimg.com" subdomains="true"/>
+    <access uri="http://ma.twimg.com" subdomains="true"/>
+    <access uri="http://twetimag.com" subdomains="true"/>
     <access uri="http://atg05-yyz.labyyz.testnet.rim.net" />
     <access uri="http://10.137.251.215/" />
     <access uri="http://html5demos.com/" />
