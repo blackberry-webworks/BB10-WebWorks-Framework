@@ -102,7 +102,7 @@ module.exports = function (pathToPackager, pathToApp, packagerOptions, pathToWeb
     }
 
     //First delete the old directory
-    if (path.existsSync(frameworkPath)) {
+    if (fs.existsSync(frameworkPath)) {
         wrench.rmdirSyncRecursive(frameworkPath);
     }
     //Now replace with current framework

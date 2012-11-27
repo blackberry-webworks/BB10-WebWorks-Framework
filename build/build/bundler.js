@@ -91,7 +91,7 @@ module.exports = {
 
         //create output folder if it doesn't exist
         clientFilesPath = __dirname.replace(/\\/g, '/') + "/../../clientFiles";
-        if (!path.existsSync(clientFilesPath)) {
+        if (!fs.existsSync(clientFilesPath)) {
             fs.mkdirSync(clientFilesPath, "0777"); //full permissions
         }
 
