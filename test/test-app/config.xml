@@ -38,76 +38,55 @@
     <feature id="blackberry.invoked" required="true" version="1.0.0.0" />
     <feature id="blackberry.notification" required="true" version="1.0.0.0" />
     <feature id="blackberry.sensors" required="true" version="1.0.0.0" />
+    //Experimental
+    <feature id="qnx.webviews" required="true" version="1.0.0.0" />
     <feature id="enable-flash" />
 
-    <access uri="http://www.rim.com">
-        <feature id="blackberry.app"/>
-    </access>
-    <access uri="http://atg05-yyz.labyyz.testnet.rim.net" />
-    <access uri="http://10.137.251.215/" />
-    <access uri="http://10.137.251.65/" subdomains="true"/>
-    <access uri="http://html5demos.com/" />
-    <access uri="http://maps.google.com/" subdomains="true"/>
-    <access uri="http://googleapis.com/" subdomains="true" />
-    <access uri="http://gstatic.com/" subdomains="true"/>
-    <access uri="http://www.google-analytics.com/" subdomains="true"/>
-    <access uri="http://www.rim.com" />
-    <access uri="http://www.w3.org" subdomains="true" />
-    <access uri="http://open-stand.org" subdomains="true" />
-    <access uri="http://benwerd.com/" />
-    <access uri="http://www.youtube.com/" subdomains="true" />
-    <access uri="http://ytimg.com/" subdomains="true" />
-    <access uri="http://www.homestarrunner.com/" />
-    <access uri="http://cachemanifest.heroku.com/" />
-    <access uri="http://jquery.com/" subdomains="true"/>
-    <access uri="http://www.wikipedia.org//" subdomains="true"/>
-    <access uri="http://wikimedia.org//" subdomains="true"/>
-
-    <access uri="http://smoketest1-vmyyz.labyyz.testnet.rim.net:8080/" subdomains="false">
+    <access uri="http://smoketest1-vmyyz.labyyz.testnet.rim.net/" subdomains="false">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest3-vmyyz.labyyz.testnet.rim.net:8080/index.html?*" subdomains="false"/>
-    <access uri="http://smoketest4-vmyyz.labyyz.testnet.rim.net:8080/a/index.html" subdomains="false"/>
-    <access uri="http://smoketest4-vmyyz.labyyz.testnet.rim.net:8080/parent/child/index.html" subdomains="false"/>
-    <access uri="http://smoketest5-vmyyz.labyyz.testnet.rim.net:8080/"/>
-    <access uri="http://smoketest6-vmyyz.labyyz.testnet.rim.net:8080/" subdomains="false"/>
-    <access uri="http://www.smoketest6-vmyyz.labyyz.testnet.rim.net:8080/"/>
-    <access uri="http://smoketest7-vmyyz.labyyz.testnet.rim.net:8080" subdomains="true">
+    <access uri="http://smoketest3-vmyyz.labyyz.testnet.rim.net/index.html?*" subdomains="false"/>
+    <access uri="http://smoketest4-vmyyz.labyyz.testnet.rim.net/a/index.html" subdomains="false"/>
+    <access uri="http://smoketest4-vmyyz.labyyz.testnet.rim.net/parent/child/index.html" subdomains="false"/>
+    <access uri="http://smoketest5-vmyyz.labyyz.testnet.rim.net/"/>
+    <access uri="http://smoketest6-vmyyz.labyyz.testnet.rim.net/" subdomains="false"/>
+    <access uri="http://www.smoketest6-vmyyz.labyyz.testnet.rim.net/"/>
+    <access uri="http://smoketest7-vmyyz.labyyz.testnet.rim.net" subdomains="true">
         <feature id="blackberry.app"/>
     </access>
-    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net:8080/" subdomains="true">
+    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net/" subdomains="true">
         <feature id="blackberry.app"/>
     </access>
-    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net:8080/d" subdomains="false">
+    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net/d" subdomains="false">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net:8080/e/webworks.html" subdomains="false">
+    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net/e/webworks.html" subdomains="false">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net:8080/e/webworks2.html" subdomains="false">
+    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net/e/webworks2.html" subdomains="false">
         <feature id="blackberry.system" />
     </access>
-    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net:8080/webapi_whitelisted.js?*" subdomains="false">
+    <access uri="http://smoketest8-vmyyz.labyyz.testnet.rim.net/webapi_whitelisted.js?*" subdomains="false">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net:8080" subdomains="true" />
-    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net:8080/d" subdomains="true">
+    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net" subdomains="true" />
+    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net/d" subdomains="true">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net:8080/e/webworks.html" subdomains="true">
+    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net/e/webworks.html" subdomains="true">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net:8080/e/webworks2.html" subdomains="true">
+    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net/e/webworks2.html" subdomains="true">
         <feature id="blackberry.system" />
     </access>
-    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net:8080/webapi_whitelisted.js?*" subdomains="true">
+    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net/webapi_whitelisted.js?*" subdomains="true">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net:8080/webapi_blacklisted.js?*" subdomains="true" />
-    <access uri="http://smoketest10-vmyyz.labyyz.testnet.rim.net:8080/" subdomains="true">
+    <access uri="http://smoketest9-vmyyz.labyyz.testnet.rim.net/webapi_blacklisted.js?*" subdomains="true" />
+    <access uri="http://smoketest10-vmyyz.labyyz.testnet.rim.net/" subdomains="true">
         <feature id="blackberry.app" />
     </access>
-    <access uri="http://smoketest10-vmyyz.labyyz.testnet.rim.net:8080/d" subdomains="true">
+    <access uri="http://smoketest10-vmyyz.labyyz.testnet.rim.net/d" subdomains="true">
         <feature id="blackberry.app" />
     </access>
 

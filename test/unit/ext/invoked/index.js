@@ -83,14 +83,15 @@ describe("invoked index", function () {
         it("can register for events", function () {
             var evts = ["invoked", "onCardResize", "onCardClosed"],
                 args,
-                success = jasmine.createSpy();
+                success = jasmine.createSpy(),
+                env = {webviewId: 42};
 
             spyOn(events, "add");
 
             evts.forEach(function (e) {
                 args = {eventName : encodeURIComponent(e)};
                 index.registerEvents(success);
-                eventExt.add(null, null, args);
+                eventExt.add(null, null, args, env);
                 expect(success).toHaveBeenCalled();
                 expect(events.add).toHaveBeenCalled();
                 expect(events.add.mostRecentCall.args[0].event).toEqual(e);
@@ -100,11 +101,12 @@ describe("invoked index", function () {
 
         it("call successCB when all went well", function () {
             var eventName = "invoked",
-                args = {eventName: encodeURIComponent(eventName)};
+                args = {eventName: encodeURIComponent(eventName)},
+                env = {webviewId: 42};
 
             spyOn(events, "add");
             index.registerEvents(jasmine.createSpy(), jasmine.createSpy());
-            eventExt.add(successCB, failCB, args);
+            eventExt.add(successCB, failCB, args, env);
             expect(events.add).toHaveBeenCalled();
             expect(successCB).toHaveBeenCalled();
             expect(failCB).not.toHaveBeenCalled();
@@ -112,14 +114,15 @@ describe("invoked index", function () {
 
         it("call errorCB when there was an error", function () {
             var eventName = "invoked",
-                args = {eventName: encodeURIComponent(eventName)};
+                args = {eventName: encodeURIComponent(eventName)},
+                env = {webviewId: 42};
 
             spyOn(events, "add").andCallFake(function () {
                 throw "";
             });
 
             index.registerEvents(jasmine.createSpy(), jasmine.createSpy());
-            eventExt.add(successCB, failCB, args);
+            eventExt.add(successCB, failCB, args, env);
             expect(events.add).toHaveBeenCalled();
             expect(successCB).not.toHaveBeenCalled();
             expect(failCB).toHaveBeenCalledWith(-1, jasmine.any(String));

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012 Research In Motion Limited.
+ * Copyright 2010-2011 Research In Motion Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-var permissions,
-    utils =  require("./utils"),
-    config = require("./config"),
-    _webview;
+var _webkitOriginAccess = require("./../../lib/policy/webkitOriginAccess");
 
-permissions =  {
-
-    init : function (webview) {
-        _webview = webview;
-    },
-
-    onGeolocationPermissionRequest : function (request) {
-        var evt = JSON.parse(request);
-        _webview.allowGeolocation(evt.origin);
-        return '{"setPreventDefault": true}';
+module.exports = {
+    prepRequest: function (success, fail, args) {
+        var url = JSON.parse(decodeURIComponent(args.url));
+        _webkitOriginAccess.addOriginAccess(url, false);
+        success();
     }
 };
-
-module.exports = permissions;
-
-

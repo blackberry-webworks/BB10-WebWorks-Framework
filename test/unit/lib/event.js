@@ -15,48 +15,90 @@
  */
 var libRoot = __dirname + "/../../../lib/";
 
-describe("event", function () {
-    var util = require(libRoot + "utils"),
-        event = require(libRoot + "event"),
-        webview = util.requireWebview();
+describe("lib/event", function () {
+    var event = require(libRoot + "event");
 
     describe("trigger", function () {
-        it("can invoke the webview execute javascript", function () {
-            spyOn(webview, "executeJavascript");
+        var mockedQnx,
+            mockedWebview;
+        beforeEach(function () {
+            mockedWebview = {
+                executeJavaScript: jasmine.createSpy()
+            };
+            mockedQnx = {
+                webplatform: {
+                    createWebView : jasmine.createSpy().andReturn(mockedWebview)
+                }
+            };
+            GLOBAL.window = {
+                qnx: mockedQnx
+            };
+        });
+
+        afterEach(function () {
+            mockedQnx = undefined;
+            mockedWebview = undefined;
+            delete GLOBAL.window;
+        });
+
+        it("will not invoke anything unless a webview is listening", function () {
             event.trigger("foo", {"id": 123});
-            expect(webview.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123}])) + "')");
+            expect(mockedWebview.executeJavaScript).not.toHaveBeenCalled();
         });
 
         it("can invoke the webview execute javascript", function () {
-            spyOn(webview, "executeJavascript");
-            event.trigger("foo");
-            expect(webview.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([])) + "')");
+            var webviewId = (new Date()).getTime();
+            event.add({event: "foo", context: {addEventListener: jasmine.createSpy()}}, webviewId);
+            event.trigger("foo", {"id": 123});
+            expect(mockedQnx.webplatform.createWebView).toHaveBeenCalledWith({WebViewId: webviewId});
+            expect(mockedWebview.executeJavaScript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123}])) + "')");
+            event.remove({event: "foo", context: {removeEventListener: jasmine.createSpy()}}, webviewId);
         });
 
         it("sends multiple arguments passed in across as a JSONified array", function () {
-            spyOn(webview, "executeJavascript");
-            event.trigger("foo", {"id": 123, "foo": "hello world", list: [1, 2, 3]}, "Grrrrrrr", "Arrrrg");
-            expect(webview.executeJavascript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123, foo: "hello world", list: [1, 2, 3]}, "Grrrrrrr", 'Arrrrg'])) + "')");
+            var args = [{"id": 123, "foo": "hello world", list: [1, 2, 3]}, "Grrrrrrr", "Arrrrg"],
+                webviewId = (new Date()).getTime();
+            event.add({event: "foo", context: {addEventListener: jasmine.createSpy()}}, webviewId);
+            event.trigger.apply(null, ["foo"].concat(args));
+            expect(mockedQnx.webplatform.createWebView).toHaveBeenCalledWith({WebViewId: webviewId});
+            expect(mockedWebview.executeJavaScript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify(args)) + "')");
+            event.remove({event: "foo", context: {removeEventListener: jasmine.createSpy()}}, webviewId);
+        });
+
+        it("invokes on all webviews that have registered", function () {
+            var webviewId = (new Date()).getTime();
+            event.add({event: "foo", context: {addEventListener: jasmine.createSpy()}}, webviewId);
+            event.add({event: "foo", context: {addEventListener: jasmine.createSpy()}}, webviewId + 1);
+            event.add({event: "foo", context: {addEventListener: jasmine.createSpy()}}, webviewId + 2);
+            event.trigger("foo", {"id": 123});
+            expect(mockedQnx.webplatform.createWebView).toHaveBeenCalledWith({WebViewId: webviewId});
+            expect(mockedQnx.webplatform.createWebView).toHaveBeenCalledWith({WebViewId: webviewId + 1});
+            expect(mockedWebview.executeJavaScript).toHaveBeenCalledWith("webworks.event.trigger('foo', '" + encodeURIComponent(JSON.stringify([{"id": 123}])) + "')");
+            expect(mockedWebview.executeJavaScript.callCount).toEqual(3);
+            event.remove({event: "foo", context: {removeEventListener: jasmine.createSpy()}}, webviewId);
+            event.remove({event: "foo", context: {removeEventListener: jasmine.createSpy()}}, webviewId + 1);
+            event.remove({event: "foo", context: {removeEventListener: jasmine.createSpy()}}, webviewId + 2);
         });
     });
 
     describe("add/remove would invoke action context", function () {
         var action = {
-            context: {
-                addEventListener: jasmine.createSpy(),
-                removeEventListener: jasmine.createSpy()
+                context: {
+                    addEventListener: jasmine.createSpy(),
+                    removeEventListener: jasmine.createSpy()
+                },
+                event: "HELLO",
+                trigger: function () {}
             },
-            event: "HELLO",
-            trigger: function () {}
-        };
+            webviewId = (new Date()).getTime();
 
         it("can invoke action context add listener", function () {
-            event.add(action);
+            event.add(action, webviewId);
             expect(action.context.addEventListener).toHaveBeenCalledWith(action.event, action.trigger);
         });
 
         it("can invoke action context remove listener", function () {
-            event.remove(action);
+            event.remove(action, webviewId);
             expect(action.context.removeEventListener).toHaveBeenCalledWith(action.event, action.trigger);
         });
     });

@@ -78,6 +78,30 @@ describe("Cross Origin Wildcard", function () {
         });
     }
 
+    function testXhrGetLoadsUrl(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.send();
+        expect(xhr.readyState).toBe(4);
+        expect(xhr.status).toBe(200);
+        return xhr;
+    }
+
+    function testXhrGetLoadsUrlAsync(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.send();
+        waitsFor(function () {
+            return xhr.readyState === 4;
+        }, "XHR readystate never became 4", 1000);
+        runs(function () {
+            expect(xhr.readyState).toBe(4);
+            expect(xhr.status).toBe(200);
+        });
+        return xhr;
+    }
+
+
     beforeEach(function () {
         spyOn(window, "alert");
     });
@@ -98,5 +122,31 @@ describe("Cross Origin Wildcard", function () {
                 testHtmlElementLoads('iframe', { src : 'file:///accounts/1000/shared/documents/textData.txt' });
             });
         });
+
+        it("can sync xhr to google", function () {
+            testXhrGetLoadsUrl("http://www.google.com");
+        });
+
+        it("can sync xhr to RIM", function () {
+            testXhrGetLoadsUrl("http://www.rim.com");
+        });
+
+        it("can sync xhr to w3", function () {
+            testXhrGetLoadsUrl("http://www.w3.org");
+        });
+
+        it("can async XHR to google", function () {
+            testXhrGetLoadsUrlAsync("http://www.google.com");
+        });
+
+        it("can async XHR to RIM", function () {
+            testXhrGetLoadsUrlAsync("http://www.rim.com");
+        });
+
+        it("can async XHR to RIM", function () {
+            testXhrGetLoadsUrlAsync("http://www.w3.org");
+        });
+
+
     });
 });

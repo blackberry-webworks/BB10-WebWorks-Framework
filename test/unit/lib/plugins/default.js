@@ -55,7 +55,6 @@ describe("default plugin", function () {
                 }
             };
 
-
             testExtension = require(ROOT + "ext/app/index");
 
             delete require.cache[require.resolve(ROOT + "lib/utils")];
