@@ -167,6 +167,28 @@ describe("invoke.card client", function () {
         });
     });
 
+    describe("invoke target picker", function () {
+
+        it("should have an invokeTargerPicker method", function () {
+            expect(client.invokeTargetPicker).toBeDefined();
+        });
+        it("should properly invoke the target picker", function () {
+            var request = {
+                    uri : "http://testuri.com",
+                    action : 'bb.action.SHARE',
+                    target_type : ['CARD', 'APPLICATION']
+                },
+                onSuccess,
+                onError,
+                title = 'Test';
+
+            client.invokeTargetPicker(request, title, onSuccess, onError);
+            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, jasmine.any(String), onSuccess);
+            expect(mockedWebworks.event.once).toHaveBeenCalledWith(_ID, jasmine.any(String), onError);
+        });
+
+    });
+
     describe("invoke Media Player", function () {
         var details,
             done,
