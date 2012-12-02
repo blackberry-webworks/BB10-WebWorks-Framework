@@ -131,4 +131,34 @@ describe("blackberry.app", function () {
         testAppReadOnly("version");
     });
 
+    it('blackberry.app.coverSize should exist', function () {
+        expect(blackberry.app.coverSize).toBeDefined();
+    });
+
+    it('can set and get coverSize', function () {
+        var size = {"x": 359, "y": 345},
+            retrievedSize;
+        blackberry.app.coverSize = size;
+        retrievedSize = blackberry.app.coverSize;
+        expect(retrievedSize.x).toBe(size.x);
+        expect(retrievedSize.y).toBe(size.y);
+    });
+
+    it('allows an application to update the window cover', function () {
+        var exThrown = false,
+            cover = {
+                "cover": {
+                    "type": blackberry.app.cover.TYPE_SNAPSHOT,
+                    "capture": { "x": 0, "y": 0, "width": 100, "height": 200 }
+                },
+                "text": [{"label": "BlackBerry WebWorks Test", "size": 8}],
+            };
+        try {
+            blackberry.app.updateCover(cover);
+        } catch (exception) {
+            exThrown = true;
+        }
+        expect(exThrown).toBe(false);
+    });
+
 });

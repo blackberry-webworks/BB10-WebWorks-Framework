@@ -75,6 +75,20 @@ var _config = require("./../../lib/config"),
                 var _yPosition = JSON.parse(yPosition);
                 _event.trigger("keyboardPosition", _yPosition);
             }
+        },
+        entercover: {
+            context: _appEvents,
+            event: "windowCoverEnter",
+            trigger: function () {
+                _event.trigger("entercover");
+            }
+        },
+        exitcover: {
+            context: _appEvents,
+            event: "windowCoverExit",
+            trigger: function () {
+                _event.trigger("exitcover");
+            }
         }
     };
 
@@ -152,6 +166,17 @@ function rotateWhenLockedTrigger(edge) {
     _event.trigger("orientationchange", edgeToOrientation(edge));
 }
 
+function processCover(cover) {
+    if (cover.cover.type === 'file') {
+        cover.cover.path = _utils.translatePath(cover.cover.path).replace(/file:\/\//, '');
+    }
+    return cover;
+}
+
+function validCoverSize(coverSize) {
+    return (typeof coverSize.x === 'number' && typeof coverSize.y === 'number');
+}
+
 module.exports = {
     registerEvents: function (success, fail, args, env) {
         try {
@@ -190,19 +215,19 @@ module.exports = {
             rotateTo = translateToDeviceOrientation(orientation);
 
         // Force rotate to the given orientation then lock it
-        qnx.webplatform.getApplication().rotate(rotateTo);
-        qnx.webplatform.getApplication().lockRotation(true);
+        window.qnx.webplatform.getApplication().rotate(rotateTo);
+        window.qnx.webplatform.getApplication().lockRotation(true);
         success(true);
     },
 
     unlockOrientation : function (success, fail, args, env) {
-        qnx.webplatform.getApplication().unlockRotation();
+        window.qnx.webplatform.getApplication().unlockRotation();
         success();
     },
 
     rotate : function (success, fail, args, env) {
         var orientation = translateToDeviceOrientation(JSON.parse(decodeURIComponent(args.orientation)), fail);
-        qnx.webplatform.getApplication().rotate(orientation);
+        window.qnx.webplatform.getApplication().rotate(orientation);
         success();
     },
 
@@ -212,12 +237,31 @@ module.exports = {
     },
 
     minimize: function (success) {
-        qnx.webplatform.getApplication().minimizeWindow();
+        window.qnx.webplatform.getApplication().minimizeWindow();
         success();
     },
 
     exit: function (success) {
         window.qnx.webplatform.getApplication().exit();
+    },
+
+    coverSize : function (success, fail, args, env) {
+        if (typeof args !== 'undefined' && typeof args.coverSize !== 'undefined') {
+            var coverSize = JSON.parse(decodeURIComponent(args.coverSize));
+            if (validCoverSize(coverSize)) {
+                window.qnx.webplatform.getApplication().coverSize = coverSize;
+                success();
+            } else {
+                fail(-1, "invalid cover size");
+            }
+        } else {
+            success(window.qnx.webplatform.getApplication().coverSize);
+        }
+    },
+
+    updateCover: function (success, fail, args, env) {
+        var processedCover = processCover(JSON.parse(decodeURIComponent(args.cover)));
+        window.qnx.webplatform.getApplication().updateCover(processedCover);
         success();
     }
 };

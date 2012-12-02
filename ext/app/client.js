@@ -17,6 +17,8 @@ var _self = {},
     ID = require("./manifest.json").namespace,
     readOnlyValues;
 
+_self.cover = {};
+
 _self.minimize = function () {
     window.webworks.execSync(ID, "minimize");
 };
@@ -104,6 +106,28 @@ function unlockOrientation() {
 function rotate(orientation) {
     window.webworks.execSync(ID, "rotate", {orientation: orientation});
 }
+
+//Window covers
+Object.defineProperty(_self, "coverSize", {
+    get: function () {
+        return window.webworks.execSync(ID, "coverSize");
+    },
+    set: function (coverSize) {
+        window.webworks.execSync(ID, "coverSize", {"coverSize": coverSize});
+    }
+});
+
+_self.updateCover = function (cover) {
+    window.webworks.execSync(ID, "updateCover", {"cover": cover});
+};
+
+//window cover constants
+Object.defineProperty(_self.cover, "TRANSITION_FADE", {"value": "fade", "writable": false});
+Object.defineProperty(_self.cover, "TRANSITION_SLIDE", {"value": "slide", "writable": false});
+Object.defineProperty(_self.cover, "TRANSITION_DEFAULT", {"value": "default", "writable": false});
+Object.defineProperty(_self.cover, "TRANSITION_NONE", {"value": "none", "writable": false});
+Object.defineProperty(_self.cover, "TYPE_SNAPSHOT", {"value": "snapshot", "writable": false});
+Object.defineProperty(_self.cover, "TYPE_FILE", {"value": "file", "writable": false});
 
 // Orientation Properties
 Object.defineProperty(_self, "lockOrientation", {"value": lockOrientation, "writable": false});

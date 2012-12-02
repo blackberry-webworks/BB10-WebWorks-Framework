@@ -23,7 +23,9 @@ var _apiDir = __dirname + "./../../../../ext/app/",
     mockedRotate,
     mockedLockRotation,
     mockedUnlockRotation,
-    config;
+    config,
+    mockedCoverSize,
+    mockedUpdateCover;
 
 function getWebPlatformEventName(e) {
     switch (e) {
@@ -77,23 +79,33 @@ describe("app index", function () {
         mockedRotate = jasmine.createSpy();
         mockedLockRotation = jasmine.createSpy();
         mockedUnlockRotation = jasmine.createSpy();
-        GLOBAL.window = GLOBAL;
-        GLOBAL.window.qnx = {
-            webplatform: {
-                getApplication: function () {
-                    return {
-                        minimizeWindow: mockedMinimize,
-                        exit: mockedExit,
-                        rotate: mockedRotate,
-                        lockRotation: mockedLockRotation,
-                        unlockRotation: mockedUnlockRotation
-                    };
+        mockedCoverSize = {x: 396, y: 294};
+        mockedUpdateCover = jasmine.createSpy("update cover");
+        GLOBAL.window = {
+            qnx: {
+                webplatform: {
+                    getApplication: function () {
+                        return {
+                            minimizeWindow: mockedMinimize,
+                            exit: mockedExit,
+                            rotate: mockedRotate,
+                            lockRotation: mockedLockRotation,
+                            unlockRotation: mockedUnlockRotation,
+                            coverSize: mockedCoverSize,
+                            updateCover: mockedUpdateCover,
+                            getEnv: function (path) {
+                                if (path === "HOME")
+                                    return "/accounts/home";
+                            }
+                        };
+                    }
                 }
             }
         };
     });
 
     afterEach(function () {
+        delete GLOBAL.window;
         config = null;
         index = null;
         mockedMinimize = null;
@@ -101,6 +113,8 @@ describe("app index", function () {
         mockedRotate = null;
         mockedLockRotation = null;
         mockedUnlockRotation = null;
+        mockedCoverSize = null;
+        mockedUpdateCover = null;
     });
 
     describe("getReadOnlyFields", function () {
@@ -120,6 +134,72 @@ describe("app index", function () {
                 };
             index.getReadOnlyFields(success, null, null, null);
             expect(success).toHaveBeenCalledWith(expectedReturn);
+        });
+    });
+
+    describe("window covers", function () {
+        it("gets coverSize", function () {
+            var success = jasmine.createSpy(),
+                fail = jasmine.createSpy();
+            index.coverSize(success, fail);
+            expect(fail).not.toHaveBeenCalled();
+            expect(success).toHaveBeenCalledWith({x: 396, y: 294});
+        });
+
+        it("sets coverSize", function () {
+            var success = jasmine.createSpy(),
+                fail = jasmine.createSpy(),
+                coverSize = {x: 423, y: 234};
+            index.coverSize(success, fail, {coverSize: encodeURIComponent(JSON.stringify(coverSize))}, null);
+            expect(fail).not.toHaveBeenCalled();
+            expect(success).toHaveBeenCalled();
+        });
+
+        it("validates coverSize", function () {
+            var success = jasmine.createSpy(),
+                fail = jasmine.createSpy(),
+                coverSize = {"not": "valid"};
+            index.coverSize(success, fail, {coverSize: encodeURIComponent(JSON.stringify(coverSize))}, null);
+            expect(fail).toHaveBeenCalledWith(-1, "invalid cover size");
+            expect(success).not.toHaveBeenCalled();
+        });
+
+        it("updateCover", function () {
+            var success = jasmine.createSpy(),
+                fail = jasmine.createSpy(),
+                fakeCover = {
+                    cover: {
+                        type: "file",
+                        path: "/path/to/application/cover.jpg"
+                    },
+                    text: [{"label": "cover label", "size": 5, "wrap": true}],
+                };
+            index.updateCover(success, fail, {cover: encodeURIComponent(JSON.stringify(fakeCover))}, null);
+            expect(success).toHaveBeenCalled();
+            expect(fail).not.toHaveBeenCalled();
+            expect(mockedUpdateCover).toHaveBeenCalledWith(fakeCover);
+        });
+
+        it("updateCover strips file:// prefix before sending to webplatform", function () {
+            var success = jasmine.createSpy(),
+                fail = jasmine.createSpy(),
+                fakeCover = {
+                    "cover": {
+                        type: "file",
+                        path: "file:///path/to/application/cover.jpg"
+                    },
+                    text: [{"label": "cover label", "size": 5, "wrap": true}],
+                };
+            index.updateCover(success, fail, {cover: encodeURIComponent(JSON.stringify(fakeCover))}, null);
+            expect(success).toHaveBeenCalled();
+            expect(fail).not.toHaveBeenCalled();
+            expect(mockedUpdateCover).toHaveBeenCalledWith({
+                "cover": {
+                    type: "file",
+                    path: "/path/to/application/cover.jpg"
+                },
+                text: [{"label": "cover label", "size": 5, "wrap": true}],
+            });
         });
     });
 
