@@ -23,6 +23,7 @@ var _apiDir = __dirname + "./../../../../ext/app/",
     mockedRotate,
     mockedLockRotation,
     mockedUnlockRotation,
+    mockedQnx,
     config;
 
 function getWebPlatformEventName(e) {
@@ -40,6 +41,7 @@ function getWebPlatformEventName(e) {
 
 function testRegisterEvent(e) {
     var args = {eventName : encodeURIComponent(e)},
+        env = {webviewId: 42},
         success = jasmine.createSpy(),
         utils = require(_libDir + "utils"),
         appEvents = require(_libDir + "events/applicationEvents");
@@ -51,7 +53,7 @@ function testRegisterEvent(e) {
     });
 
     index.registerEvents(success);
-    eventExt.add(null, null, args);
+    eventExt.add(null, null, args, env);
     expect(success).toHaveBeenCalled();
     expect(events.add).toHaveBeenCalled();
     expect(events.add.mostRecentCall.args[0].event).toEqual(getWebPlatformEventName(e));
@@ -59,9 +61,10 @@ function testRegisterEvent(e) {
 }
 
 function testUnRegisterEvent(e) {
-    var args = {eventName : encodeURIComponent(e)};
+    var args = {eventName : encodeURIComponent(e)},
+        env = {webviewId: 42};
 
-    eventExt.remove(null, null, args);
+    eventExt.remove(null, null, args, env);
     expect(events.remove).toHaveBeenCalled();
     expect(events.remove.mostRecentCall.args[0].event).toEqual(getWebPlatformEventName(e));
     expect(events.remove.mostRecentCall.args[0].trigger).toEqual(jasmine.any(Function));
@@ -77,8 +80,7 @@ describe("app index", function () {
         mockedRotate = jasmine.createSpy();
         mockedLockRotation = jasmine.createSpy();
         mockedUnlockRotation = jasmine.createSpy();
-        GLOBAL.window = GLOBAL;
-        GLOBAL.window.qnx = {
+        mockedQnx = {
             webplatform: {
                 getApplication: function () {
                     return {
@@ -91,6 +93,11 @@ describe("app index", function () {
                 }
             }
         };
+        GLOBAL.window = {
+            qnx: mockedQnx
+        };
+        GLOBAL.qnx = mockedQnx;
+        index = require(_apiDir + "index");
     });
 
     afterEach(function () {
@@ -101,6 +108,13 @@ describe("app index", function () {
         mockedRotate = null;
         mockedLockRotation = null;
         mockedUnlockRotation = null;
+        mockedQnx = null;
+        delete GLOBAL.window;
+        delete GLOBAL.qnx;
+        config = null;
+        delete require.cache[require.resolve(_libDir + "config")];
+        index = null;
+        delete require.cache[require.resolve(_apiDir + "index")];
     });
 
     describe("getReadOnlyFields", function () {
@@ -164,7 +178,7 @@ describe("app index", function () {
         it("converts 0 degrees from window.orientation to portrait-primary", function () {
             var success = jasmine.createSpy(),
                 fail = jasmine.createSpy();
-            GLOBAL.window.orientation = 0;
+            window.orientation = 0;
 
             index.currentOrientation(success, fail, null, null);
             expect(success).toHaveBeenCalledWith("portrait-primary");
@@ -173,7 +187,7 @@ describe("app index", function () {
         it("converts 90 degrees from window.orientation to portrait-primary", function () {
             var success = jasmine.createSpy(),
                 fail = jasmine.createSpy();
-            GLOBAL.window.orientation = 90;
+            window.orientation = 90;
 
             index.currentOrientation(success, fail, null, null);
             expect(success).toHaveBeenCalledWith("landscape-secondary");
@@ -182,7 +196,7 @@ describe("app index", function () {
         it("converts 180 degrees from window.orientation to portrait-primary", function () {
             var success = jasmine.createSpy(),
                 fail = jasmine.createSpy();
-            GLOBAL.window.orientation = 180;
+            window.orientation = 180;
 
             index.currentOrientation(success, fail, null, null);
             expect(success).toHaveBeenCalledWith("portrait-secondary");
@@ -191,7 +205,7 @@ describe("app index", function () {
         it("converts -90 degrees from window.orientation to portrait-primary", function () {
             var success = jasmine.createSpy(),
                 fail = jasmine.createSpy();
-            GLOBAL.window.orientation = -90;
+            window.orientation = -90;
 
             index.currentOrientation(success, fail, null, null);
             expect(success).toHaveBeenCalledWith("landscape-primary");
@@ -200,7 +214,7 @@ describe("app index", function () {
         it("converts 270 degrees from window.orientation to portrait-primary", function () {
             var success = jasmine.createSpy(),
                 fail = jasmine.createSpy();
-            GLOBAL.window.orientation = 270;
+            window.orientation = 270;
             index.currentOrientation(success, fail, null, null);
             expect(success).toHaveBeenCalledWith("landscape-primary");
         });

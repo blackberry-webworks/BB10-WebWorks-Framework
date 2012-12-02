@@ -33,7 +33,6 @@ describe("system index", function () {
     });
 
     afterEach(function () {
-        delete GLOBAL.window;
         sysIndex = null;
     });
 
@@ -171,28 +170,32 @@ describe("system index", function () {
         it("responds to 'languagechanged' events", function () {
             var clientEventName = "languagechanged",
                 eventName = "systemLanguageChange",
-                args = {eventName : encodeURIComponent(clientEventName)};
+                args = {eventName : encodeURIComponent(clientEventName)},
+                env = {webview: {id: (new Date()).getTime()}};
+
             spyOn(events, "add");
             sysIndex.registerEvents(jasmine.createSpy());
-            eventExt.add(null, null, args);
+            eventExt.add(null, null, args, env);
             expect(events.add).toHaveBeenCalledWith({
                 context: appEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
 
         it("removes 'languagechanged' event", function () {
             var clientEventName = "languagechanged",
                 eventName = "systemLanguageChange",
-                args = {eventName : encodeURIComponent(clientEventName)};
+                args = {eventName : encodeURIComponent(clientEventName)},
+                env = {webview: {id: (new Date()).getTime()}};
+
             spyOn(events, "remove");
-            eventExt.remove(null, null, args);
+            eventExt.remove(null, null, args, env);
             expect(events.remove).toHaveBeenCalledWith({
                 context: appEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
     });
 
@@ -208,28 +211,32 @@ describe("system index", function () {
         it("responds to 'regionchanged' events", function () {
             var clientEventName = "regionchanged",
                 eventName = "systemRegionChange",
-                args = {eventName : encodeURIComponent(clientEventName)};
+                args = {eventName : encodeURIComponent(clientEventName)},
+                env = {webview: {id: (new Date()).getTime()}};
+
             spyOn(events, "add");
             sysIndex.registerEvents(jasmine.createSpy());
-            eventExt.add(null, null, args);
+            eventExt.add(null, null, args, env);
             expect(events.add).toHaveBeenCalledWith({
                 context: appEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
 
         it("removes 'regionchanged' event", function () {
             var clientEventName = "regionchanged",
                 eventName = "systemRegionChange",
-                args = {eventName : encodeURIComponent(clientEventName)};
+                args = {eventName : encodeURIComponent(clientEventName)},
+                env = {webview: {id: (new Date()).getTime()}};
+
             spyOn(events, "remove");
-            eventExt.remove(null, null, args);
+            eventExt.remove(null, null, args, env);
             expect(events.remove).toHaveBeenCalledWith({
                 context: appEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
     });
 
@@ -246,29 +253,32 @@ describe("system index", function () {
         it("responds to 'batterystatus' events", function () {
             var clientEventName = "batterystatus",
                 eventName = "battery.statusChange",
-                args = { eventName : encodeURIComponent(clientEventName) };
+                args = { eventName : encodeURIComponent(clientEventName) },
+                env = {webview: {id: (new Date()).getTime()}};
 
             spyOn(events, "add");
             sysIndex.registerEvents(jasmine.createSpy());
-            eventExt.add(null, null, args);
+            eventExt.add(null, null, args, env);
             expect(events.add).toHaveBeenCalledWith({
                 context: deviceEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
 
         it("removes 'batterystatus' event", function () {
             var clientEventName = "batterystatus",
                 eventName = "battery.statusChange",
-                args = {eventName : encodeURIComponent(clientEventName)};
+                args = {eventName : encodeURIComponent(clientEventName)},
+                env = {webview: {id: (new Date()).getTime()}};
+
             spyOn(events, "remove");
-            eventExt.remove(null, null, args);
+            eventExt.remove(null, null, args, env);
             expect(events.remove).toHaveBeenCalledWith({
                 context: deviceEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
     });
 
@@ -285,29 +295,32 @@ describe("system index", function () {
         it("responds to 'batterylow' events", function () {
             var clientEventName = "batterylow",
                 eventName = "battery.chargeLow",
-                args = { eventName : encodeURIComponent(clientEventName) };
+                args = { eventName : encodeURIComponent(clientEventName) },
+                env = {webview: {id: (new Date()).getTime()}};
 
             spyOn(events, "add");
             sysIndex.registerEvents(jasmine.createSpy());
-            eventExt.add(null, null, args);
+            eventExt.add(null, null, args, env);
             expect(events.add).toHaveBeenCalledWith({
                 context: deviceEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
 
         it("removes 'batterylow' event", function () {
             var clientEventName = "batterylow",
                 eventName = "battery.chargeLow",
-                args = {eventName : encodeURIComponent(clientEventName)};
+                args = {eventName : encodeURIComponent(clientEventName)},
+                env = {webview: {id: (new Date()).getTime()}};
+
             spyOn(events, "remove");
-            eventExt.remove(null, null, args);
+            eventExt.remove(null, null, args, env);
             expect(events.remove).toHaveBeenCalledWith({
                 context: deviceEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
     });
 
@@ -324,29 +337,32 @@ describe("system index", function () {
         it("responds to 'batterycritical' events", function () {
             var clientEventName = "batterycritical",
                 eventName = "battery.chargeCritical",
-                args = { eventName : encodeURIComponent(clientEventName) };
+                args = { eventName : encodeURIComponent(clientEventName) },
+                env = {webview: {id: (new Date()).getTime()}};
 
             spyOn(events, "add");
             sysIndex.registerEvents(jasmine.createSpy());
-            eventExt.add(null, null, args);
+            eventExt.add(null, null, args, env);
             expect(events.add).toHaveBeenCalledWith({
                 context: deviceEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
 
         it("removes 'batterycritical' event", function () {
             var clientEventName = "batterycritical",
                 eventName = "battery.chargeCritical",
-                args = {eventName : encodeURIComponent(clientEventName)};
+                args = {eventName : encodeURIComponent(clientEventName)},
+                env = {webview: {id: (new Date()).getTime()}};
+
             spyOn(events, "remove");
-            eventExt.remove(null, null, args);
+            eventExt.remove(null, null, args, env);
             expect(events.remove).toHaveBeenCalledWith({
                 context: deviceEvents,
                 event: eventName,
                 trigger: jasmine.any(Function)
-            });
+            }, env.webview);
         });
     });
 
@@ -363,14 +379,15 @@ describe("system index", function () {
                 failCB = jasmine.createSpy("Fail Callback");
                 mockedFontFamily = jasmine.createSpy("getSystemFontFamily").andReturn(fontFamily);
                 mockedFontSize = jasmine.createSpy("getSystemFontSize").andReturn(fontSize);
-                GLOBAL.window = GLOBAL;
-                GLOBAL.window.qnx = {
-                    webplatform: {
-                        getApplication: function () {
-                            return {
-                                getSystemFontFamily: mockedFontFamily,
-                                getSystemFontSize: mockedFontSize
-                            };
+                GLOBAL.window = {
+                    qnx: {
+                        webplatform: {
+                            getApplication: function () {
+                                return {
+                                    getSystemFontFamily: mockedFontFamily,
+                                    getSystemFontSize: mockedFontSize
+                                };
+                            }
                         }
                     }
                 };
@@ -381,6 +398,7 @@ describe("system index", function () {
                 failCB = null;
                 mockedFontFamily = null;
                 mockedFontSize = null;
+                delete GLOBAL.window;
             });
 
             it("can call fontFamily and fontSize the qnx.weblplatform Application", function () {
@@ -413,29 +431,31 @@ describe("system index", function () {
 
             it("responds to 'fontchanged' events", function () {
                 var eventName = "fontchanged",
-                    args = {eventName : encodeURIComponent(eventName)};
+                    args = {eventName : encodeURIComponent(eventName)},
+                    env = {webview: {id: (new Date()).getTime()}};
 
                 spyOn(events, "add");
                 sysIndex.registerEvents(jasmine.createSpy());
-                eventExt.add(null, null, args);
+                eventExt.add(null, null, args, env);
                 expect(events.add).toHaveBeenCalledWith({
                     context: appEvents,
                     event: eventName,
                     trigger: jasmine.any(Function)
-                });
+                }, env.webview);
             });
 
             it("removes 'fontchanged' event", function () {
                 var eventName = "fontchanged",
-                    args = {eventName : encodeURIComponent(eventName)};
+                    args = {eventName : encodeURIComponent(eventName)},
+                    env = {webview: {id: (new Date()).getTime()}};
 
                 spyOn(events, "remove");
-                eventExt.remove(null, null, args);
+                eventExt.remove(null, null, args, env);
                 expect(events.remove).toHaveBeenCalledWith({
                     context: appEvents,
                     event: eventName,
                     trigger: jasmine.any(Function)
-                });
+                }, env.webview);
             });
         });
     });
@@ -451,6 +471,10 @@ describe("system index", function () {
                     }
                 }
             };
+        });
+
+        afterEach(function () {
+            delete GLOBAL.window;
         });
 
         it("return timezone from PPS", function () {
@@ -475,6 +499,10 @@ describe("system index", function () {
                     }
                 }
             };
+        });
+
+        afterEach(function () {
+            delete GLOBAL.window;
         });
 
         it("return timezones from native", function () {

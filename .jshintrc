@@ -2,6 +2,7 @@
     "predef": [
         "escape",
         "unescape",
+
         //Jasmine
         "jasmine",
         "it",
@@ -16,13 +17,15 @@
         "spyOn",
         "expect",
         "global",
+
         //Webworks
         "qnx",
         "chrome",
-        "blackberry",
         "internal",
+        "blackberry",
         "JNEXT",
         "frameworkModules",
+
         //Node
         "__dirname",
         "GLOBAL",
@@ -33,12 +36,14 @@
         "require",
         "Node",
         "JSZip",
+
         //UI Components
         "x$",
         "iris",
         //Browser
         "DOMElement",
         "atob",
+
         //automated tests
         "showOverlay",
         "hideOverlay"
