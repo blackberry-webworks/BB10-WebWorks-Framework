@@ -123,6 +123,8 @@ Json::Value PimContactsQt::Find(const Json::Value& args)
 
 Json::Value PimContactsQt::Save(const Json::Value& attributeObj)
 {
+    Json::Value returnObj;
+
     if (!attributeObj.isMember("id") || attributeObj["id"].isNull()) {
         return CreateContact(attributeObj);
     } else if (attributeObj.isMember("id") && attributeObj["id"].isInt()) {
@@ -133,6 +135,12 @@ Json::Value PimContactsQt::Save(const Json::Value& attributeObj)
             bbpim::Contact contact = service.contactDetails(contactId);
 
             if (contact.isValid()) {
+                unsigned int currentHash = getContactHash(contact);
+                if (attributeObj["hash"].asUInt() != currentHash) {
+                    returnObj["_success"] = false;
+                    returnObj["code"] = UNKNOWN_ERROR;
+                    return returnObj;
+                }
                 return EditContact(contact, attributeObj);
             }
         } else {
@@ -144,7 +152,6 @@ Json::Value PimContactsQt::Save(const Json::Value& attributeObj)
         }
     }
 
-    Json::Value returnObj;
     returnObj["_success"] = false;
     returnObj["code"] = INVALID_ARGUMENT_ERROR;
     return returnObj;
@@ -1401,6 +1408,179 @@ void PimContactsQt::syncPhotos(bbpim::ContactBuilder& contactBuilder, QList<bbpi
             addPhoto(contactBuilder, jsonObj[i]);
         }
     }
+}
+
+unsigned int PimContactsQt::getContactHash(const bbpim::Contact& contact)
+{
+    std::string strContact = contactToString(contact);
+    return qHash(QString::fromStdString(strContact));
+}
+
+// Convert contact to string
+std::string PimContactsQt::contactToString(const bbpim::Contact& contact)
+{
+    return Json::FastWriter().write(contactToJson(contact));
+}
+// Convert contact to JSON
+Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
+{
+    Json::Value jsonContact;
+
+    jsonContact["id"] = Utils::intToStr(contact.id());
+    jsonContact["accountId"] = Utils::intToStr(contact.accountId());
+    jsonContact["displayName"] = contact.displayName().toStdString();
+    jsonContact["displayCompanyName"] = contact.displayCompanyName().toStdString();
+    jsonContact["smallPhotoFilepath"] = contact.smallPhotoFilepath().toStdString();
+    jsonContact["isFavorite"] = contact.isFavourite();
+
+    jsonContact["emails"] = Json::Value();
+    for (QList<bbpim::ContactAttribute>::const_iterator i = contact.emails().constBegin(); i != contact.emails().constEnd(); ++i) {
+        Json::Value jsonEmail;
+        jsonEmail["id"] = Utils::intToStr(i->id());
+        jsonEmail["kind"] = i->kind();
+        jsonEmail["subKind"] = i->subKind();
+        jsonEmail["value"] = i->value().toStdString();
+        jsonEmail["valueAsDateTime"] = QString::number(i->valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
+        jsonEmail["label"] = i->label().toStdString();
+        jsonEmail["primaryAttribute"] = i->isPrimaryAttribute();
+        jsonEmail["groupKey"] = i->groupKey().toStdString();
+        jsonEmail["launchUrl"] = i->launchUrl().toString().toStdString();
+        jsonEmail["sources"] = Json::Value();
+
+        for (QList<bbpim::AccountId>::const_iterator j = i->sources().constBegin(); j != i->sources().constEnd(); ++j) {
+            Json::Value jsonSourceIds;
+            jsonSourceIds["accountId"] = Utils::intToStr(*j);
+
+            jsonEmail["sources"].append(jsonSourceIds);
+        }
+
+        jsonEmail["enhancement"] = i->isEnhancement();
+        jsonEmail["attributeDisplayLabel"] = i->attributeDisplayLabel().toStdString();
+        jsonEmail["valid"] = i->isValid();
+
+        jsonContact["emails"].append(jsonEmail);
+    }
+
+    jsonContact["phoneNumbers"] = Json::Value();
+    for (QList<bbpim::ContactAttribute>::const_iterator i = contact.phoneNumbers().constBegin(); i != contact.phoneNumbers().constEnd(); ++i) {
+        Json::Value jsonPhoneNumber;
+        jsonPhoneNumber["id"] = Utils::intToStr(i->id());
+        jsonPhoneNumber["kind"] = i->kind();
+        jsonPhoneNumber["subKind"] = i->subKind();
+        jsonPhoneNumber["value"] = i->value().toStdString();
+        jsonPhoneNumber["valueAsDateTime"] = QString::number(i->valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
+        jsonPhoneNumber["label"] = i->label().toStdString();
+        jsonPhoneNumber["primaryAttribute"] = i->isPrimaryAttribute();
+        jsonPhoneNumber["groupKey"] = i->groupKey().toStdString();
+        jsonPhoneNumber["launchUrl"] = i->launchUrl().toString().toStdString();
+        jsonPhoneNumber["sources"] = Json::Value();
+
+        for (QList<bbpim::AccountId>::const_iterator j = i->sources().constBegin(); j != i->sources().constEnd(); ++j) {
+            Json::Value jsonSourceIds;
+            jsonSourceIds["accountId"] = Utils::intToStr(*j);
+
+            jsonPhoneNumber["sources"].append(jsonSourceIds);
+        }
+
+        jsonPhoneNumber["enhancement"] = i->isEnhancement();
+        jsonPhoneNumber["attributeDisplayLabel"] = i->attributeDisplayLabel().toStdString();
+        jsonPhoneNumber["isValid"] = i->isValid();
+
+        jsonContact["phoneNumbers"].append(jsonPhoneNumber);
+    }
+
+    jsonContact["firstName"] = contact.firstName().toStdString();
+    jsonContact["lastName"] = contact.lastName().toStdString();
+
+    jsonContact["photos"] = Json::Value();
+    for (QList<bbpim::ContactPhoto>::const_iterator i = contact.photos().constBegin(); i != contact.photos().constEnd(); ++i) {
+        Json::Value jsonPhoto;
+        jsonPhoto["smallPhoto"] = i->smallPhoto().toStdString();
+        jsonPhoto["largePhoto"] = i->largePhoto().toStdString();
+        jsonPhoto["originalPhoto"] = i->originalPhoto().toStdString();
+        jsonPhoto["sourceAccountId"] = Utils::intToStr(i->sourceAccountId());
+        jsonPhoto["id"] = Utils::intToStr(i->id());
+        jsonPhoto["isValid"] = i->isValid();
+
+        jsonContact["photos"].append(jsonPhoto);
+    }
+
+    jsonContact["primaryPhoto"] = Json::Value();
+    jsonContact["primaryPhoto"]["smallPhoto"] = contact.primaryPhoto().smallPhoto().toStdString();
+    jsonContact["primaryPhoto"]["largePhoto"] = contact.primaryPhoto().largePhoto().toStdString();
+    jsonContact["primaryPhoto"]["originalPhoto"] = contact.primaryPhoto().originalPhoto().toStdString();
+    jsonContact["primaryPhoto"]["sourceAccountId"] = Utils::intToStr(contact.primaryPhoto().sourceAccountId());
+    jsonContact["primaryPhoto"]["id"] = Utils::intToStr(contact.primaryPhoto().id());
+    jsonContact["primaryPhoto"]["isValid"] = contact.primaryPhoto().isValid();
+
+    jsonContact["postalAddresses"] = Json::Value();
+    for (QList<bbpim::ContactPostalAddress>::const_iterator i = contact.postalAddresses().constBegin(); i != contact.postalAddresses().constEnd(); ++i) {
+        Json::Value jsonPostalAddress;
+        jsonPostalAddress["id"] = Utils::intToStr(i->id());
+        jsonPostalAddress["label"] = i->label().toStdString();
+        jsonPostalAddress["line1"] = i->line1().toStdString();
+        jsonPostalAddress["line2"] = i->line2().toStdString();
+        jsonPostalAddress["city"] = i->city().toStdString();
+        jsonPostalAddress["region"] = i->region().toStdString();
+        jsonPostalAddress["country"] = i->country().toStdString();
+        jsonPostalAddress["postalCode"] = i->postalCode().toStdString();
+        std::ostringstream oss;
+        oss << i->latitude();
+        jsonPostalAddress["latitude"] = oss.str();
+        oss << i->longitude();
+        jsonPostalAddress["longitude"] = oss.str();
+        jsonPostalAddress["isValidLatitudeLogitude"] = i->isValidLatitudeLongitude();
+        jsonPostalAddress["subkind"] = i->subKind();
+        jsonPostalAddress["isValid"] = i->isValid();
+
+        jsonContact["photos"].append(jsonPostalAddress);
+    }
+
+    jsonContact["attributes"] = Json::Value();
+    for (QList<bbpim::ContactAttribute>::const_iterator i = contact.attributes().constBegin(); i != contact.attributes().constEnd(); ++i) {
+        Json::Value jsonAttribute;
+        jsonAttribute["id"] = Utils::intToStr(i->id());
+        jsonAttribute["kind"] = i->kind();
+        jsonAttribute["subKind"] = i->subKind();
+        jsonAttribute["value"] = i->value().toStdString();
+        jsonAttribute["valueAsDateTime"] = QString::number(i->valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
+        jsonAttribute["label"] = i->label().toStdString();
+        jsonAttribute["isPrimaryAttribute"] = i->isPrimaryAttribute();
+        jsonAttribute["groupKey"] = i->groupKey().toStdString();
+        jsonAttribute["launchUrl"] = i->launchUrl().toString().toStdString();
+        jsonAttribute["sources"] = Json::Value();
+
+        for (QList<bbpim::AccountId>::const_iterator j = i->sources().constBegin(); j != i->sources().constEnd(); ++j) {
+            Json::Value jsonSourceIds;
+            jsonSourceIds["accountId"] = Utils::intToStr(*j);
+
+            jsonAttribute["sources"].append(jsonSourceIds);
+        }
+
+        jsonAttribute["isEnhancement"] = i->isEnhancement();
+        jsonAttribute["attributeDisplayLabel"] = i->attributeDisplayLabel().toStdString();
+        jsonAttribute["isValid"] = i->isValid();
+
+        jsonContact["attributes"].append(jsonAttribute);
+    }
+    jsonContact["sourceAccountCount"] = Utils::intToStr(contact.sourceAccountCount());
+
+    jsonContact["sourceAccountIds"] = Json::Value();
+    for (QList<bbpim::AccountId>::const_iterator i = contact.sourceAccountIds().constBegin(); i != contact.sourceAccountIds().constEnd(); ++i) {
+        Json::Value jsonSourceIds;
+        jsonSourceIds["accountId"] = Utils::intToStr(*i);
+
+        jsonContact["sourceAccountIds"].append(jsonSourceIds);
+    }
+
+    jsonContact["sortFirstName"] = contact.sortFirstName().toStdString();
+    jsonContact["sortLastName"] = contact.sortLastName().toStdString();
+    jsonContact["sortCompanyName"] = contact.sortCompanyName().toStdString();
+    jsonContact["isValid"] = contact.isValid();
+    jsonContact["isPartialContact"] = contact.isPartialContact();
+    jsonContact["readOnly"] = contact.isReadOnly();
+
+    return jsonContact;
 }
 
 /****************************************************************

@@ -18,6 +18,7 @@
 #define PIM_CONTACTS_QT_H_
 
 #include <json/value.h>
+#include <json/writer.h>
 #include <bb/pim/contacts/ContactService.hpp>
 #include <bb/pim/contacts/ContactConsts.hpp>
 #include <bb/pim/contacts/Contact.hpp>
@@ -91,6 +92,7 @@ private:
     void populatePhotos(const bbpim::Contact& contact, Json::Value& contactPhotos);
     void populateNews(const bbpim::Contact& contact, Json::Value& contactNews);
     void populateActivity(const bbpim::Contact& contact, Json::Value& contactActivity);
+    void populateSource(const bbpim::Contact& contact, Json::Value& contactActivity);
 
     static QSet<bbpim::ContactId> singleFieldSearch(const Json::Value& searchFieldsJson, const Json::Value& contactFields, bool favorite);
     static QString getSortFieldValue(const bbpim::SortColumn::Type sortField, const bbpim::Contact& contact);
@@ -116,6 +118,9 @@ private:
 
     void addConvertedList(bbpim::ContactBuilder& contactBuilder, const bbpim::AttributeKind::Type kind, const QList<SubkindValuePair>& convertedList, const std::string& groupKey = "");
     void addAttribute(bbpim::ContactBuilder& contactBuilder, const bbpim::AttributeKind::Type kind, const bbpim::AttributeSubKind::Type subkind, const std::string& value, const std::string& groupKey = "");
+    static unsigned int getContactHash(const bbpim::Contact& contact);
+    static std::string contactToString(const bbpim::Contact& contact);
+    static Json::Value contactToJson(const bbpim::Contact& contact);
 
     QList<SubkindValuePair> convertGroupedAttributes(const Json::Value& fieldsObj);
     QList<SubkindValuePair> convertFieldAttributes(const Json::Value& fieldArray);
