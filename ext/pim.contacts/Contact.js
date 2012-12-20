@@ -193,6 +193,9 @@ Contact = function (properties) {
 
     privateActivities = properties && properties.activities ? properties.activities : null; // ContactActivity[]
     Object.defineProperty(this, "activities", { "value": privateActivities });
+
+    privateHash = properties && typeof properties.hash !== "undefined" ? properties.hash : 0;
+    Object.defineProperty(this, "hash", { "value": privateHash, "enumerable": false });
 };
 
 Contact.prototype.save = function (onSaveSuccess, onSaveError) {

@@ -136,6 +136,7 @@ Json::Value PimContactsQt::Save(const Json::Value& attributeObj)
 
             if (contact.isValid()) {
                 unsigned int currentHash = getContactHash(contact);
+                fprintf(stderr, "!!!!!!!!!!! %d : %d\n", currentHash, attributeObj["hash"].asInt());
                 if (attributeObj["hash"].asUInt() != currentHash) {
                     returnObj["_success"] = false;
                     returnObj["code"] = UNKNOWN_ERROR;
@@ -705,6 +706,13 @@ Json::Value PimContactsQt::populateContact(const bbpim::Contact& contact, const 
     }
 
     contactItem["id"] = Json::Value(contact.id());
+
+    if (contact.id() > 0 && contact.isValid()) {
+        contactItem["hash"] = getContactHash(contact);
+    } else {
+        contactItem["hash"] = 0;
+    }
+
     contactItem["favorite"] = Json::Value(contact.isFavourite()); // always populate favorite
 
     return contactItem;
@@ -1434,57 +1442,57 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
     jsonContact["isFavorite"] = contact.isFavourite();
 
     jsonContact["emails"] = Json::Value();
-    for (QList<bbpim::ContactAttribute>::const_iterator i = contact.emails().constBegin(); i != contact.emails().constEnd(); ++i) {
+    for (int i = 0;i < contact.emails().count(); ++i) {
         Json::Value jsonEmail;
-        jsonEmail["id"] = Utils::intToStr(i->id());
-        jsonEmail["kind"] = i->kind();
-        jsonEmail["subKind"] = i->subKind();
-        jsonEmail["value"] = i->value().toStdString();
-        jsonEmail["valueAsDateTime"] = QString::number(i->valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
-        jsonEmail["label"] = i->label().toStdString();
-        jsonEmail["primaryAttribute"] = i->isPrimaryAttribute();
-        jsonEmail["groupKey"] = i->groupKey().toStdString();
-        jsonEmail["launchUrl"] = i->launchUrl().toString().toStdString();
+        jsonEmail["id"] = Utils::intToStr(contact.emails().at(i).id());
+        jsonEmail["kind"] = contact.emails().at(i).kind();
+        jsonEmail["subKind"] = contact.emails().at(i).subKind();
+        jsonEmail["value"] = contact.emails().at(i).value().toStdString();
+        jsonEmail["valueAsDateTime"] = QString::number(contact.emails().at(i).valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
+        jsonEmail["label"] = contact.emails().at(i).label().toStdString();
+        jsonEmail["primaryAttribute"] = contact.emails().at(i).isPrimaryAttribute();
+        jsonEmail["groupKey"] = contact.emails().at(i).groupKey().toStdString();
+        jsonEmail["launchUrl"] = contact.emails().at(i).launchUrl().toString().toStdString();
         jsonEmail["sources"] = Json::Value();
 
-        for (QList<bbpim::AccountId>::const_iterator j = i->sources().constBegin(); j != i->sources().constEnd(); ++j) {
+        for (int j = 0; j < contact.emails().at(i).sources().count(); ++j) {
             Json::Value jsonSourceIds;
-            jsonSourceIds["accountId"] = Utils::intToStr(*j);
+            jsonSourceIds["accountId"] = Utils::intToStr(contact.emails().at(i).sources().at(j));
 
             jsonEmail["sources"].append(jsonSourceIds);
         }
 
-        jsonEmail["enhancement"] = i->isEnhancement();
-        jsonEmail["attributeDisplayLabel"] = i->attributeDisplayLabel().toStdString();
-        jsonEmail["valid"] = i->isValid();
+        jsonEmail["enhancement"] = contact.emails().at(i).isEnhancement();
+        jsonEmail["attributeDisplayLabel"] = contact.emails().at(i).attributeDisplayLabel().toStdString();
+        jsonEmail["valid"] = contact.emails().at(i).isValid();
 
         jsonContact["emails"].append(jsonEmail);
     }
 
     jsonContact["phoneNumbers"] = Json::Value();
-    for (QList<bbpim::ContactAttribute>::const_iterator i = contact.phoneNumbers().constBegin(); i != contact.phoneNumbers().constEnd(); ++i) {
+    for (int i = 0;i < contact.phoneNumbers().count(); ++i) {
         Json::Value jsonPhoneNumber;
-        jsonPhoneNumber["id"] = Utils::intToStr(i->id());
-        jsonPhoneNumber["kind"] = i->kind();
-        jsonPhoneNumber["subKind"] = i->subKind();
-        jsonPhoneNumber["value"] = i->value().toStdString();
-        jsonPhoneNumber["valueAsDateTime"] = QString::number(i->valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
-        jsonPhoneNumber["label"] = i->label().toStdString();
-        jsonPhoneNumber["primaryAttribute"] = i->isPrimaryAttribute();
-        jsonPhoneNumber["groupKey"] = i->groupKey().toStdString();
-        jsonPhoneNumber["launchUrl"] = i->launchUrl().toString().toStdString();
+        jsonPhoneNumber["id"] = Utils::intToStr(contact.phoneNumbers().at(i).id());
+        jsonPhoneNumber["kind"] = contact.phoneNumbers().at(i).kind();
+        jsonPhoneNumber["subKind"] = contact.phoneNumbers().at(i).subKind();
+        jsonPhoneNumber["value"] = contact.phoneNumbers().at(i).value().toStdString();
+        jsonPhoneNumber["valueAsDateTime"] = QString::number(contact.phoneNumbers().at(i).valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
+        jsonPhoneNumber["label"] = contact.phoneNumbers().at(i).label().toStdString();
+        jsonPhoneNumber["primaryAttribute"] = contact.phoneNumbers().at(i).isPrimaryAttribute();
+        jsonPhoneNumber["groupKey"] = contact.phoneNumbers().at(i).groupKey().toStdString();
+        jsonPhoneNumber["launchUrl"] = contact.phoneNumbers().at(i).launchUrl().toString().toStdString();
         jsonPhoneNumber["sources"] = Json::Value();
 
-        for (QList<bbpim::AccountId>::const_iterator j = i->sources().constBegin(); j != i->sources().constEnd(); ++j) {
+        for (int j = 0; j < contact.phoneNumbers().at(i).sources().count(); ++j) {
             Json::Value jsonSourceIds;
-            jsonSourceIds["accountId"] = Utils::intToStr(*j);
+            jsonSourceIds["accountId"] = Utils::intToStr(contact.phoneNumbers().at(i).sources().at(j));
 
             jsonPhoneNumber["sources"].append(jsonSourceIds);
         }
 
-        jsonPhoneNumber["enhancement"] = i->isEnhancement();
-        jsonPhoneNumber["attributeDisplayLabel"] = i->attributeDisplayLabel().toStdString();
-        jsonPhoneNumber["isValid"] = i->isValid();
+        jsonPhoneNumber["enhancement"] = contact.phoneNumbers().at(i).isEnhancement();
+        jsonPhoneNumber["attributeDisplayLabel"] = contact.phoneNumbers().at(i).attributeDisplayLabel().toStdString();
+        jsonPhoneNumber["isValid"] = contact.phoneNumbers().at(i).isValid();
 
         jsonContact["phoneNumbers"].append(jsonPhoneNumber);
     }
@@ -1537,32 +1545,33 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
     }
 
     jsonContact["attributes"] = Json::Value();
-    for (QList<bbpim::ContactAttribute>::const_iterator i = contact.attributes().constBegin(); i != contact.attributes().constEnd(); ++i) {
+    for (int i = 0;i < contact.attributes().count(); ++i) {
         Json::Value jsonAttribute;
-        jsonAttribute["id"] = Utils::intToStr(i->id());
-        jsonAttribute["kind"] = i->kind();
-        jsonAttribute["subKind"] = i->subKind();
-        jsonAttribute["value"] = i->value().toStdString();
-        jsonAttribute["valueAsDateTime"] = QString::number(i->valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
-        jsonAttribute["label"] = i->label().toStdString();
-        jsonAttribute["isPrimaryAttribute"] = i->isPrimaryAttribute();
-        jsonAttribute["groupKey"] = i->groupKey().toStdString();
-        jsonAttribute["launchUrl"] = i->launchUrl().toString().toStdString();
+        jsonAttribute["id"] = Utils::intToStr(contact.attributes().at(i).id());
+        jsonAttribute["kind"] = contact.attributes().at(i).kind();
+        jsonAttribute["subKind"] = contact.attributes().at(i).subKind();
+        jsonAttribute["value"] = contact.attributes().at(i).value().toStdString();
+        jsonAttribute["valueAsDateTime"] = QString::number(contact.attributes().at(i).valueAsDateTime().toUTC().toMSecsSinceEpoch()).toStdString();
+        jsonAttribute["label"] = contact.attributes().at(i).label().toStdString();
+        jsonAttribute["primaryAttribute"] = contact.attributes().at(i).isPrimaryAttribute();
+        jsonAttribute["groupKey"] = contact.attributes().at(i).groupKey().toStdString();
+        jsonAttribute["launchUrl"] = contact.attributes().at(i).launchUrl().toString().toStdString();
         jsonAttribute["sources"] = Json::Value();
 
-        for (QList<bbpim::AccountId>::const_iterator j = i->sources().constBegin(); j != i->sources().constEnd(); ++j) {
+        for (int j = 0; j < contact.attributes().at(i).sources().count(); ++j) {
             Json::Value jsonSourceIds;
-            jsonSourceIds["accountId"] = Utils::intToStr(*j);
+            jsonSourceIds["accountId"] = Utils::intToStr(contact.attributes().at(i).sources().at(j));
 
             jsonAttribute["sources"].append(jsonSourceIds);
         }
 
-        jsonAttribute["isEnhancement"] = i->isEnhancement();
-        jsonAttribute["attributeDisplayLabel"] = i->attributeDisplayLabel().toStdString();
-        jsonAttribute["isValid"] = i->isValid();
+        jsonAttribute["enhancement"] = contact.attributes().at(i).isEnhancement();
+        jsonAttribute["attributeDisplayLabel"] = contact.attributes().at(i).attributeDisplayLabel().toStdString();
+        jsonAttribute["isValid"] = contact.attributes().at(i).isValid();
 
         jsonContact["attributes"].append(jsonAttribute);
     }
+
     jsonContact["sourceAccountCount"] = Utils::intToStr(contact.sourceAccountCount());
 
     jsonContact["sourceAccountIds"] = Json::Value();
