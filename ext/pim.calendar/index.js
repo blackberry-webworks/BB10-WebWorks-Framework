@@ -95,7 +95,7 @@ module.exports = {
     save: function (success, fail, args) {
         var attributes = {},
             key;
-
+            
         for (key in args) {
             if (args.hasOwnProperty(key)) {
                 attributes[key] = JSON.parse(decodeURIComponent(args[key]));

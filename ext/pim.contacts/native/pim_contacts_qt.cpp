@@ -136,7 +136,6 @@ Json::Value PimContactsQt::Save(const Json::Value& attributeObj)
 
             if (contact.isValid()) {
                 unsigned int currentHash = getContactHash(contact);
-                fprintf(stderr, "!!!!!!!!!!! %d : %d\n", currentHash, attributeObj["hash"].asInt());
                 if (attributeObj["hash"].asUInt() != currentHash) {
                     returnObj["_success"] = false;
                     returnObj["code"] = UNKNOWN_ERROR;
@@ -295,6 +294,7 @@ Json::Value PimContactsQt::GetContact(const Json::Value& args)
             returnObj["_success"] = true;
             if (contact.isValid()) {
                 returnObj["contact"] = populateContact(contact, fields);
+                returnObj["contact"]["hash"] = getContactHash(contact);
             }
         }
     } else {
@@ -706,13 +706,6 @@ Json::Value PimContactsQt::populateContact(const bbpim::Contact& contact, const 
     }
 
     contactItem["id"] = Json::Value(contact.id());
-
-    if (contact.id() > 0 && contact.isValid()) {
-        contactItem["hash"] = getContactHash(contact);
-    } else {
-        contactItem["hash"] = 0;
-    }
-
     contactItem["favorite"] = Json::Value(contact.isFavourite()); // always populate favorite
 
     return contactItem;
@@ -1442,7 +1435,7 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
     jsonContact["isFavorite"] = contact.isFavourite();
 
     jsonContact["emails"] = Json::Value();
-    for (int i = 0;i < contact.emails().count(); ++i) {
+    for (int i = 0; i < contact.emails().count(); i++) {
         Json::Value jsonEmail;
         jsonEmail["id"] = Utils::intToStr(contact.emails().at(i).id());
         jsonEmail["kind"] = contact.emails().at(i).kind();
@@ -1455,7 +1448,7 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
         jsonEmail["launchUrl"] = contact.emails().at(i).launchUrl().toString().toStdString();
         jsonEmail["sources"] = Json::Value();
 
-        for (int j = 0; j < contact.emails().at(i).sources().count(); ++j) {
+        for (int j = 0; j < contact.emails().at(i).sources().count(); j++) {
             Json::Value jsonSourceIds;
             jsonSourceIds["accountId"] = Utils::intToStr(contact.emails().at(i).sources().at(j));
 
@@ -1470,7 +1463,7 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
     }
 
     jsonContact["phoneNumbers"] = Json::Value();
-    for (int i = 0;i < contact.phoneNumbers().count(); ++i) {
+    for (int i = 0; i < contact.phoneNumbers().count(); i++) {
         Json::Value jsonPhoneNumber;
         jsonPhoneNumber["id"] = Utils::intToStr(contact.phoneNumbers().at(i).id());
         jsonPhoneNumber["kind"] = contact.phoneNumbers().at(i).kind();
@@ -1483,7 +1476,7 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
         jsonPhoneNumber["launchUrl"] = contact.phoneNumbers().at(i).launchUrl().toString().toStdString();
         jsonPhoneNumber["sources"] = Json::Value();
 
-        for (int j = 0; j < contact.phoneNumbers().at(i).sources().count(); ++j) {
+        for (int j = 0; j < contact.phoneNumbers().at(i).sources().count(); j++) {
             Json::Value jsonSourceIds;
             jsonSourceIds["accountId"] = Utils::intToStr(contact.phoneNumbers().at(i).sources().at(j));
 
@@ -1501,14 +1494,14 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
     jsonContact["lastName"] = contact.lastName().toStdString();
 
     jsonContact["photos"] = Json::Value();
-    for (QList<bbpim::ContactPhoto>::const_iterator i = contact.photos().constBegin(); i != contact.photos().constEnd(); ++i) {
+    for (int i = 0; i < contact.photos().count(); i++) {
         Json::Value jsonPhoto;
-        jsonPhoto["smallPhoto"] = i->smallPhoto().toStdString();
-        jsonPhoto["largePhoto"] = i->largePhoto().toStdString();
-        jsonPhoto["originalPhoto"] = i->originalPhoto().toStdString();
-        jsonPhoto["sourceAccountId"] = Utils::intToStr(i->sourceAccountId());
-        jsonPhoto["id"] = Utils::intToStr(i->id());
-        jsonPhoto["isValid"] = i->isValid();
+        jsonPhoto["smallPhoto"] = contact.photos().at(i).smallPhoto().toStdString();
+        jsonPhoto["largePhoto"] = contact.photos().at(i).largePhoto().toStdString();
+        jsonPhoto["originalPhoto"] = contact.photos().at(i).originalPhoto().toStdString();
+        jsonPhoto["sourceAccountId"] = Utils::intToStr(contact.photos().at(i).sourceAccountId());
+        jsonPhoto["id"] = Utils::intToStr(contact.photos().at(i).id());
+        jsonPhoto["isValid"] = contact.photos().at(i).isValid();
 
         jsonContact["photos"].append(jsonPhoto);
     }
@@ -1522,30 +1515,30 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
     jsonContact["primaryPhoto"]["isValid"] = contact.primaryPhoto().isValid();
 
     jsonContact["postalAddresses"] = Json::Value();
-    for (QList<bbpim::ContactPostalAddress>::const_iterator i = contact.postalAddresses().constBegin(); i != contact.postalAddresses().constEnd(); ++i) {
+    for (int i = 0; i < contact.postalAddresses().count(); i++) {
         Json::Value jsonPostalAddress;
-        jsonPostalAddress["id"] = Utils::intToStr(i->id());
-        jsonPostalAddress["label"] = i->label().toStdString();
-        jsonPostalAddress["line1"] = i->line1().toStdString();
-        jsonPostalAddress["line2"] = i->line2().toStdString();
-        jsonPostalAddress["city"] = i->city().toStdString();
-        jsonPostalAddress["region"] = i->region().toStdString();
-        jsonPostalAddress["country"] = i->country().toStdString();
-        jsonPostalAddress["postalCode"] = i->postalCode().toStdString();
+        jsonPostalAddress["id"] = Utils::intToStr(contact.postalAddresses().at(i).id());
+        jsonPostalAddress["label"] = contact.postalAddresses().at(i).label().toStdString();
+        jsonPostalAddress["line1"] = contact.postalAddresses().at(i).line1().toStdString();
+        jsonPostalAddress["line2"] = contact.postalAddresses().at(i).line2().toStdString();
+        jsonPostalAddress["city"] = contact.postalAddresses().at(i).city().toStdString();
+        jsonPostalAddress["region"] = contact.postalAddresses().at(i).region().toStdString();
+        jsonPostalAddress["country"] = contact.postalAddresses().at(i).country().toStdString();
+        jsonPostalAddress["postalCode"] = contact.postalAddresses().at(i).postalCode().toStdString();
         std::ostringstream oss;
-        oss << i->latitude();
+        oss << contact.postalAddresses().at(i).latitude();
         jsonPostalAddress["latitude"] = oss.str();
-        oss << i->longitude();
+        oss << contact.postalAddresses().at(i).longitude();
         jsonPostalAddress["longitude"] = oss.str();
-        jsonPostalAddress["isValidLatitudeLogitude"] = i->isValidLatitudeLongitude();
-        jsonPostalAddress["subkind"] = i->subKind();
-        jsonPostalAddress["isValid"] = i->isValid();
+        jsonPostalAddress["isValidLatitudeLogitude"] = contact.postalAddresses().at(i).isValidLatitudeLongitude();
+        jsonPostalAddress["subkind"] = contact.postalAddresses().at(i).subKind();
+        jsonPostalAddress["isValid"] = contact.postalAddresses().at(i).isValid();
 
         jsonContact["photos"].append(jsonPostalAddress);
     }
 
     jsonContact["attributes"] = Json::Value();
-    for (int i = 0;i < contact.attributes().count(); ++i) {
+    for (int i = 0; i < contact.attributes().count(); i++) {
         Json::Value jsonAttribute;
         jsonAttribute["id"] = Utils::intToStr(contact.attributes().at(i).id());
         jsonAttribute["kind"] = contact.attributes().at(i).kind();
@@ -1575,9 +1568,9 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
     jsonContact["sourceAccountCount"] = Utils::intToStr(contact.sourceAccountCount());
 
     jsonContact["sourceAccountIds"] = Json::Value();
-    for (QList<bbpim::AccountId>::const_iterator i = contact.sourceAccountIds().constBegin(); i != contact.sourceAccountIds().constEnd(); ++i) {
+    for (int i = 0; i < contact.sourceAccountIds().count(); i++) {
         Json::Value jsonSourceIds;
-        jsonSourceIds["accountId"] = Utils::intToStr(*i);
+        jsonSourceIds["accountId"] = Utils::intToStr(contact.sourceAccountIds().at(i));
 
         jsonContact["sourceAccountIds"].append(jsonSourceIds);
     }

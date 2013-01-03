@@ -216,6 +216,7 @@ JNEXT.PimContacts = function ()
 
     self.save = function (args) {
         JNEXT.invoke(self.m_id, "save " + JSON.stringify(args));
+
         return "";
     };
 

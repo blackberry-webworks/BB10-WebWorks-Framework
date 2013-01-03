@@ -162,6 +162,7 @@ function validateRemoveArguments(id, onSuccess, onError) {
 Contact = function (properties) {
     var privateId,
         privateNews,
+        privateHash,
         privateActivities;
 
     this.displayName = properties && properties.displayName ? properties.displayName : null;
@@ -195,7 +196,8 @@ Contact = function (properties) {
     Object.defineProperty(this, "activities", { "value": privateActivities });
 
     privateHash = properties && typeof properties.hash !== "undefined" ? properties.hash : 0;
-    Object.defineProperty(this, "hash", { "value": privateHash, "enumerable": false });
+    Object.defineProperty(this, "hash", { "value": privateHash});
+
 };
 
 Contact.prototype.save = function (onSaveSuccess, onSaveError) {
@@ -210,7 +212,7 @@ Contact.prototype.save = function (onSaveSuccess, onSaveError) {
             args[key] = this[key];
         }
     }
-
+    args["hash"] = this["hash"];
     if (!validateSaveArguments(this, successCallback, errorCallback)) {
         if (errorCallback && typeof(errorCallback) === "function") {
             errorCallback(new ContactError(ContactError.INVALID_ARGUMENT_ERROR));
