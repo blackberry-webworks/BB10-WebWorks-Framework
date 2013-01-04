@@ -28,59 +28,60 @@ describe("blackberry.pim.contacts", function () {
 
     describe("Find populates Contact properties", function () {
         it('can return error when save an contact which was changed by others scince last fetch', function () {
-        var name = {
-                familyName : "Test",
-                givenName : "Webworks"
-            },
-        workPhone = { type: ContactField.WORK, value: "123-456-789" },
-        workEmail = { type: ContactField.WORK, value: "abc@def.com" },
-        homeEmail = { type: ContactField.HOME, value: "hello@world.com" },
+            var name = {
+                    familyName : "Test",
+                    givenName : "Webworks"
+                },
+                workPhone = { type: ContactField.WORK, value: "123-456-789" },
+                workEmail = { type: ContactField.WORK, value: "abc@def.com" },
+                homeEmail = { type: ContactField.HOME, value: "hello@world.com" },
     
-    contact = contacts.create({
-         "name": name,
-         "phoneNumbers": [workPhone],
-         "emails": [workEmail, homeEmail]
-    }),
-            called = false,
-            successCb = jasmine.createSpy().andCallFake(function (created) {
-                contact = created;
-                called = true;
-            }),
-            errorCb = jasmine.createSpy().andCallFake(function () {
-                called = true;
+                contact = contacts.create({
+                    "name": name,
+                    "phoneNumbers": [workPhone],
+                    "emails": [workEmail, homeEmail]
+                }),
+                called = false,
+                successCb = jasmine.createSpy().andCallFake(function (created) {
+                    contact = created;
+                    called = true;
+                }),
+                errorCb = jasmine.createSpy().andCallFake(function () {
+                    called = true;
+                });
+
+            runs(function () {
+                contact.save(function (e) {
+                    contact = e;
+                    console.log(e);
+                    called = true;
+                }, function (err) {
+                    console.log(err);
+                });
             });
 
-        runs(function () {
-            contact.save(function (e) {
-                contact = e;
-                console.log(e);
-                called = true;
-            }, function (err) {
-                console.log(err);
+            waitsFor(function () {
+                return called;
+            }, "Contact not saved in contacts", 15000);
+
+            runs(function () {
+                window.confirm('Before proceeding, open Contacts app and search contact with Name "Webworks Test", then change the name to Hello World');
+                called = false;
+                contact.name.familyName = "World";
+                contact.name.givenName = "Hello";
+                console.log(contact);
+                contact.save(successCb, errorCb);
+            });
+
+            waitsFor(function () {
+                return called;
+            }, "Contact not saved in contacts", 15000);
+
+            runs(function () {
+                expect(successCb).not.toHaveBeenCalled();
+                expect(errorCb).toHaveBeenCalled();
             });
         });
-
-        waitsFor(function () {
-            return called;
-        }, "Contact not saved in contacts", 15000);
-
-        runs(function () {
-            window.confirm('Before proceeding, open Contacts app and search contact with Name "Webworks Test", then change the name to Hello World');
-            called = false;
-            contact.name.familyName = "World";
-            contact.name.givenName = "Hello";
-            contact.save(successCb, errorCb);
-        });
-
-        waitsFor(function () {
-            return called;
-        }, "Contact not saved in contacts", 15000);
-
-        runs(function () {
-            expect(successCb).not.toHaveBeenCalled();
-            expect(errorCb).toHaveBeenCalled();
-        });
-    });
         it("should populate activities", function () {
             window.confirm("Please supply the name of a contact which has entries under their activities tab from the Contacts App. Activities entries can be call logs or emails between yourself and the contact.");
 
