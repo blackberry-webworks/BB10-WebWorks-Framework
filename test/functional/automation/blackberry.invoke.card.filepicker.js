@@ -15,6 +15,7 @@
  */
 describe("blackberry.invoke.card.invokeFilePicker", function () {
     var waitForTimeout = 2000,
+        headerHeight = 100,
         errorOnCallback,
         onDone,
         onCancel,
@@ -73,7 +74,6 @@ describe("blackberry.invoke.card.invokeFilePicker", function () {
         // Switch to grid view, for easier picking and selecting two files
         function pickGridViewAndSelectTwoFiles() {
             var iconsPerWidth = screen.availWidth < screen.availHeight ? 3 : 5,
-                headerHeight = 200,
                 iconWidth = screen.availWidth / iconsPerWidth,
                 iconHeight = iconWidth;
 
@@ -84,7 +84,7 @@ describe("blackberry.invoke.card.invokeFilePicker", function () {
                 expect(errorOnCallback).toBeUndefined();
                 waits(waitForTimeout);
                 runs(function () {
-                    // Selecting camera to take a photo
+                    // Selecting grid view
                     internal.automation.touchBottomLeftThirdIcon();
                     waits(waitForTimeout);
                     runs(function () {
@@ -170,6 +170,62 @@ describe("blackberry.invoke.card.invokeFilePicker", function () {
                 }, "done callback never fired", waitForTimeout * 2);
                 runs(function () {
                     expect(filePath && filePath.length === 2).toBeTruthy();
+                });
+            });
+        });
+
+        //open file picker in saver mode and allow overwrite - try to save already saved file
+        it("should open camera folder with option allowOverwrite equals true and overwrite a file", function () {
+            var fileName = "test_" + (new Date()).getTime() + ".txt";
+
+            blackberry.invoke.card.invokeFilePicker({
+                    mode: blackberry.invoke.card.FILEPICKER_MODE_SAVER,
+                    directory: [blackberry.io.sharedFolder + "/documents"],
+                    allowOverwrite: true
+                }, onDone, onCancel, callback);
+
+            // Touch input test field
+            waits(waitForTimeout);
+            runs(function () {
+                internal.automation.touch(screen.availWidth / 2, headerHeight + headerHeight / 2);
+                waits(waitForTimeout / 2);
+                runs(function () {
+                    internal.automation.injectText(fileName);
+
+                    waits(waitForTimeout * 2);
+                    runs(function () {
+                        // Press 'Save'
+                        internal.automation.touchTopRight();
+
+                        waitsFor(function () {
+                            return filePath;
+                        }, "done callback never fired", waitForTimeout);
+                        runs(function () {
+                            // Lower case filePath because when automatically typed first letter may be upper cased.
+                            expect(filePath.length === 1 && filePath[0].toLowerCase().indexOf(fileName) === (filePath[0].length - fileName.length)).toBeTruthy();
+                        });
+                    });
+                });
+            });
+        });
+
+        //open file picker in multiple saver mode to save a folder path
+        it("should open folders in shared directory and allows to retreive its path", function () {
+            blackberry.invoke.card.invokeFilePicker({
+                    mode: blackberry.invoke.card.FILEPICKER_MODE_SAVER_MULTIPLE,
+                }, onDone, onCancel, callback);
+
+            // Touch input test field
+            waits(waitForTimeout);
+            runs(function () {
+                // Press 'Save'
+                internal.automation.touchTopRight();
+
+                waitsFor(function () {
+                    return filePath;
+                }, "done callback never fired", waitForTimeout);
+                runs(function () {
+                    expect(filePath.length === 1 && (typeof filePath[0] === 'string')).toBeTruthy();
                 });
             });
         });
