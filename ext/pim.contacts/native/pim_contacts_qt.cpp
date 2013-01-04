@@ -136,6 +136,7 @@ Json::Value PimContactsQt::Save(const Json::Value& attributeObj)
 
             if (contact.isValid()) {
                 unsigned int currentHash = getContactHash(contact);
+                 fprintf(stderr, "!!!!!!!!!!! %d : %d\n", currentHash, attributeObj["hash"].asUInt());
                 if (attributeObj["hash"].asUInt() != currentHash) {
                     returnObj["_success"] = false;
                     returnObj["code"] = UNKNOWN_ERROR;
@@ -294,7 +295,6 @@ Json::Value PimContactsQt::GetContact(const Json::Value& args)
             returnObj["_success"] = true;
             if (contact.isValid()) {
                 returnObj["contact"] = populateContact(contact, fields);
-                returnObj["contact"]["hash"] = getContactHash(contact);
             }
         }
     } else {
@@ -635,6 +635,7 @@ std::string PimContactsQt::replaceString(const std::string& s) {
 Json::Value PimContactsQt::populateContact(const bbpim::Contact& contact, const Json::Value& contactFields)
 {
     Json::Value contactItem;
+    contactItem["hash"] = getContactHash(contact);
 
     for (unsigned int i = 0; i < contactFields.size(); i++) {
         std::string field = contactFields[i].asString();
@@ -704,8 +705,7 @@ Json::Value PimContactsQt::populateContact(const bbpim::Contact& contact, const 
             }
         }
     }
-
-    contactItem["id"] = Json::Value(contact.id());
+    contactItem["id"] = Utils::intToStr(contact.id());
     contactItem["favorite"] = Json::Value(contact.isFavourite()); // always populate favorite
 
     return contactItem;
@@ -1565,16 +1565,16 @@ Json::Value PimContactsQt::contactToJson(const bbpim::Contact& contact)
         jsonContact["attributes"].append(jsonAttribute);
     }
 
-    jsonContact["sourceAccountCount"] = Utils::intToStr(contact.sourceAccountCount());
+  //  jsonContact["sourceAccountCount"] = Utils::intToStr(contact.sourceAccountCount());
 
-    jsonContact["sourceAccountIds"] = Json::Value();
+  /*  jsonContact["sourceAccountIds"] = Json::Value();
     for (int i = 0; i < contact.sourceAccountIds().count(); i++) {
         Json::Value jsonSourceIds;
         jsonSourceIds["accountId"] = Utils::intToStr(contact.sourceAccountIds().at(i));
 
         jsonContact["sourceAccountIds"].append(jsonSourceIds);
     }
-
+*/
     jsonContact["sortFirstName"] = contact.sortFirstName().toStdString();
     jsonContact["sortLastName"] = contact.sortLastName().toStdString();
     jsonContact["sortCompanyName"] = contact.sortCompanyName().toStdString();

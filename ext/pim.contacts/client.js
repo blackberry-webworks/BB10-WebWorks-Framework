@@ -99,7 +99,6 @@ _self.getContact = function (contactId) {
             "contactId": contactId
         });
     if (obj) {
-        obj.id = obj.id.toString();
         contactUtils.populateContact(obj);
         return new Contact(obj);
     } else {
