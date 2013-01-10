@@ -17,27 +17,27 @@ var childProcess = require('child_process'),
     conf = require('./build/conf'),
     utils = require('./build/utils');
 
-function getTestForAgentCmd(ip) {
-    return "ssh root@" + ip + " '[ -f /var/automation/ui-agent ] && " +
+function getTestForAgentCmd(ip, identity) {
+    return "ssh " + identity + " root@" + ip + " '[ -f /var/automation/ui-agent ] && " +
         "[ -f /var/automation/PuppetMasterAgent ] && [ -f /var/automation/automation-interface ] && echo 1 || " +
         "(echo 0 ; mkdir -p /var/automation ; mkdir -p /accounts/1000/shared/misc/PuppetMaster/ReferenceImages/)'";
 }
 
-function getCopyReferenceImageCmd(ip, user) {
-    return "scp -r test/data/automation root@" + ip + ":/accounts/1000/shared/misc/PuppetMaster/ ";
+function getCopyReferenceImageCmd(ip, user, identity) {
+    return "scp " + identity + " -r test/data/automation root@" + ip + ":/accounts/1000/shared/misc/PuppetMaster/ ";
 }
 
-function getCopyAgentCmd(ip, user) {
+function getCopyAgentCmd(ip, user, identity) {
     return "mkdir -p /Volumes/QNXAutomation && " +
         "mount -t smbfs //'RIMNET;" + user + "'@javasrv50.devlab2k.testnet.rim.net/QNX%20Automation%20Agents /Volumes/QNXAutomation && " +
-        "scp /Volumes/QNXAutomation/Trunk-Developer/target/arm/ui-agent root@" + ip + ":/var/automation/ui-agent && " +
-        "scp /Volumes/QNXAutomation/Trunk-Developer/target/arm/automation-interface root@" + ip + ":/var/automation/automation-interface && " +
-        "scp /Volumes/QNXAutomation/Trunk-Developer/target/arm/PuppetMasterAgent root@" + ip + ":/var/automation/PuppetMasterAgent && " +
+        "scp " + identity + " /Volumes/QNXAutomation/Trunk-Developer/target/arm/ui-agent root@" + ip + ":/var/automation/ui-agent && " +
+        "scp " + identity + " /Volumes/QNXAutomation/Trunk-Developer/target/arm/automation-interface root@" + ip + ":/var/automation/automation-interface && " +
+        "scp " + identity + " /Volumes/QNXAutomation/Trunk-Developer/target/arm/PuppetMasterAgent root@" + ip + ":/var/automation/PuppetMasterAgent && " +
         "umount /Volumes/QNXAutomation";
 }
 
-function getRunAgentCmd(ip) {
-    return ["root@" + ip,
+function getRunAgentCmd(ip, identity) {
+    return [identity, "root@" + ip,
         "rm -fr /accounts/1000/shared/misc/PuppetMaster ; " +
         "if ! pidin | grep ui-agent > /dev/null; then " +
         "/var/automation/ui-agent > /dev/null & " +
@@ -75,8 +75,8 @@ function execAgent(ip) {
     }, 20000);
 }
 
-function execCopy(ip, user) {
-    childProcess.exec(getCopyAgentCmd(ip, user), function (error, stdout, stderr) {
+function execCopy(ip, user, identity) {
+    childProcess.exec(getCopyAgentCmd(ip, user, identity), function (error, stdout, stderr) {
         if (error) {
             onError(stderr);
         } else {
@@ -85,40 +85,38 @@ function execCopy(ip, user) {
     });
 }
 
-function execCopyReferenceImage(ip, user) {
-    childProcess.exec(getCopyReferenceImageCmd(ip, user), function (error, stdout, stderr) {
+function execCopyReferenceImage(ip, user, identity) {
+    childProcess.exec(getCopyReferenceImageCmd(ip, user, identity), function (error, stdout, stderr) {
         if (error) {
             onError(stderr);
         }
     });
 }
 
-function exec(ip, user) {
-    console.log('Installing SSH key...');
-    childProcess.exec('jake upload-ssh-key', function () {
-        console.log('Checking if automation agents are installed...');
-        childProcess.exec(getTestForAgentCmd(ip), function (error, stdout, stderr) {
-            if (error) {
-                onError(stderr);
+function exec(ip, user, identity) {
+    console.log('Checking if automation agents are installed...');
+    childProcess.exec(getTestForAgentCmd(ip, identity), function (error, stdout, stderr) {
+        if (error) {
+            onError(stderr);
+        } else {
+            if (stdout.toString()[0] === "0") {
+                console.log('automation agents are not installed. Copying from shared drive...');
+                execCopy(ip, user, identity);
             } else {
-                if (stdout.toString()[0] === "0") {
-                    console.log('automation agents are not installed. Copying from shared drive...');
-                    execCopy(ip, user);
-                } else {
-                    execAgent(ip);
-                }
-                execCopyReferenceImage(ip, user);
+                execAgent(ip, identity);
             }
-        });
+            execCopyReferenceImage(ip, user, identity);
+        }
     });
 }
 
 module.exports = function () {
     var ip = arguments[0] || conf.USB_IP,
-        user = arguments[1] || "";
+        user = arguments[1] || "",
+        identity = "-i \"" + arguments[2] + "\"";
     if (utils.isWindows()) {
         console.log("This command is not supported in Windows.");
     } else {
-        exec(ip, user);
+        exec(ip, user, identity);
     }
 };
