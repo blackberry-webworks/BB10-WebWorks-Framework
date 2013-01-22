@@ -146,7 +146,6 @@ JNEXT.Payment = function ()
             result = self.getErrorObject("BPS_FAILURE", "-1", "Purchase Failed. Payment Service Error.");
             _event.trigger("payment.purchase.callback", result);
         } else {
-            console.log("BPS_SUCCESS.");
             _event.trigger("payment.purchase.callback", JSON.parse(val));
         }
     };
@@ -171,7 +170,6 @@ JNEXT.Payment = function ()
             result = self.getErrorObject("BPS_FAILURE", "-1", "cancelSubscription Failed. Payment Service Error.");
             _event.trigger("payment.cancelSubscription.callback", result);
         } else {
-            console.log("BPS_SUCCESS");
             _event.trigger("payment.cancelSubscription.callback", JSON.parse(val));
         }
     };

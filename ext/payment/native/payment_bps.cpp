@@ -39,7 +39,7 @@ int PaymentBPS::InitializeEvents()
     return 1;
 }
 
-std::string PaymentBPS::getResult_str()
+std::string PaymentBPS::GetResultStr()
 {
     return result_str;
 }
@@ -70,20 +70,22 @@ BPS_API int PaymentBPS::Purchase(Json::Value obj, bool developmentMode)
     return paymentResponse;
 }
 
-BPS_API int PaymentBPS::getExistingPurchases(Json::Value obj, bool developmentMode)
+BPS_API int PaymentBPS::GetExistingPurchases(Json::Value obj, bool developmentMode)
 {
     unsigned request_id = 0;
     paymentservice_set_connection_mode(developmentMode);
     return paymentservice_get_existing_purchases_request(obj["refresh"].asBool(), obj["windowGroup"].asCString(), &request_id);
 }
 
-int PaymentBPS::CancelSubscription(Json::Value obj, bool developmentMode){
+int PaymentBPS::CancelSubscription(Json::Value obj, bool developmentMode)
+{
     unsigned int requestID;
     paymentservice_set_connection_mode(developmentMode);
     return paymentservice_cancel_subscription(obj["transactionID"].asCString(), obj["windowGroup"].asCString(), &requestID);
 }
 
-int PaymentBPS::getPrice(Json::Value obj, bool developmentMode){
+int PaymentBPS::GetPrice(Json::Value obj, bool developmentMode)
+{
     unsigned int requestID;
     paymentservice_set_connection_mode(developmentMode);
     return paymentservice_get_price(obj["sku"].asCString(), obj["sku"].asCString(), obj["windowGroup"].asCString(), &requestID);
@@ -150,7 +152,7 @@ int PaymentBPS::WaitForEvents(bool developmentMode)
 Json::Value PaymentBPS::getJsonValue(BPS_API const char* value)
 {
     Json::Value null_value = "NOT SPECIFIED";
-    if (value){
+    if (value) {
         if (value == NULL)
         {
             return null_value;
@@ -218,7 +220,7 @@ int PaymentBPS::onGetExistingPurchasesSuccess(bps_event_t *event)
     int purchases_count = paymentservice_event_get_number_purchases(event);
 
     //IF COUNT IS AT LEAST ONE
-    if (purchases_count >= 1){
+    if (purchases_count >= 1) {
         for (int current_purchase_index = 0; current_purchase_index < purchases_count; current_purchase_index++)
         {
             Json::Value purchasedItem;
@@ -294,7 +296,7 @@ int PaymentBPS::onGetPriceSuccess(bps_event_t *event) {
     const char* renewalPrice = paymentservice_event_get_renewal_price(event);
     const char* renewalPeriod = paymentservice_event_get_renewal_period(event);
 
-    if (initialPeriod){
+    if (initialPeriod) {
         if (initialPeriod != NULL)
         {
             dataItem["initialPeriod"] = Json::Value(getJsonValue(initialPeriod));

@@ -37,134 +37,71 @@ function getFieldValue(field) {
     return value;
 }
 
-function webworksPurchaseCallback(result) {
+function invokeClientCallback(result, field, successCb, errorCb, errorMsg) {
     if (result) {
-        //making sure that the object is not null
-        var isSuccessful = result.successState.state;
-
-        if (_onPurchaseSuccess) {
-            if (isSuccessful === "SUCCESS") {
-                _onPurchaseSuccess(result.purchasedItem);
-            } else if (isSuccessful === "FAILURE") {
-                if (_onPurchaseFail) {
-                    _onPurchaseFail(result.errorObject);
-                }
-            } else if (isSuccessful === "BPS_FAILURE") {
-                _onPurchaseFail(result.errorObject);
+        switch (result.successState.state) {
+        case "SUCCESS":
+            if (successCb && typeof successCb === "function") {
+                successCb(result[field]);
             }
+            break;
+        case "FAILURE":
+        case "BPS_FAILURE":
+            if (errorCb && typeof errorCb === "function") {
+                errorCb(result.errorObject);
+            }
+            break;
         }
     } else {
-        //something wrong happneed. throw to user
-        throw new Error("Purchase Failed. Unexpected Error Occured.");
+        if (errorCb && typeof errorCb === "function") {
+            errorCb({
+                errorID: "-1",
+                errorText: errorMsg
+            });
+        }
     }
+}
 
+function webworksPurchaseCallback(result) {
+    invokeClientCallback(result, "purchasedItem", _onPurchaseSuccess, _onPurchaseFail, "Purchase Failed. Unexpected Error Occured.");
     _onPurchaseSuccess = null;
     _onPurchaseFail = null;
 }
 
 function webworksGetExistingPurchasesCallback(result) {
-    if (result) {
-        //making sure that the object is not null
-        var isSuccessful = result.successState.state;
-        console.log("isSuccessful is " + isSuccessful);
-
-        if (_onGetExistingPurchasesSuccess) {
-            if (isSuccessful === "SUCCESS") {
-                _onGetExistingPurchasesSuccess(result.purchases);
-            } else if (isSuccessful === "FAILURE") {
-                if (_onGetExistingPurchasesFail) {
-                    _onGetExistingPurchasesFail(result.errorObject);
-                }
-            } else if (isSuccessful === "BPS_FAILURE") {
-                _onGetExistingPurchasesFail(result.errorObject);
-            }
-        }
-    } else {
-        //something wrong happneed. throw to user
-        throw new Error("GetExistingPurchases Failed. Unexpected Error Occured.");
-    }
-
+    invokeClientCallback(result, "purchases", _onGetExistingPurchasesSuccess, _onGetExistingPurchasesFail, "GetExistingPurchases Failed. Unexpected Error Occured.");
     _onGetExistingPurchasesSuccess = null;
     _onGetExistingPurchasesFail = null;
 }
 
 function webworksCancelSubscriptionCallback(result) {
-    if (result) {
-        //making sure that the object is not null
-        var isSuccessful = result.successState.state;
-        if (_onCancelSubscriptionSuccess) {
-            if (isSuccessful === "SUCCESS") {
-                _onCancelSubscriptionSuccess(result.dataItem);
-            } else if (isSuccessful === "FAILURE") {
-                if (_onCancelSubscriptionFail) {
-                    _onCancelSubscriptionFail(result.errorObject);
-                }
-            } else if (isSuccessful === "BPS_FAILURE") {
-                _onCancelSubscriptionFail(result.errorObject);
-            }
-        }
-    } else {
-        //something wrong happneed. throw to user
-        throw new Error("CancelSubscription Failed. Unexpected Error Occured.");
-    }
-
+    invokeClientCallback(result, "dataItem", _onCancelSubscriptionSuccess, _onCancelSubscriptionFail, "CancelSubscription Failed. Unexpected Error Occured.");
     _onCancelSubscriptionSuccess = null;
     _onCancelSubscriptionFail = null;
 }
 
 function webworksGetPriceCallback(result) {
-    if (result) {
-        //making sure that the object is not null
-        var isSuccessful = result.successState.state;
-        if (_onGetPriceSuccess) {
-            if (isSuccessful === "SUCCESS") {
-                _onGetPriceSuccess(result.dataItem);
-            } else if (isSuccessful === "FAILURE") {
-                if (_onGetPriceFail) {
-                    _onGetPriceFail(result.errorObject);
-                }
-            } else if (isSuccessful === "BPS_FAILURE") {
-                _onGetPriceFail(result.errorObject);
-            }
-        }
-    } else {
-        //something wrong happneed. throw to user
-        throw new Error("GetPrice Failed. Unexpected Error Occured.");
-    }
-
+    invokeClientCallback(result, "dataItem", _onGetPriceSuccess, _onGetPriceFail, "GetPrice Failed. Unexpected Error Occured.");
     _onGetPriceSuccess = null;
     _onGetPriceFail = null;
 }
 
 function webworksCheckExistingCallback(result) {
-    if (result) {
-        //making sure that the object is not null
-        var isSuccessful = result.successState.state;
-        console.log("isSuccessful is " + isSuccessful);
-
-        if (_onCheckExistingSuccess) {
-            if (isSuccessful === "SUCCESS") {
-                _onCheckExistingSuccess(result.dataItem);
-            } else if (isSuccessful === "FAILURE") {
-                if (_onCheckExistingFail) {
-                    _onCheckExistingFail(result.errorObject);
-                }
-            } else if (isSuccessful === "BPS_FAILURE") {
-                _onCheckExistingFail(result.errorObject);
-            }
-        }
-    } else {
-        //something wrong happneed. throw to user
-        throw new Error("CheckExisting Failed. Unexpected Error Occured.");
-    }
-
+    invokeClientCallback(result, "dataItem", _onCheckExistingSuccess, _onCheckExistingFail, "CheckExisting Failed. Unexpected Error Occured.");
     _onCheckExistingSuccess = null;
     _onCheckExistingFail = null;
 }
 
 _self.purchase = function (purchase_arguments_t, successCallback, failCallback) {
     if (!purchase_arguments_t || typeof purchase_arguments_t !== "object") {
-        throw new Error("Purchase argument is not provided or is not a object.");
+        if (failCallback && typeof failCallback === "function") {
+            failCallback({
+                errorID: "-1",
+                errorText: "Purchase argument is not provided or is not a object."
+            });
+        }
+
+        return;
     }
 
     var args = {
@@ -186,7 +123,14 @@ _self.purchase = function (purchase_arguments_t, successCallback, failCallback) 
 
 _self.getExistingPurchases = function (refresh, successCallback, failCallback) {
     if (typeof refresh !== "boolean") {
-        throw new Error("Refresh argument is not provided or is not a boolean value.");
+        if (failCallback && typeof failCallback === "function") {
+            failCallback({
+                errorID: "-1",
+                errorText: "Refresh argument is not provided or is not a boolean value."
+            });
+        }
+
+        return;
     }
 
     var args = {
@@ -202,7 +146,14 @@ _self.getExistingPurchases = function (refresh, successCallback, failCallback) {
 
 _self.cancelSubscription = function (transactionID, successCallback, failCallback) {
     if (!transactionID || typeof transactionID !== "string") {
-        throw new Error("Transaction ID is not provided or not a string value.");
+        if (failCallback && typeof failCallback === "function") {
+            failCallback({
+                errorID: "-1",
+                errorText: "Transaction ID is not provided or not a string value."
+            });
+        }
+
+        return;
     }
 
     var args = {
@@ -218,7 +169,14 @@ _self.cancelSubscription = function (transactionID, successCallback, failCallbac
 
 _self.getPrice = function (sku, successCallback, failCallback) {
     if (!sku || typeof sku !== "string") {
-        throw new Error("SKU is not provided or not a string value.");
+        if (failCallback && typeof failCallback === "function") {
+            failCallback({
+                errorID: "-1",
+                errorText: "SKU is not provided or not a string value."
+            });
+        }
+
+        return;
     }
 
     var args = {
@@ -234,7 +192,14 @@ _self.getPrice = function (sku, successCallback, failCallback) {
 
 _self.checkExisting = function (sku, successCallback, failCallback) {
     if (!sku || typeof sku !== "string") {
-        throw new Error("SKU is not provided or not a string value.");
+        if (failCallback && typeof failCallback === "function") {
+            failCallback({
+                errorID: "-1",
+                errorText: "SKU is not provided or not a string value."
+            });
+        }
+
+        return;
     }
 
     var args = {

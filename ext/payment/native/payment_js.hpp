@@ -31,6 +31,8 @@ public:
     virtual bool CanDelete();
 
 private:
+    std::string processResponse(const BPS_API int response, std::stringstream* ss);
+
     std::string m_id;
     bool developmentMode;
     webworks::PaymentBPS *payment;

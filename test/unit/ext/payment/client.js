@@ -57,10 +57,19 @@ describe("payment client", function () {
     });
 
     describe("purchase", function () {
-        it("calling purchase() with invalid params will throw error", function () {
-            expect(function () {
-                client.purchase(123);
-            }).toThrow("Purchase argument is not provided or is not a object.");
+        it("calling purchase() with invalid params will invoke error callback", function () {
+            var successCb = jasmine.createSpy("success"),
+                errorCb = jasmine.createSpy("error");
+
+            client.purchase(123, successCb, errorCb);
+
+            expect(successCb).not.toHaveBeenCalled();
+            expect(errorCb).toHaveBeenCalledWith({
+                errorID: "-1",
+                errorText: "Purchase argument is not provided or is not a object."
+            });
+            expect(mockedWebworks.event.once).not.toHaveBeenCalled();
+            expect(mockedWebworks.execSync).not.toHaveBeenCalled();
         });
 
         it("calling purchase() with right params should call execSync", function () {
@@ -84,10 +93,19 @@ describe("payment client", function () {
     });
 
     describe("getExistingPurchases", function () {
-        it("calling getExistingPurchases() with non-boolean will throw error", function () {
-            expect(function () {
-                client.getExistingPurchases(123);
-            }).toThrow("Refresh argument is not provided or is not a boolean value.");
+        it("calling getExistingPurchases() with non-boolean will invoke error callback", function () {
+            var successCb = jasmine.createSpy("success"),
+                errorCb = jasmine.createSpy("error");
+
+            client.getExistingPurchases(123, successCb, errorCb);
+
+            expect(successCb).not.toHaveBeenCalled();
+            expect(errorCb).toHaveBeenCalledWith({
+                errorID: "-1",
+                errorText: "Refresh argument is not provided or is not a boolean value."
+            });
+            expect(mockedWebworks.event.once).not.toHaveBeenCalled();
+            expect(mockedWebworks.execSync).not.toHaveBeenCalled();
         });
 
         it("calling getExistingPurchases() with right params should call execSync", function () {
@@ -104,10 +122,19 @@ describe("payment client", function () {
     });
 
     describe("cancelSubscription", function () {
-        it("calling cancelSubscription with non-string will throw error", function () {
-            expect(function () {
-                client.cancelSubscription(123);
-            }).toThrow("Transaction ID is not provided or not a string value.");
+        it("calling cancelSubscription with non-string will invoke error callback", function () {
+            var successCb = jasmine.createSpy("success"),
+                errorCb = jasmine.createSpy("error");
+
+            client.cancelSubscription(123, successCb, errorCb);
+
+            expect(successCb).not.toHaveBeenCalled();
+            expect(errorCb).toHaveBeenCalledWith({
+                errorID: "-1",
+                errorText: "Transaction ID is not provided or not a string value."
+            });
+            expect(mockedWebworks.event.once).not.toHaveBeenCalled();
+            expect(mockedWebworks.execSync).not.toHaveBeenCalled();
         });
 
         it("calling cancelSubscription with right params should call execSync", function () {
@@ -124,10 +151,19 @@ describe("payment client", function () {
     });
 
     describe("getPrice", function () {
-        it("calling getPrice with non-string will throw error", function () {
-            expect(function () {
-                client.getPrice(123);
-            }).toThrow("SKU is not provided or not a string value.");
+        it("calling getPrice with non-string will invoke error callback", function () {
+            var successCb = jasmine.createSpy("success"),
+                errorCb = jasmine.createSpy("error");
+
+            client.getPrice(123, successCb, errorCb);
+
+            expect(successCb).not.toHaveBeenCalled();
+            expect(errorCb).toHaveBeenCalledWith({
+                errorID: "-1",
+                errorText: "SKU is not provided or not a string value."
+            });
+            expect(mockedWebworks.event.once).not.toHaveBeenCalled();
+            expect(mockedWebworks.execSync).not.toHaveBeenCalled();
         });
 
         it("calling getPrice with right params should call execSync", function () {
@@ -144,10 +180,19 @@ describe("payment client", function () {
     });
 
     describe("checkExisting", function () {
-        it("calling checkExisting with non-string will throw error", function () {
-            expect(function () {
-                client.checkExisting(123);
-            }).toThrow("SKU is not provided or not a string value.");
+        it("calling checkExisting with non-string will invoke error callback", function () {
+            var successCb = jasmine.createSpy("success"),
+                errorCb = jasmine.createSpy("error");
+
+            client.checkExisting(123, successCb, errorCb);
+
+            expect(successCb).not.toHaveBeenCalled();
+            expect(errorCb).toHaveBeenCalledWith({
+                errorID: "-1",
+                errorText: "SKU is not provided or not a string value."
+            });
+            expect(mockedWebworks.event.once).not.toHaveBeenCalled();
+            expect(mockedWebworks.execSync).not.toHaveBeenCalled();
         });
 
         it("calling checkExisting with right params should call execSync", function () {

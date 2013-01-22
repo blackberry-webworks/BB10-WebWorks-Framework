@@ -48,6 +48,21 @@ JSExt* onCreateObject(const std::string& className, const std::string& id)
     return new Payment(id);
 }
 
+std::string Payment::processResponse(const BPS_API int response, std::stringstream* ss)
+{
+    if (response == -1) {
+        *ss << webworks::Utils::intToStr(response);
+    } else {
+        int returnVal = payment->WaitForEvents(developmentMode); // blocking
+
+        if (returnVal == 1) {
+            *ss << payment->GetResultStr();
+        }
+    }
+
+    return ss->str();
+}
+
 std::string Payment::InvokeMethod(const std::string& command)
 {
     unsigned int index = command.find_first_of(" ");
@@ -65,94 +80,36 @@ std::string Payment::InvokeMethod(const std::string& command)
         }
     }
 
+    std::stringstream ss;
+    BPS_API int paymentResponse;
+
     if (strCommand == "purchase") {
-        std::stringstream ss;
         payment->InitializeEvents();
-        BPS_API int paymentResponse = payment->Purchase(obj, developmentMode);
-        ss << webworks::Utils::intToStr(paymentResponse);
-
-        if (paymentResponse == -1){
-            return ss.str();
-        } else {
-            int return_value = payment->WaitForEvents(developmentMode);// this would be blocking
-            //all the callback returns 1
-            if (return_value == 1) {
-                ss.str("");
-                ss << payment->getResult_str();
-                return ss.str();
-            }
-        }
+        paymentResponse = payment->Purchase(obj, developmentMode);
+        return processResponse(paymentResponse, &ss);
     } else if (strCommand == "getExistingPurchases") {
-        std::stringstream ss;
         payment->InitializeEvents();
-        BPS_API int paymentResponse = payment->getExistingPurchases(obj, developmentMode);
-        ss << webworks::Utils::intToStr(paymentResponse);
-        if (paymentResponse == -1){
-            return ss.str();
-        } else {
-            int return_value = payment->WaitForEvents(developmentMode);// this would be blocking
-            if (return_value == 1) {
-                ss.str("");
-                ss << payment->getResult_str();
-                return ss.str();
-            }
-        }
+        paymentResponse = payment->GetExistingPurchases(obj, developmentMode);
+        return processResponse(paymentResponse, &ss);
     } else if (strCommand == "cancelSubscription") {
-        std::stringstream ss;
         payment->InitializeEvents();
-        BPS_API int paymentResponse = payment->CancelSubscription(obj, developmentMode);
-        ss << webworks::Utils::intToStr(paymentResponse);
-        if (paymentResponse == -1){
-            return ss.str();
-        } else {
-            int return_value = payment->WaitForEvents(developmentMode);// this would be blocking
-            if (return_value == 1) {
-                ss.str("");
-                ss << payment->getResult_str();
-                return ss.str();
-            }
-        }
+        paymentResponse = payment->CancelSubscription(obj, developmentMode);
+        return processResponse(paymentResponse, &ss);
     } else if (strCommand == "getPrice") {
-        std::stringstream ss;
-
         payment->InitializeEvents();
-        BPS_API int paymentResponse = payment->getPrice(obj, developmentMode);
-        ss << webworks::Utils::intToStr(paymentResponse);
-        if (paymentResponse == -1){
-            return ss.str();
-        } else {
-            int return_value = payment->WaitForEvents(developmentMode);// this would be blocking
-            if (return_value == 1) {
-                ss.str("");
-                ss << payment->getResult_str();
-                return ss.str();
-            }
-        }
+        paymentResponse = payment->GetPrice(obj, developmentMode);
+        return processResponse(paymentResponse, &ss);
     } else if (strCommand == "checkExisting") {
-        std::stringstream ss;
         payment->InitializeEvents();
-        BPS_API int paymentResponse = payment->CheckExisting(obj, developmentMode);
-        ss << webworks::Utils::intToStr(paymentResponse);
-        if (paymentResponse == -1){
-            return ss.str();
-        } else {
-            int return_value = payment->WaitForEvents(developmentMode);// this would be blocking
-            if (return_value == 1) {
-                ss.str("");
-                ss << payment->getResult_str();
-                return ss.str();
-            }
-        }
-    }
-    else if (strCommand == "setDevelopmentMode") {
+        paymentResponse = payment->CheckExisting(obj, developmentMode);
+        return processResponse(paymentResponse, &ss);
+    } else if (strCommand == "setDevelopmentMode") {
         if (obj.isMember("developmentMode") && obj["developmentMode"].isBool()) {
             developmentMode = obj["developmentMode"].asBool();
         }
 
         return "";
-    }
-    else if (strCommand == "getDevelopmentMode") {
-        std::stringstream ss;
+    } else if (strCommand == "getDevelopmentMode") {
         if (developmentMode) {
             ss << "true";
         } else {
