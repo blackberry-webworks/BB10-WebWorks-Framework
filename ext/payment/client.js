@@ -15,17 +15,7 @@
  */
 
 var _self = {},
-    _ID = require("./manifest.json").namespace,
-    _onPurchaseSuccess = null,
-    _onPurchaseFail = null,
-    _onGetExistingPurchasesSuccess = null,
-    _onGetExistingPurchasesFail = null,
-    _onCancelSubscriptionSuccess = null,
-    _onCancelSubscriptionFail = null,
-    _onGetPriceSuccess = null,
-    _onGetPriceFail = null,
-    _onCheckExistingSuccess = null,
-    _onCheckExistingFail = null;
+    _ID = require("./manifest.json").namespace;
 
 function getFieldValue(field) {
     var value;
@@ -62,40 +52,21 @@ function invokeClientCallback(result, field, successCb, errorCb, errorMsg) {
     }
 }
 
-function webworksPurchaseCallback(result) {
-    invokeClientCallback(result, "purchasedItem", _onPurchaseSuccess, _onPurchaseFail, "Purchase Failed. Unexpected Error Occured.");
-    _onPurchaseSuccess = null;
-    _onPurchaseFail = null;
+function getXHRFailCallback(clientFailCb) {
+    return function (code, msg) {
+            if (clientFailCb && typeof clientFailCb === "function") {
+                clientFailCb({
+                    errorID: code,
+                    errorText: msg
+                });
+            }
+        };
 }
 
-function webworksGetExistingPurchasesCallback(result) {
-    invokeClientCallback(result, "purchases", _onGetExistingPurchasesSuccess, _onGetExistingPurchasesFail, "GetExistingPurchases Failed. Unexpected Error Occured.");
-    _onGetExistingPurchasesSuccess = null;
-    _onGetExistingPurchasesFail = null;
-}
-
-function webworksCancelSubscriptionCallback(result) {
-    invokeClientCallback(result, "dataItem", _onCancelSubscriptionSuccess, _onCancelSubscriptionFail, "CancelSubscription Failed. Unexpected Error Occured.");
-    _onCancelSubscriptionSuccess = null;
-    _onCancelSubscriptionFail = null;
-}
-
-function webworksGetPriceCallback(result) {
-    invokeClientCallback(result, "dataItem", _onGetPriceSuccess, _onGetPriceFail, "GetPrice Failed. Unexpected Error Occured.");
-    _onGetPriceSuccess = null;
-    _onGetPriceFail = null;
-}
-
-function webworksCheckExistingCallback(result) {
-    invokeClientCallback(result, "dataItem", _onCheckExistingSuccess, _onCheckExistingFail, "CheckExisting Failed. Unexpected Error Occured.");
-    _onCheckExistingSuccess = null;
-    _onCheckExistingFail = null;
-}
-
-_self.purchase = function (purchase_arguments_t, successCallback, failCallback) {
+_self.purchase = function (purchase_arguments_t, success, fail) {
     if (!purchase_arguments_t || typeof purchase_arguments_t !== "object") {
-        if (failCallback && typeof failCallback === "function") {
-            failCallback({
+        if (fail && typeof fail === "function") {
+            fail({
                 errorID: "-1",
                 errorText: "Purchase argument is not provided or is not a object."
             });
@@ -105,26 +76,26 @@ _self.purchase = function (purchase_arguments_t, successCallback, failCallback) 
     }
 
     var args = {
-        "digitalGoodID" : purchase_arguments_t.digitalGoodID || "",
-        "digitalGoodSKU" : purchase_arguments_t.digitalGoodSKU || "",
-        "digitalGoodName" : purchase_arguments_t.digitalGoodName || "",
-        "metaData" : purchase_arguments_t.metaData || "",
-        "purchaseAppName" : purchase_arguments_t.purchaseAppName || "",
-        "purchaseAppIcon" : purchase_arguments_t.purchaseAppIcon || "",
-        "extraParameters" : purchase_arguments_t.extraParameters || ""
-    };
-	
-    _onPurchaseSuccess = successCallback;
-    _onPurchaseFail = failCallback;
-    window.webworks.event.once(_ID, "payment.purchase.callback", webworksPurchaseCallback);
+            "digitalGoodID" : purchase_arguments_t.digitalGoodID || "",
+            "digitalGoodSKU" : purchase_arguments_t.digitalGoodSKU || "",
+            "digitalGoodName" : purchase_arguments_t.digitalGoodName || "",
+            "metaData" : purchase_arguments_t.metaData || "",
+            "purchaseAppName" : purchase_arguments_t.purchaseAppName || "",
+            "purchaseAppIcon" : purchase_arguments_t.purchaseAppIcon || "",
+            "extraParameters" : purchase_arguments_t.extraParameters || ""
+        },
+        onSuccess = function (result) {
+            invokeClientCallback(result, "purchasedItem", success, fail, "Purchase Failed. Unexpected Error Occured.");
+        },
+        onFail = getXHRFailCallback(fail);
 
-    return window.webworks.execSync(_ID, "purchase", args);
+    window.webworks.exec(onSuccess, onFail, _ID, "purchase", args, true);
 };
 
-_self.getExistingPurchases = function (refresh, successCallback, failCallback) {
+_self.getExistingPurchases = function (refresh, success, fail) {
     if (typeof refresh !== "boolean") {
-        if (failCallback && typeof failCallback === "function") {
-            failCallback({
+        if (fail && typeof fail === "function") {
+            fail({
                 errorID: "-1",
                 errorText: "Refresh argument is not provided or is not a boolean value."
             });
@@ -134,20 +105,20 @@ _self.getExistingPurchases = function (refresh, successCallback, failCallback) {
     }
 
     var args = {
-        "refresh" : refresh
-    };
-	
-    _onGetExistingPurchasesSuccess = successCallback;
-    _onGetExistingPurchasesFail = failCallback;
-    window.webworks.event.once(_ID, "payment.getExistingPurchases.callback", webworksGetExistingPurchasesCallback);
+            "refresh" : refresh
+        },
+        onSuccess = function (result) {
+            invokeClientCallback(result, "purchases", success, fail, "GetExistingPurchases Failed. Unexpected Error Occured.");
+        },
+        onFail = getXHRFailCallback(fail);
 
-    return window.webworks.execSync(_ID, "getExistingPurchases", args);
+    window.webworks.exec(onSuccess, onFail, _ID, "getExistingPurchases", args, true);
 };
 
-_self.cancelSubscription = function (transactionID, successCallback, failCallback) {
+_self.cancelSubscription = function (transactionID, success, fail) {
     if (!transactionID || typeof transactionID !== "string") {
-        if (failCallback && typeof failCallback === "function") {
-            failCallback({
+        if (fail && typeof fail === "function") {
+            fail({
                 errorID: "-1",
                 errorText: "Transaction ID is not provided or not a string value."
             });
@@ -157,20 +128,20 @@ _self.cancelSubscription = function (transactionID, successCallback, failCallbac
     }
 
     var args = {
-        "transactionID" : transactionID
-    };
+            "transactionID" : transactionID
+        },
+        onSuccess = function (result) {
+            invokeClientCallback(result, "dataItem", success, fail, "CancelSubscription Failed. Unexpected Error Occured.");
+        },
+        onFail = getXHRFailCallback(fail);
 
-    _onCancelSubscriptionSuccess = successCallback;
-    _onCancelSubscriptionFail = failCallback;
-    window.webworks.event.once(_ID, "payment.cancelSubscription.callback", webworksCancelSubscriptionCallback);
-
-    return window.webworks.execSync(_ID, "cancelSubscription", args);
+    window.webworks.exec(onSuccess, onFail, _ID, "cancelSubscription", args, true);
 };
 
-_self.getPrice = function (sku, successCallback, failCallback) {
+_self.getPrice = function (sku, success, fail) {
     if (!sku || typeof sku !== "string") {
-        if (failCallback && typeof failCallback === "function") {
-            failCallback({
+        if (fail && typeof fail === "function") {
+            fail({
                 errorID: "-1",
                 errorText: "SKU is not provided or not a string value."
             });
@@ -180,20 +151,20 @@ _self.getPrice = function (sku, successCallback, failCallback) {
     }
 
     var args = {
-        "sku" : sku
-    };
+            "sku" : sku
+        },
+        onSuccess = function (result) {
+            invokeClientCallback(result, "dataItem", success, fail, "GetPrice Failed. Unexpected Error Occured.");
+        },
+        onFail = getXHRFailCallback(fail);
 
-    _onGetPriceSuccess = successCallback;
-    _onGetPriceFail = failCallback;
-    window.webworks.event.once(_ID, "payment.getPrice.callback", webworksGetPriceCallback);
-
-    return window.webworks.execSync(_ID, "getPrice", args);
+    window.webworks.exec(onSuccess, onFail, _ID, "getPrice", args, true);
 };
 
-_self.checkExisting = function (sku, successCallback, failCallback) {
+_self.checkExisting = function (sku, success, fail) {
     if (!sku || typeof sku !== "string") {
-        if (failCallback && typeof failCallback === "function") {
-            failCallback({
+        if (fail && typeof fail === "function") {
+            fail({
                 errorID: "-1",
                 errorText: "SKU is not provided or not a string value."
             });
@@ -203,29 +174,27 @@ _self.checkExisting = function (sku, successCallback, failCallback) {
     }
 
     var args = {
-        "sku" : sku
-    };
+            "sku" : sku
+        },
+        onSuccess = function (result) {
+            invokeClientCallback(result, "dataItem", success, fail, "CheckExisting Failed. Unexpected Error Occured.");
+        },
+        onFail = getXHRFailCallback(fail);
 
-    _onCheckExistingSuccess = successCallback;
-    _onCheckExistingFail = failCallback;
-
-    window.webworks.event.once(_ID, "payment.checkExisting.callback", webworksCheckExistingCallback);
-
-    return window.webworks.execSync(_ID, "checkExisting", args);
+    window.webworks.exec(onSuccess, onFail, _ID, "checkExisting", args, true);
 };
 
-_self.checkAppSubscription = function (successCallback, failCallback) {
+_self.checkAppSubscription = function (success, fail) {
     //-1 represents the PAYMENTSERVICE_APP_SUBSCRIPTION constant
     var args = {
-        "sku" : "-1"
-    };
+            "sku" : "-1"
+        },
+        onSuccess = function (result) {
+            invokeClientCallback(result, "dataItem", success, fail, "CheckExisting Failed. Unexpected Error Occured.");
+        },
+        onFail = getXHRFailCallback(fail);
 
-    _onCheckExistingSuccess = successCallback;
-    _onCheckExistingFail = failCallback;
-
-    window.webworks.event.once(_ID, "payment.checkExisting.callback", webworksCheckExistingCallback);
-
-    return window.webworks.execSync(_ID, "checkExisting", args);
+    window.webworks.exec(onSuccess, onFail, _ID, "checkExisting", args, true);
 };
 
 Object.defineProperty(_self, "developmentMode", {

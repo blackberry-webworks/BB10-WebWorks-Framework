@@ -15,11 +15,28 @@
  */
 var _apiDir = __dirname + "./../../../../ext/payment/",
     _libDir = __dirname + "./../../../../lib/",
-    events = require(_libDir + "event"),
     index,
     mockJnextObjId = 123,
     mockWindowGroup = "bar1234",
-    bpsSuccess;
+    bpsSuccess,
+    mockSuccessResult = {
+        successState: {
+            state: "SUCCESS"
+        }
+    },
+    mockErrorResult;
+
+function getMockErrorObj(msg) {
+    return {
+        successState: {
+            state: "BPS_FAILURE"
+        },
+        errorObject: {
+            errorID: "-1",
+            errorText: msg
+        }
+    };
+}
 
 function testPurchase(mockSuccess) {
     var successCb = jasmine.createSpy("success"),
@@ -35,7 +52,6 @@ function testPurchase(mockSuccess) {
     args.extraParameters = encodeURIComponent(JSON.stringify(""));
 
     bpsSuccess = mockSuccess;
-    spyOn(events, "trigger");
 
     index.purchase(successCb, failCb, args);
 
@@ -46,7 +62,7 @@ function testPurchase(mockSuccess) {
     args.windowGroup = mockWindowGroup;
 
     expect(JNEXT.invoke).toHaveBeenCalledWith(mockJnextObjId, "purchase " + JSON.stringify(args));
-    expect(events.trigger).toHaveBeenCalledWith("payment.purchase.callback", jasmine.any(Object));
+    expect(successCb).toHaveBeenCalledWith(mockSuccess ? mockSuccessResult : getMockErrorObj("Purchase Failed. Payment Service Error."));
 }
 
 function testCancelSubscription(mockSuccess) {
@@ -57,7 +73,6 @@ function testCancelSubscription(mockSuccess) {
     args.transactionID = encodeURIComponent(JSON.stringify("12345"));
 
     bpsSuccess = mockSuccess;
-    spyOn(events, "trigger");
 
     index.cancelSubscription(successCb, failCb, args);
 
@@ -68,7 +83,7 @@ function testCancelSubscription(mockSuccess) {
     args.windowGroup = mockWindowGroup;
 
     expect(JNEXT.invoke).toHaveBeenCalledWith(mockJnextObjId, "cancelSubscription " + JSON.stringify(args));
-    expect(events.trigger).toHaveBeenCalledWith("payment.cancelSubscription.callback", jasmine.any(Object));
+    expect(successCb).toHaveBeenCalledWith(mockSuccess ? mockSuccessResult : getMockErrorObj("cancelSubscription Failed. Payment Service Error."));
 }
 
 function testGetPrice(mockSuccess) {
@@ -79,7 +94,6 @@ function testGetPrice(mockSuccess) {
     args.sku = encodeURIComponent(JSON.stringify("12345"));
 
     bpsSuccess = mockSuccess;
-    spyOn(events, "trigger");
 
     index.getPrice(successCb, failCb, args);
 
@@ -90,7 +104,7 @@ function testGetPrice(mockSuccess) {
     args.windowGroup = mockWindowGroup;
 
     expect(JNEXT.invoke).toHaveBeenCalledWith(mockJnextObjId, "getPrice " + JSON.stringify(args));
-    expect(events.trigger).toHaveBeenCalledWith("payment.getPrice.callback", jasmine.any(Object));
+    expect(successCb).toHaveBeenCalledWith(mockSuccess ? mockSuccessResult : getMockErrorObj("getPrice Failed. Payment Service Error."));
 }
 
 function testGetExistingPurchases(mockSuccess) {
@@ -101,7 +115,6 @@ function testGetExistingPurchases(mockSuccess) {
     args.refresh = encodeURIComponent(JSON.stringify(true));
 
     bpsSuccess = mockSuccess;
-    spyOn(events, "trigger");
 
     index.getExistingPurchases(successCb, failCb, args);
 
@@ -112,7 +125,7 @@ function testGetExistingPurchases(mockSuccess) {
     args.windowGroup = mockWindowGroup;
 
     expect(JNEXT.invoke).toHaveBeenCalledWith(mockJnextObjId, "getExistingPurchases " + JSON.stringify(args));
-    expect(events.trigger).toHaveBeenCalledWith("payment.getExistingPurchases.callback", jasmine.any(Object));
+    expect(successCb).toHaveBeenCalledWith(mockSuccess ? mockSuccessResult : getMockErrorObj("getExistingPurchases Failed. Payment Service Error."));
 }
 
 function testCheckExisting(mockSuccess) {
@@ -123,7 +136,6 @@ function testCheckExisting(mockSuccess) {
     args.sku = encodeURIComponent(JSON.stringify("12345s"));
 
     bpsSuccess = mockSuccess;
-    spyOn(events, "trigger");
 
     index.checkExisting(successCb, failCb, args);
 
@@ -134,7 +146,7 @@ function testCheckExisting(mockSuccess) {
     args.windowGroup = mockWindowGroup;
 
     expect(JNEXT.invoke).toHaveBeenCalledWith(mockJnextObjId, "checkExisting " + JSON.stringify(args));
-    expect(events.trigger).toHaveBeenCalledWith("payment.checkExisting.callback", jasmine.any(Object));
+    expect(successCb).toHaveBeenCalledWith(mockSuccess ? mockSuccessResult : getMockErrorObj("checkExisting Failed. Payment Service Error."));
 }
 
 describe("payment index", function () {
@@ -158,11 +170,7 @@ describe("payment index", function () {
             }),
             invoke: jasmine.createSpy("JNEXT.invoke").andCallFake(function () {
                 if (bpsSuccess) {
-                    return JSON.stringify({
-                        successState: {
-                            state: "SUCCESS"
-                        }
-                    });
+                    return JSON.stringify(mockSuccessResult);
                 } else {
                     return "-1";
                 }

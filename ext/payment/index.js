@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 var paymentJNext,
-    _event = require("../../lib/event"),
     _util = require("../../lib/utils");
 
 module.exports = {
@@ -31,8 +30,7 @@ module.exports = {
             };
 
         try {
-            paymentJNext.getInstance().purchase(purchase_arguments_t);
-            success();
+            success(paymentJNext.getInstance().purchase(purchase_arguments_t));
         } catch (err) {
             fail(-1, err.message);
         }
@@ -44,8 +42,7 @@ module.exports = {
             };
 
         try {
-            paymentJNext.getInstance().cancelSubscription(cancelSubscription_arguments_t);
-            success();
+            success(paymentJNext.getInstance().cancelSubscription(cancelSubscription_arguments_t));
         } catch (err) {
             fail(-1, err.message);
         }
@@ -58,8 +55,7 @@ module.exports = {
             };
 
         try {
-            paymentJNext.getInstance().getPrice(getPrice_arguments_t);
-            success();
+            success(paymentJNext.getInstance().getPrice(getPrice_arguments_t));
         } catch (err) {
             fail(-1, err.message);
         }
@@ -72,8 +68,7 @@ module.exports = {
             };
 
         try {
-            paymentJNext.getInstance().getExistingPurchases(getExistingPurchases_arguments_t);
-            success();
+            success(paymentJNext.getInstance().getExistingPurchases(getExistingPurchases_arguments_t));
         } catch (err) {
             fail(-1, err.message);
         }
@@ -85,8 +80,7 @@ module.exports = {
             };
 
         try {
-            paymentJNext.getInstance().checkExisting(check_existing_args);
-            success();
+            success(paymentJNext.getInstance().checkExisting(check_existing_args));
         } catch (err) {
             fail(-1, err.message);
         }
@@ -140,62 +134,67 @@ JNEXT.Payment = function ()
 
     self.purchase = function (args) {
         var val = JNEXT.invoke(self.m_id, "purchase " + JSON.stringify(args)),
-            result = {};
+            result;
 
         if (val === "-1") {
             result = self.getErrorObject("BPS_FAILURE", "-1", "Purchase Failed. Payment Service Error.");
-            _event.trigger("payment.purchase.callback", result);
         } else {
-            _event.trigger("payment.purchase.callback", JSON.parse(val));
+            result = JSON.parse(val);
         }
+
+        return result;
     };
 
     self.getExistingPurchases = function (args) {
         var val = JNEXT.invoke(self.m_id, "getExistingPurchases " + JSON.stringify(args)),
-            result = {};
+            result;
 
         if (val === "-1") {
             result = self.getErrorObject("BPS_FAILURE", "-1", "getExistingPurchases Failed. Payment Service Error.");
-            _event.trigger("payment.getExistingPurchases.callback", result);
         } else {
-            _event.trigger("payment.getExistingPurchases.callback", JSON.parse(val));
+            result = JSON.parse(val);
         }
+
+        return result;
     };
 
     self.cancelSubscription = function (args) {
         var val = JNEXT.invoke(self.m_id, "cancelSubscription " + JSON.stringify(args)),
-            result = {};
+            result;
 
         if (val === "-1") {
             result = self.getErrorObject("BPS_FAILURE", "-1", "cancelSubscription Failed. Payment Service Error.");
-            _event.trigger("payment.cancelSubscription.callback", result);
         } else {
-            _event.trigger("payment.cancelSubscription.callback", JSON.parse(val));
+            result = JSON.parse(val);
         }
+
+        return result;
     };
     
     self.getPrice = function (args) {
         var val = JNEXT.invoke(self.m_id, "getPrice " + JSON.stringify(args)),
-            result = {};
+            result;
    
         if (val === "-1") {
             result = self.getErrorObject("BPS_FAILURE", "-1", "getPrice Failed. Payment Service Error.");
-            _event.trigger("payment.getPrice.callback", result);
         } else {
-            _event.trigger("payment.getPrice.callback", JSON.parse(val));
+            result = JSON.parse(val);
         }
+
+        return result;
     };
     
     self.checkExisting = function (args) {
         var val = JNEXT.invoke(self.m_id, "checkExisting " + JSON.stringify(args)),
-            result = {};
+            result;
 
         if (val === "-1") {
             result = self.getErrorObject("BPS_FAILURE", "-1", "checkExisting Failed. Payment Service Error.");
-            _event.trigger("payment.checkExisting.callback", result);
         } else {
-            _event.trigger("payment.checkExisting.callback", JSON.parse(val));
+            result = JSON.parse(val);
         }
+
+        return result;
     };    
 
     self.getId = function () {
@@ -214,25 +213,6 @@ JNEXT.Payment = function ()
         }
 
         JNEXT.registerEvents(self);
-    };
-
-    self.onEvent = function (strData) {
-        var arData = strData.split(" "),
-            strEventId = arData[0],
-            args = arData[1];
-
-        // Trigger the event handler of specific Payment events
-        if (strEventId === "payment.purchase.callback") {
-            _event.trigger("payment.purchase.callback", JSON.parse(args));
-        } else if (strEventId === "payment.getExistingPurchases.callback") {
-            _event.trigger("payment.getExistingPurchases.callback", JSON.parse(args));
-        } else if (strEventId === "payment.cancelSubscription.callback") {
-            _event.trigger("payment.cancelSubscription.callback", JSON.parse(args));
-        } else if (strEventId === "payment.getPrice.callback") {
-            _event.trigger("payment.getPrice.callback", JSON.parse(args));
-        } else if (strEventId === "payment.checkExisting.callback") {
-            _event.trigger("payment.checkExisting.callback", JSON.parse(args));
-        }
     };
 
     self.m_id = "";
