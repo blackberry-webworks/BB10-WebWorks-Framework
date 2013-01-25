@@ -44,7 +44,7 @@ std::string PaymentBPS::GetResultStr()
     return result_str;
 }
 
-BPS_API int PaymentBPS::Purchase(Json::Value obj, bool developmentMode)
+BPS_API int PaymentBPS::Purchase(const Json::Value obj, const bool developmentMode)
 {
     BPS_API int paymentResponse;
     paymentservice_set_connection_mode(developmentMode);
@@ -70,28 +70,29 @@ BPS_API int PaymentBPS::Purchase(Json::Value obj, bool developmentMode)
     return paymentResponse;
 }
 
-BPS_API int PaymentBPS::GetExistingPurchases(Json::Value obj, bool developmentMode)
+BPS_API int PaymentBPS::GetExistingPurchases(const Json::Value obj, const bool developmentMode)
 {
     unsigned request_id = 0;
     paymentservice_set_connection_mode(developmentMode);
     return paymentservice_get_existing_purchases_request(obj["refresh"].asBool(), obj["windowGroup"].asCString(), &request_id);
 }
 
-int PaymentBPS::CancelSubscription(Json::Value obj, bool developmentMode)
+int PaymentBPS::CancelSubscription(const Json::Value obj, const bool developmentMode)
 {
     unsigned int requestID;
     paymentservice_set_connection_mode(developmentMode);
     return paymentservice_cancel_subscription(obj["transactionID"].asCString(), obj["windowGroup"].asCString(), &requestID);
 }
 
-int PaymentBPS::GetPrice(Json::Value obj, bool developmentMode)
+int PaymentBPS::GetPrice(const Json::Value obj, const bool developmentMode)
 {
     unsigned int requestID;
     paymentservice_set_connection_mode(developmentMode);
     return paymentservice_get_price(obj["sku"].asCString(), obj["sku"].asCString(), obj["windowGroup"].asCString(), &requestID);
 }
 
-int PaymentBPS::CheckExisting(Json::Value obj, bool developmentMode) {
+int PaymentBPS::CheckExisting(const Json::Value obj, const bool developmentMode)
+{
     unsigned int requestID;
     paymentservice_set_connection_mode(developmentMode);
     return paymentservice_check_existing(obj["sku"].asCString(), obj["sku"].asCString(), obj["windowGroup"].asCString(), &requestID);
@@ -260,7 +261,8 @@ int PaymentBPS::onGetExistingPurchasesSuccess(bps_event_t *event)
     return 1;
 }
 
-int PaymentBPS::onCancelSubscriptionSuccess(bps_event_t *event) {
+int PaymentBPS::onCancelSubscriptionSuccess(bps_event_t *event)
+{
     if (event == NULL) {
         return 0;
     }
@@ -280,7 +282,8 @@ int PaymentBPS::onCancelSubscriptionSuccess(bps_event_t *event) {
     return 1;
 }
 
-int PaymentBPS::onGetPriceSuccess(bps_event_t *event) {
+int PaymentBPS::onGetPriceSuccess(bps_event_t *event)
+{
     if (event == NULL) {
         return 0;
     }
@@ -317,7 +320,8 @@ int PaymentBPS::onGetPriceSuccess(bps_event_t *event) {
     return 1;
 }
 
-int PaymentBPS::onCheckExistingSuccess(bps_event_t *event) {
+int PaymentBPS::onCheckExistingSuccess(bps_event_t *event)
+{
     if (event == NULL) {
         return 0;
     }

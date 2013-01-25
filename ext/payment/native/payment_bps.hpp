@@ -33,11 +33,11 @@ public:
     int InitializeEvents();
     int WaitForEvents(bool developmentMode);
     //Method call from JavaScript side
-    BPS_API int Purchase(Json::Value obj, bool developmentMode);
-    BPS_API int GetExistingPurchases(Json::Value obj, bool developmentMode);
-    int GetPrice(Json::Value obj, bool developmentMode);
-    int CheckExisting(Json::Value obj, bool developmentMode);
-    int CancelSubscription(Json::Value obj, bool developmentMode);
+    BPS_API int Purchase(const Json::Value obj, const bool developmentMode);
+    BPS_API int GetExistingPurchases(const Json::Value obj, const bool developmentMode);
+    int GetPrice(const Json::Value obj, const bool developmentMode);
+    int CheckExisting(const Json::Value obj, const bool developmentMode);
+    int CancelSubscription(const Json::Value obj, const bool developmentMode);
     std::string GetResultStr();
 private:
     Payment *m_parent;
