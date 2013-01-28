@@ -82,7 +82,7 @@ _self.purchase = function (purchase_arguments_t, success, fail) {
             "metaData" : purchase_arguments_t.metaData || "",
             "purchaseAppName" : purchase_arguments_t.purchaseAppName || "",
             "purchaseAppIcon" : purchase_arguments_t.purchaseAppIcon || "",
-            "extraParameters" : purchase_arguments_t.extraParameters || ""
+            "extraParameters" : purchase_arguments_t.extraParameters || {}
         },
         onSuccess = function (result) {
             invokeClientCallback(result, "purchasedItem", success, fail, "Purchase Failed. Unexpected Error Occured.");
