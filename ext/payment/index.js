@@ -75,6 +75,7 @@ module.exports = {
     },
     checkExisting: function (success, fail, args) {
         var check_existing_args = {
+                "id" : JSON.parse(decodeURIComponent(args.id)),
                 "sku" : JSON.parse(decodeURIComponent(args.sku)),
                 "windowGroup" : window.qnx.webplatform.getController().windowGroup
             };

@@ -161,12 +161,12 @@ _self.getPrice = function (sku, success, fail) {
     window.webworks.exec(onSuccess, onFail, _ID, "getPrice", args, true);
 };
 
-_self.checkExisting = function (sku, success, fail) {
-    if (!sku || typeof sku !== "string") {
+_self.checkExisting = function (id, sku, success, fail) {
+    if ((!sku || typeof sku !== "string") && (!id || typeof id !== "string")) {
         if (fail && typeof fail === "function") {
             fail({
                 errorID: "-1",
-                errorText: "SKU is not provided or not a string value."
+                errorText: "Either ID or SKU need to be provided."
             });
         }
 
@@ -174,7 +174,8 @@ _self.checkExisting = function (sku, success, fail) {
     }
 
     var args = {
-            "sku" : sku
+            "id" : id || "",
+            "sku" : sku || ""
         },
         onSuccess = function (result) {
             invokeClientCallback(result, "dataItem", success, fail, "CheckExisting Failed. Unexpected Error Occured.");
