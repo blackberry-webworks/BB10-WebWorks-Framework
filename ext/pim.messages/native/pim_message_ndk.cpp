@@ -29,7 +29,7 @@ namespace webworks {
         messageService = new MessageService();
         accountService = new AccountService();
 
-        connect(messageService, SIGNAL(attachmentDownloaded(bb::pim::account::AccountKey accountId, bb::pim::message::MessageKey messageId, bb::pim::message::AttachmentKey attachmentId)), SLOT(attachmentDownloaded()));
+        //connect(messageService, SIGNAL(attachmentDownloaded(bb::pim::account::AccountKey accountId, bb::pim::message::MessageKey messageId, bb::pim::message::AttachmentKey attachmentId)), SLOT(attachmentDownloaded()));
     }
 
     PimMessageNdk::~PimMessageNdk()

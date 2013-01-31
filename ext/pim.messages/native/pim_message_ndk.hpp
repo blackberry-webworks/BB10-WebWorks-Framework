@@ -40,8 +40,8 @@ struct PimMessageThreadInfo {
     std::string eventId;
 };
 
-class PimMessageNdk : public QObject {
-    Q_OBJECT
+class PimMessageNdk/* : public QObject*/ {
+   // Q_OBJECT
 
 public:
     PimMessageNdk();
