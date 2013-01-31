@@ -70,7 +70,7 @@ module.exports = function (pathToPackager, packagerOptions, target, deviceIp, pa
     }
 
     if (packagerOptions) {
-        packageCmd += "," + packagerOptions;
+        packageCmd += "," + '"' + packagerOptions + '"';
     }
 
     packageCmd += "]";

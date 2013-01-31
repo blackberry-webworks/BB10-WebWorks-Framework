@@ -56,10 +56,12 @@ module.exports = function (pathToApp, pathToPackager, packagerOptions) {
     frameworkPath = path.join(pathToPackager, "Framework");
 
 
-    if (!packagerOptions) {
+    if (!packagerOptions || packagerOptions === '-d') {
         outputPath = path.normalize(conf.COMMAND_DEFAULTS.output_folder);
         packagerOptions = conf.COMMAND_DEFAULTS.packager_options + " -o \"" + outputPath + "\"";
-        utils.displayOutput("No packager options specified, using default from test-runner.json - " + packagerOptions);
+        utils.displayOutput("No packager options or output folder specified, using default from test-runner.json - " + packagerOptions);
+    } else {  // only output folder was given, say "-o test/output"
+        packagerOptions = " -d " + packagerOptions;
     }
 
     //First delete the old directory
@@ -76,7 +78,7 @@ module.exports = function (pathToApp, pathToPackager, packagerOptions) {
     });
 
     //Call bbwp using node
-    cmd = "node " + path.join(pathToPackager, "lib/bbwp.js") + ' "' + pathToApp + '" ' + packagerOptions;
+    cmd = "node " + ' "' + path.join(pathToPackager, "lib/bbwp.js") + '"' + ' "' + pathToApp + '" ' + packagerOptions;
 
     jWorkflow.order(utils.execCommandWithJWorkflow(cmd))
         .start(function (error) {
