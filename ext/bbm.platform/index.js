@@ -222,7 +222,6 @@ module.exports = {
                     }
 
                     if (args.options.icon) {
-
                         if (!_whitelist.isAccessAllowed(args.options.icon)) {
                             fail(-1, "URL denied by whitelist: " + args.displayPicture);
                             return;
@@ -232,6 +231,21 @@ module.exports = {
                     }
 
                     bbm.getInstance().self.profilebox.registerIcon(args.options, args.eventId);
+                    success();
+                }
+            },
+
+            getItemIcon: function (success, fail, args, env) {
+                if (args) {
+                    args.options = JSON.parse(decodeURIComponent(args.options));
+                    args.eventId = JSON.parse(decodeURIComponent(args.eventId));
+
+                    if (!args.options.iconId || args.options.iconId <= 0 || typeof(args.options.iconId) !== "number") {
+                        fail(-1, "Must specify valid ID for icon");
+                        return;
+                    }
+
+                    bbm.getInstance().self.profilebox.getItemIcon(args.options, args.eventId);
                     success();
                 }
             },
@@ -250,6 +264,15 @@ module.exports = {
         inviteToDownload: function (success, fail, args, env) {
             bbm.getInstance().users.inviteToDownload();
             success();
-        }
+        },
+		
+		getContactsWithApp : function (success, fail, args, env) {
+            if (args) {
+                args.eventId = JSON.parse(decodeURIComponent(args.eventId));
+
+                bbm.getInstance().users.getContactsWithApp(args.eventId);
+                success();
+            }
+		}
     }
 };

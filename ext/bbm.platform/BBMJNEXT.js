@@ -105,6 +105,11 @@ JNEXT.BBM = function ()
         JNEXT.invoke(_self.m_id, "self.profilebox.registerIcon " + JSON.stringify(options));
     };
 
+    _self.self.profilebox.getItemIcon = function (options, eventId) {
+        _self.profileBoxGetItemIconEventId = eventId;
+        JNEXT.invoke(_self.m_id, "self.profilebox.getItemIcon " + JSON.stringify(options));
+    };
+
     _self.self.profilebox.getItems = function () {
         return JSON.parse(JNEXT.invoke(_self.m_id, "self.profilebox.getItems"));
     };
@@ -115,6 +120,11 @@ JNEXT.BBM = function ()
 
     _self.users.inviteToDownload = function () {
         JNEXT.invoke(_self.m_id, "users.inviteToDownload");
+    };
+	
+	_self.users.getContactsWithApp = function (eventId) {
+        _self.contactsWithAppEventId = eventId;
+        return JNEXT.invoke(_self.m_id, "users.getContactsWithApp");
     };
 
     _self.getId = function () {
@@ -168,7 +178,15 @@ JNEXT.BBM = function ()
         } else if (strEventDesc === "self.profilebox.registerIcon") {
             obj = arData.slice(1, arData.length).join(" ");
             _event.trigger(_self.profileBoxRegisterIconEventId, JSON.parse(obj));
-        }
+        } else if (strEventDesc === "self.profilebox.getItemIcon") {
+            obj = arData.slice(1, arData.length).join(" ");
+            _event.trigger(_self.profileBoxGetItemIconEventId);
+        } else if (strEventDesc === "users.getContactsWithApp") {
+            obj = arData.slice(1, arData.length).join(" ");
+            obj = JSON.parse(obj) || [];
+
+            _event.trigger(_self.contactsWithAppEventId, obj);
+		}
     };
 
     _self.m_id = "";
@@ -177,6 +195,8 @@ JNEXT.BBM = function ()
     _self.profileBoxAddItemEventId = "";
     _self.profileBoxRemoveItemEventId = "";
     _self.profileBoxRegisterIconEventId = "";
+    _self.profileBoxGetItemIconEventId = "";
+	_self.contactsWithAppEventId = "";
 
     _self.getInstance = function () {
         if (!hasInstance) {

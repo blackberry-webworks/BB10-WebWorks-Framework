@@ -138,13 +138,21 @@ std::string BBM::InvokeMethod(const std::string& command)
         }
 
         m_pBBMController->ProfileBoxRegisterIcon(obj);
-    } else if (strCommand == "self.profilebox.getItems") {
+    } else if (strCommand == "self.profilebox.getItemIcon") {
+        if (!reader.parse(strParam, obj)) {
+            return "";
+        }
+
+        m_pBBMController->ProfileBoxGetItemIcon(obj);   } else if (strCommand == "self.profilebox.getItems") {
         return m_pBBMController->ProfileBoxGetItems();
     } else if (strCommand == "self.profilebox.getAccessible") {
         return m_pBBMController->ProfileBoxGetAccessible();
     } else if (strCommand == "users.inviteToDownload") {
         m_pBBMController->InviteToDownload();
+    } else if (strCommand == "users.getContactsWithApp") {
+        m_pBBMController->GetContactsWithApp();
     }
+
     return "";
 }
 

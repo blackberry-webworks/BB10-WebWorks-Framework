@@ -116,6 +116,18 @@ describe("bbm.platform", function () {
             expect(mockedWebworks.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), _ID, "self/profilebox/registerIcon", args);
         });
 
+        it("getItemIcon calls exec", function () {
+            var args = {
+                    options : {
+                        iconId : 123
+                    },
+                    eventId : "bbm.self.profilebox.getItemIcon"
+                };
+
+            client.self.profilebox.getItemIcon(args.options); 
+            expect(mockedWebworks.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), _ID, "self/profilebox/getItemIcon", args);
+        });
+
         it("accessible property calls execSync", function () {
             var accessible = client.self.profilebox.accessible;
             accessible = accessible;

@@ -20,7 +20,9 @@ var _self = {},
     _setDisplayPictureEventId = "bbm.self.setDisplayPicture",
     _profileBoxAddItemEventId = "bbm.self.profilebox.addItem",
     _profileBoxRemoveItemEventId = "bbm.self.profilebox.removeItem",
-    _profileBoxRegisterIconEventId = "bbm.self.profilebox.registerIcon";
+    _profileBoxRegisterIconEventId = "bbm.self.profilebox.registerIcon",
+    _profileBoxGetItemIconEventId = "bbm.self.profilebox.getItemIcon",
+    _contactsWithAppEventId = "bbm.users.getContactsWithApp";
 
 _self.self = {};
 _self.self.profilebox = {};
@@ -131,8 +133,20 @@ _self.self.profilebox.registerIcon = function (options, success, error) {
     return window.webworks.exec(handler.onSuccess, handler.onError, _ID, "self/profilebox/registerIcon", args);
 };
 
+_self.self.profilebox.getItemIcon = function (options, success, error) {
+    var args = { "options": options, "eventId": _profileBoxGetItemIconEventId },
+        handler = createEventHandler(success, error, _profileBoxGetItemIconEventId);
+    return window.webworks.exec(handler.onSuccess, handler.onError, _ID, "self/profilebox/getItemIcon", args);
+};
+
 _self.users.inviteToDownload = function () {
     return window.webworks.execSync(_ID, "users/inviteToDownload");
+};
+
+_self.users.getContactsWithApp = function (callback) {
+    var args = { "eventId" : _contactsWithAppEventId };
+    createEventHandler(callback, _contactsWithAppEventId);
+    return window.webworks.execAsync(_ID, "users/getContactsWithApp", args);
 };
 
 Object.defineProperty(_self.self.profilebox, "accessible", {

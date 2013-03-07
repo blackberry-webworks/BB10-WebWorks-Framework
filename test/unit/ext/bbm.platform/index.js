@@ -413,6 +413,19 @@ describe("bbm.platform index", function () {
             expect(fail).not.toHaveBeenCalled();
             expect(JNEXT.invoke).toHaveBeenCalledWith(jasmine.any(String), "users.inviteToDownload");
         });
+
+        it("calls users getContactsWithApp", function () {
+            var success = jasmine.createSpy("success"),
+                fail = jasmine.createSpy("fail"),
+                eventId = "users.getContactsWithApp",
+                args;
+
+            args = { "eventId": encodeURIComponent(JSON.stringify(eventId)) };
+            index.users.getContactsWithApp(success, fail, args);
+            expect(success).toHaveBeenCalled();
+            expect(fail).not.toHaveBeenCalled();
+            expect(JNEXT.invoke).toHaveBeenCalledWith(jasmine.any(String), "users.getContactsWithApp");
+        });
     });
 
     describe("bbm.platform events", function () {
@@ -420,10 +433,10 @@ describe("bbm.platform index", function () {
 
             it("can register the 'onaccesschanged' event", function () {
                 var eventName = "onaccesschanged",
-                args = { "eventName": encodeURIComponent(eventName) },
-                env = {webviewId: 42},
-                success = jasmine.createSpy(),
-                utils = require(_libDir + "utils");
+                    args = { "eventName": encodeURIComponent(eventName) },
+                    env = {webviewId: 42},
+                    success = jasmine.createSpy(),
+                    utils = require(_libDir + "utils");
 
                 spyOn(utils, "loadExtensionModule").andCallFake(function () {
                     return eventExt;
