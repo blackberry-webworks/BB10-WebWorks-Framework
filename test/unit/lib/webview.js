@@ -78,7 +78,9 @@ describe("webview", function () {
         };
         GLOBAL.qnx = mockedQnx;
         GLOBAL.window = {
-            qnx: mockedQnx
+            qnx: mockedQnx,
+            innerWidth : 1024,
+            innerHeight : 768
         };
         GLOBAL.screen = {
             width : 1024,
@@ -104,7 +106,7 @@ describe("webview", function () {
                 expect(mockedWebview.visible).toEqual(true);
                 expect(mockedWebview.active).toEqual(true);
                 expect(mockedWebview.zOrder).toEqual(0);
-                expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, screen.width, screen.height);
+                expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, window.innerWidth, window.innerHeight);
                 expect(Object.getOwnPropertyDescriptor(webview, 'onContextMenuRequestEvent')).toEqual(jasmine.any(Object));
                 expect(Object.getOwnPropertyDescriptor(webview, 'onContextMenuCancelEvent')).toEqual(jasmine.any(Object));
                 expect(Object.getOwnPropertyDescriptor(webview, 'onGeolocationPermissionRequest')).toEqual(jasmine.any(Object));

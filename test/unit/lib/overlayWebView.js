@@ -73,7 +73,9 @@ describe("Overlay Webview", function () {
             }
         };
         GLOBAL.window = {
-            qnx: qnx
+            qnx: qnx,
+            innerWidth : 1024,
+            innerHeight : 768
         };
         GLOBAL.screen = {
             width : 1024,
@@ -89,7 +91,7 @@ describe("Overlay Webview", function () {
                 expect(mockedWebview.visible).toEqual(true);
                 expect(mockedWebview.active).toEqual(true);
                 expect(mockedWebview.zOrder).toEqual(2);
-                expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, screen.width, screen.height);
+                expect(mockedWebview.setGeometry).toHaveBeenCalledWith(0, 0, window.innerWidth, window.innerHeight);
                 expect(mockedWebview.backgroundColor).toEqual(0x00FFFFFF);
                 expect(mockedWebview.sensitivity).toEqual("SensitivityTest");
                 expect(mockedWebview.allowQnxObject).toEqual(true);
