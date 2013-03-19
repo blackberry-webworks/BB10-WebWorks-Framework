@@ -32,7 +32,7 @@ public:
 
 private:
     std::string m_id; // JNext id
-    webworks::PushNDK *m_pushNDK;
+    webworks::PushNDK* m_pushNDK;
 };
 
 #endif /* PUSH_JS_H_ */

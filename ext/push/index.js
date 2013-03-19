@@ -130,6 +130,9 @@ JNEXT.Push = function () {
         } else if (strEventId === "push.create.pushTransportReadyCallback") {
             _event.trigger("push.create.pushTransportReadyCallback", JSON.parse(args));
         
+        } else if (strEventId === "push.create.pushServiceConnectionReadyCallback") {
+            _event.trigger("push.create.pushServiceConnectionReadyCallback", JSON.parse(args));
+        
         } else if (strEventId === "push.createChannel.callback") {
             info.result = JSON.parse(arData[1]);
             info.token = arData[2];
