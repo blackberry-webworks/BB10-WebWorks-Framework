@@ -10,7 +10,8 @@ UTILS=yes
 include ../../../../meta.mk
 
 SRCS+=push_js.cpp \
-      push_ndk.cpp
+      push_ndk.cpp \
+	  ConnectionTimerThread.cpp
 
 ifeq ($(UNITTEST),yes)
 NAME=test
