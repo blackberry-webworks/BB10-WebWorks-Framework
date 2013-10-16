@@ -25,28 +25,27 @@
 
 namespace webworks {
 
-typedef std::map<int, nfc_se_transaction_t*> TransactionMap;
+	typedef std::map<int, nfc_se_transaction_t*> TransactionMap;
 
-class NfcSeTransaction {
-public:
-    NfcSeTransaction();
-    ~NfcSeTransaction();
-    static Json::Value SEParseTransaction(const Json::Value& args);
-    static Json::Value SETransactionGetSEType(const Json::Value& args);
-    static Json::Value SETransactionGetProtocol(const Json::Value& args);
-    static Json::Value SEFreeTransaction(const Json::Value& args);
-    static Json::Value SETransactionForegroundApplication();
-    static Json::Value SETransactionGetNumberOfAIDs(const Json::Value& args);
-    static Json::Value SETransactionGetAID(const Json::Value& args);
-    static Json::Value SETransactionGetEventDataLength(const Json::Value& args);
-    static Json::Value SETransactionGetEventData(const Json::Value& args);
+	class NfcSeTransaction {
+		public:
+			NfcSeTransaction();
+			~NfcSeTransaction();
+			static Json::Value SEParseTransaction(const Json::Value& args);
+			static Json::Value SETransactionGetSEType(const Json::Value& args);
+			static Json::Value SETransactionGetProtocol(const Json::Value& args);
+			static Json::Value SEFreeTransaction(const Json::Value& args);
+			static Json::Value SETransactionForegroundApplication();
+			static Json::Value SETransactionGetNumberOfAIDs(const Json::Value& args);
+			static Json::Value SETransactionGetAID(const Json::Value& args);
+			static Json::Value SETransactionGetEventDataLength(const Json::Value& args);
+			static Json::Value SETransactionGetEventData(const Json::Value& args);
 
-private:
-    static nfc_se_transaction_t* getTransactionById(int id);
-
-    static TransactionMap _transactions;
-    static int _currentId;
-};
+		private:
+			static nfc_se_transaction_t* getTransactionById(int id);
+			static TransactionMap* _transactions;
+			static int _currentId;
+	};
 
 } // namespace webworks
 

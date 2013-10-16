@@ -16,4 +16,4 @@ SRCS+=nfc.cpp \
 
 include $(MKFILES_ROOT)/qtargets.mk
 
-LIBS+=nfc socket
+LIBS+=nfc socket nfc_bps bps pps slog2 proxyinfo

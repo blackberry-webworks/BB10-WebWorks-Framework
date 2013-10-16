@@ -23,6 +23,7 @@
 
 namespace webworks {
 
+TransactionMap* NfcSeTransaction::_transactions;
 int NfcSeTransaction::_currentId = 0;
 
 NfcSeTransaction::NfcSeTransaction()
@@ -37,7 +38,9 @@ nfc_se_transaction_t* NfcSeTransaction::getTransactionById(int id)
 {
     TransactionMap::iterator found;
 
-    if ((found = _transactions.find(id)) == _transactions.end()) {
+    if (_transactions == NULL) {
+        return NULL;
+    } else if ((found = _transactions->find(id)) == _transactions->end()) {
         return NULL;
     } else {
         return found->second;
@@ -62,7 +65,10 @@ Json::Value NfcSeTransaction::SEParseTransaction(const Json::Value& args)
     nfc_result_t result = nfc_se_parse_transaction(&transaction, args["data"].asCString());
 
     if (result == NFC_RESULT_SUCCESS) {
-        _transactions[_currentId] = transaction;
+        if (_transactions == NULL) {
+            _transactions = new TransactionMap();
+        }
+        (*_transactions)[_currentId] = transaction;
         returnObj["transaction"] = _currentId;
         _currentId++;
         returnObj["_success"] = true;
@@ -136,7 +142,9 @@ Json::Value NfcSeTransaction::SEFreeTransaction(const Json::Value& args)
     }
 
     nfc_se_free_transaction(transaction);
-    _transactions.erase(args["transaction"].asInt());
+    if (_transactions != NULL) {
+        _transactions->erase(args["transaction"].asInt());
+    }
 
     returnObj["_success"] = true;
 
