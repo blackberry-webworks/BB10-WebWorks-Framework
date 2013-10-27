@@ -313,7 +313,7 @@ module.exports = {
 
                 var result = nfc.getInstance().seTransactionGetEventData(args),
                     eventData =  result._success ? window.atob(result.eventData) : undefined;
-                
+
                 sendResponse(result, success, eventData, fail, "Failed to get event data length");
             }
         }
@@ -325,7 +325,7 @@ module.exports = {
 ///////////////////////////////////////////////////////////////////
 
 JNEXT.Nfc = function ()
-{   
+{
     var self = this,
         hasInstance = false;
 
@@ -508,13 +508,13 @@ JNEXT.Nfc = function ()
             return false;
         }
 
-        self.m_id = JNEXT.createObject("libnfcww.NfcJs");
-        
+        self.m_id = JNEXT.createObject("libnfcww.Nfc");
+
         if (self.m_id === "") {
             return false;
         }
 
-        JNEXT.registerEvent(self);
+        JNEXT.registerEvents(self);
     };
 
     self.onEvent = function (strData) {
