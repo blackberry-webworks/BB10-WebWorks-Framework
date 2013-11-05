@@ -153,7 +153,7 @@ module.exports = {
             seServiceGetReaders: function (success, fail, args) {
                 args.numReaders = JSON.parse(decodeURIComponent(args.numReaders));
 
-                var result = nfc.getInstance().seServiceGetReaders();
+                var result = nfc.getInstance().seServiceGetReaders(args);
                 sendResponse(result, success, {
                     "readers": result.readers,
                     "numReaders": result.numReaders
