@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 var _self = {},
     _ID = require("./manifest.json").namespace,
     utils = require("./../../lib/utils"),
@@ -68,7 +68,7 @@ function validateBatteryMode(batteryMode) {
 _self.getSetting = function (setting) {
     if (!validateSetting(setting)) {
         throw "Invalid setting";
-    } 
+    }
 
     var enabled = window.webworks.execSync(_ID, "getSetting", {
             "setting": setting
@@ -210,6 +210,16 @@ _self.secure.access.seServiceGetReaders = function (numReaders) {
 
     return window.webworks.execSync(_ID, "secure/access/seServiceGetReaders", {
         "numReaders": numReaders
+    });
+};
+
+_self.secure.access.seReaderIsSecureElementPresent = function (reader) {
+    if (typeof reader !== "number") {
+        throw "Invalid reader";
+    }
+
+    return window.webworks.execSync(_ID, "secure/access/seReaderIsSecureElementPresent", {
+        "reader": reader
     });
 };
 

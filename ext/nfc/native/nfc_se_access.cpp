@@ -378,6 +378,31 @@ Json::Value NfcSeAccess::SEServiceGetReaders(const Json::Value& args)
     return returnObj;
 }
 
+Json::Value SEReaderIsSecureElementPresent(const Json::Value& args)
+{
+    Json::Value returnObj;
+
+    if (!args.isMember("reader") || !args["reader"].isInt()) {
+        returnObj["_success"] = false;
+        return returnObj;
+    }
+
+    uint32_t reader = args["reader"].asInt();
+    bool isPresent;
+
+    nfc_result_t result = nfc_se_reader_is_secure_element_present(reader, &isPresent);
+
+    if (result == NFC_RESULT_SUCCESS) {
+        returnObj["_success"] = true;
+        returnObj["isPresent"] = isPresent;
+    } else {
+        returnObj["_success"] = false;
+        returnObj["code"] = result;
+    }
+
+    return returnObj;
+}
+
 Json::Value NfcSeAccess::SEReaderOpenSession(const Json::Value& args)
 {
     Json::Value returnObj;

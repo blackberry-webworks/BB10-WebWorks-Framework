@@ -112,6 +112,9 @@ std::string NfcJs::InvokeMethod(const std::string& command)
     } else if (strCommand == "seServiceGetReaders") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEServiceGetReaders(obj));
         return result;
+    } else if (strCommand == "seReaderIsSecureElementPresent") {
+        std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEReaderIsSecureElementPresent(obj));
+        return result;
     } else if (strCommand == "seReaderOpenSession") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEReaderOpenSession(obj));
         return result;

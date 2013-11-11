@@ -48,6 +48,7 @@ public:
     static Json::Value SEGetActiveSEType();
     static Json::Value SEServiceGetNumReaders();
     static Json::Value SEServiceGetReaders(const Json::Value& args);
+    static Json::Value SEReaderIsSecureElementPresent(const Json::Value& args);
     static Json::Value SEReaderOpenSession(const Json::Value& args);
     static Json::Value SEReaderGetTechnologyTypes(const Json::Value& args);
     static Json::Value SEReaderSetTechnologyTypes(const Json::Value& args);

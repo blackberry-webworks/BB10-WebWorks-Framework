@@ -160,6 +160,13 @@ module.exports = {
                 }, fail, "Failed to get readers");
             },
 
+            seReaderIsSecureElementPresent: function (success, fail, args) {
+                args.reader = JSON.parse(decodeURIComponent(args.reader));
+
+                var result = nfc.getInstance().seReaderIsSecureElementPresent(args);
+                sendResponse(result, success, result.isPresent, fail, "Failed to determine if secure element is present");
+            },
+
             seReaderOpenSession: function (success, fail, args) {
                 args.reader = JSON.parse(decodeURIComponent(args.reader));
 
@@ -396,6 +403,11 @@ JNEXT.Nfc = function ()
 
     self.seServiceGetReaders = function (args) {
         var value = JNEXT.invoke(self.m_id, "seServiceGetReaders " + JSON.stringify(args));
+        return JSON.parse(value);
+    };
+
+    self.seReaderIsSecureElementPresent = function (args) {
+        var value = JNEXT.invoke(self.m_id, "seReaderIsSecureElementPresent " + JSON.stringify(args));
         return JSON.parse(value);
     };
 
