@@ -378,7 +378,7 @@ Json::Value NfcSeAccess::SEServiceGetReaders(const Json::Value& args)
     return returnObj;
 }
 
-Json::Value SEReaderIsSecureElementPresent(const Json::Value& args)
+Json::Value NfcSeAccess::SEReaderIsSecureElementPresent(const Json::Value& args)
 {
     Json::Value returnObj;
 
