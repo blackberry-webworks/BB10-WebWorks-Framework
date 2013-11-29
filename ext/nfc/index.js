@@ -52,7 +52,8 @@ module.exports = {
                 args.aid = JSON.parse(decodeURIComponent(args.aid));
                 args.fcpType = JSON.parse(decodeURIComponent(args.fcpType));
 
-                args.aidStr = window.btoa(args.aid);
+                //args.aidStr = window.btoa(args.aid);
+                args.aidStr = window.btoa(String.fromCharCode.apply(null, args.aid));
                 args.aidLen = args.aid.byteLength;
 
                 delete args.aid;
@@ -69,7 +70,8 @@ module.exports = {
                 args.channel = JSON.parse(decodeURIComponent(args.channel));
                 args.apdu = JSON.parse(decodeURIComponent(args.apdu));
 
-                args.apduStr = window.btoa(args.apdu);
+                //args.apduStr = window.btoa(args.apdu);
+                args.apduStr = window.btoa(String.fromCharCode.apply(null, args.apdu));
                 args.apduLen = args.apdu.byteLength;
 
                 delete args.apdu;
@@ -83,8 +85,13 @@ module.exports = {
                 args.responseLen = JSON.parse(decodeURIComponent(args.responseLen));
 
                 var result = nfc.getInstance().seChannelGetTransmitData(args),
-                    response = window.atob(result.response),
-                    resArray = new Uint8Array(new ArrayBuffer(response.length));
+                    //response = window.atob(result.response),
+                    resArray = new Uint8Array(window.atob(result.response).split("").map(
+                            function(c) {
+                                return c.charCodeAt(0);
+                            })
+                        );
+                    //resArray = new Uint8Array(new ArrayBuffer(response.length));
 
                 sendResponse(result, success, {
                     "response": resArray,
@@ -110,7 +117,12 @@ module.exports = {
                 args.session = JSON.parse(decodeURIComponent(args.session));
 
                 var result = nfc.getInstance().seSessionGetATR(args),
-                    atr = result._success ? window.atob(result.atr) : undefined;
+                    //atr = result._success ? window.atob(result.atr) : undefined;
+                    atr = result._success ? new Uint8Array(window.atob(result.atr).split("").map(
+                            function(c) {
+                                return c.charCodeAt(0);
+                            })
+                        ) : undefined;
                 sendResponse(result, success, atr, fail, "Failed to retrieve ATR");
             },
 
@@ -186,7 +198,8 @@ module.exports = {
                 args.aid = JSON.parse(decodeURIComponent(args.aid));
                 args.fcpType = JSON.parse(decodeURIComponent(args.fcpType));
 
-                args.aidStr = window.btoa(args.aid);
+                //args.aidStr = window.btoa(args.aid);
+                args.aidStr = window.btoa(String.fromCharCode.apply(null, args.aid));
                 args.aidLen = args.aid.byteLength;
 
                 delete args.aid;
@@ -300,7 +313,12 @@ module.exports = {
                 args.index = JSON.parse(decodeURIComponent(args.index));
 
                 var result = nfc.getInstance().seTransactionGetAID(args),
-                    aid = result._success ? window.atob(result.aid) : undefined;
+                    //aid = result._success ? window.atob(result.aid) : undefined;
+                    aid = result._success ? new Uint8Array(window.atob(result.aid).split("").map(
+                            function (c) {
+                                return c.charCodeAt(0);
+                            }
+                        ));
 
                 sendResponse(result, success, {
                     "aid": aid,
@@ -319,7 +337,12 @@ module.exports = {
                 args.transaction = JSON.parse(decodeURIComponent(args.transaction));
 
                 var result = nfc.getInstance().seTransactionGetEventData(args),
-                    eventData =  result._success ? window.atob(result.eventData) : undefined;
+                    //eventData =  result._success ? window.atob(result.eventData) : undefined;
+                    eventData = result._success ? new Uint8Array(window.atob(b64encoded).split("").map(
+                        function (c) {
+                            return c.charCodeAt(0);
+                        }
+                    )) : undefined;
 
                 sendResponse(result, success, eventData, fail, "Failed to get event data length");
             }

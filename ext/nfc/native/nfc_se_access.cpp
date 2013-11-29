@@ -67,14 +67,15 @@ Json::Value NfcSeAccess::OpenLogicalChannelDirect(const Json::Value& args)
         return returnObj;
     }
 
-    if (!args.isMember("fcpType") || !args["fcpType"].isString()) {
+    if (!args.isMember("fcpType") || !args["fcpType"].isInt()) {
         returnObj["_success"] = false;
         return returnObj;
     }
 
     fcp_type_t fcpType = static_cast<fcp_type_t>(args["fcpType"].asInt());
 
-    uint8_t* aid = new uint8_t[args["aidLen"].asInt()];
+    //uint8_t* aid = new uint8_t[args["aidLen"].asInt()];
+    uint8_t aid[args["aidLen"].asInt()];
     // convert base64 string to aid uint8 array
     b64_pton(args["aidStr"].asCString(), aid, sizeof(aid));
 
@@ -94,7 +95,7 @@ Json::Value NfcSeAccess::OpenLogicalChannelDirect(const Json::Value& args)
         returnObj["code"] = result;
     }
 
-    delete aid;
+    //delete aid;
 
     return returnObj;
 }
@@ -115,9 +116,11 @@ Json::Value NfcSeAccess::SEChannelTransmitAPDU(const Json::Value& args)
 
     uint32_t channel = args["channel"].asInt();
 
-    uint8_t* apdu = new uint8_t[args["apduLen"].asInt()];
-    // convert base64 string to aid uint8 array
-    b64_pton(args["apduStr"].asCString(), apdu, sizeof(apdu));
+    //uint8_t* apdu = new uint8_t[args["apduLen"].asInt()];
+    uint8_t apdu[args["apduLen"].asInt()];
+    // convert base64 string to apdu uint8 array
+    //b64_pton(args["apduStr"].asCString(), apdu, sizeof(apdu));
+    b64_pton(args["apduStr"].asCString(), apdu, args["apduLen"].asInt());
 
     size_t responseLen;
 
@@ -131,7 +134,7 @@ Json::Value NfcSeAccess::SEChannelTransmitAPDU(const Json::Value& args)
         returnObj["code"] = result;
     }
 
-    delete apdu;
+    //delete apdu;
 
     return returnObj;
 }
@@ -152,7 +155,8 @@ Json::Value NfcSeAccess::SEChannelGetTransmitData(const Json::Value& args)
 
     uint32_t channel = args["channel"].asInt();
 
-    uint8_t* response = new uint8_t[args["responseLen"].asInt()];
+    //uint8_t* response = new uint8_t[args["responseLen"].asInt()];
+    uint8_t response[args["responseLen"].asInt()];
 
     size_t responseLen;
 
@@ -168,7 +172,7 @@ Json::Value NfcSeAccess::SEChannelGetTransmitData(const Json::Value& args)
         returnObj["code"] = result;
     }
 
-    delete response;
+    //delete response;
 
     return returnObj;
 }
@@ -470,16 +474,18 @@ Json::Value NfcSeAccess::SESessionOpenLogicalChannel(const Json::Value& args)
         return returnObj;
     }
 
-    if (!args.isMember("fcpType") || !args["fcpType"].isString()) {
+    if (!args.isMember("fcpType") || !args["fcpType"].isInt()) {
         returnObj["_success"] = false;
         return returnObj;
     }
 
     fcp_type_t fcpType = static_cast<fcp_type_t>(args["fcpType"].asInt());
 
-    uint8_t* aid = new uint8_t[args["aidLen"].asInt()];
+    //uint8_t* aid = new uint8_t[args["aidLen"].asInt()];
+    uint8_t aid[args["aidLen"].asInt()];
     // convert base64 string to aid uint8 array
-    b64_pton(args["aidStr"].asCString(), aid, sizeof(aid));
+    //b64_pton(args["aidStr"].asCString(), aid, sizeof(aid));
+    b64_pton(args["aidStr"].asCString(), aid, args["aidLen"].asInt());
 
     uint32_t session = args["session"].asInt();
 
@@ -497,7 +503,7 @@ Json::Value NfcSeAccess::SESessionOpenLogicalChannel(const Json::Value& args)
         returnObj["code"] = result;
     }
 
-    delete aid;
+    //delete aid;
 
     return returnObj;
 }
@@ -556,7 +562,7 @@ Json::Value NfcSeAccess::SESessionOpenBasicChannel(const Json::Value& args)
         return returnObj;
     }
 
-    if (!args.isMember("fcpType") || !args["fcpType"].isString()) {
+    if (!args.isMember("fcpType") || !args["fcpType"].isInt()) {
         returnObj["_success"] = false;
         return returnObj;
     }
