@@ -115,8 +115,6 @@ Json::Value NfcSeAccess::SEChannelTransmitAPDU(const Json::Value& args)
     }
 
     uint32_t channel = args["channel"].asInt();
-
-    //uint8_t* apdu = new uint8_t[args["apduLen"].asInt()];
     uint8_t apdu[args["apduLen"].asInt()];
     // convert base64 string to apdu uint8 array
     //b64_pton(args["apduStr"].asCString(), apdu, sizeof(apdu));
@@ -127,52 +125,23 @@ Json::Value NfcSeAccess::SEChannelTransmitAPDU(const Json::Value& args)
     nfc_result_t result = nfc_se_channel_transmit_apdu(channel, apdu, sizeof(apdu), &responseLen);
 
     if (result == NFC_RESULT_SUCCESS) {
-        returnObj["_success"] = true;
-        returnObj["responseLen"] = responseLen;
-    } else {
-        returnObj["_success"] = false;
-        returnObj["code"] = result;
+        uint8_t response[responseLen];
+        result = nfc_se_channel_get_transmit_data(channel, response, &responseLen);
+
+        if (result == NFC_RESULT_SUCCESS) {
+            returnObj["_success"] = true;
+            // convert response to send as a base64 string
+            returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
+            returnObj["responseLen"] = responseLen;
+
+            return returnObj;
+        }
     }
+
+    returnObj["_success"] = false;
+    returnObj["code"] = result;
 
     //delete apdu;
-
-    return returnObj;
-}
-
-Json::Value NfcSeAccess::SEChannelGetTransmitData(const Json::Value& args)
-{
-    Json::Value returnObj;
-
-    if (!args.isMember("channel") || !args["channel"].isInt()) {
-        returnObj["_success"] = false;
-        return returnObj;
-    }
-
-    if (!args.isMember("responseLen") || !args["responseLen"].isInt()) {
-        returnObj["_success"] = false;
-        return returnObj;
-    }
-
-    uint32_t channel = args["channel"].asInt();
-
-    //uint8_t* response = new uint8_t[args["responseLen"].asInt()];
-    uint8_t response[args["responseLen"].asInt()];
-
-    size_t responseLen;
-
-    nfc_result_t result = nfc_se_channel_get_transmit_data(channel, response, &responseLen);
-
-    if (result == NFC_RESULT_SUCCESS) {
-        returnObj["_success"] = true;
-        // convert response to send as a base64 string
-        returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
-        returnObj["responseLen"] = responseLen;
-    } else {
-        returnObj["_success"] = false;
-        returnObj["code"] = result;
-    }
-
-    //delete response;
 
     return returnObj;
 }
@@ -332,7 +301,7 @@ Json::Value NfcSeAccess::SEGetActiveSEType()
     return returnObj;
 }
 
-Json::Value NfcSeAccess::SEServiceGetNumReaders()
+Json::Value NfcSeAccess::SEServiceGetReaders()
 {
     Json::Value returnObj;
     uint32_t numReaders;
@@ -340,44 +309,27 @@ Json::Value NfcSeAccess::SEServiceGetNumReaders()
     nfc_result_t result = nfc_se_service_get_num_readers(&numReaders);
 
     if (result == NFC_RESULT_SUCCESS) {
-        returnObj["_success"] = true;
-        returnObj["numReaders"] = numReaders;
-    } else {
-        returnObj["_success"] = false;
-        returnObj["code"] = result;
-    }
+        uint32_t* readers = new uint32_t[numReaders];
+        result = nfc_se_service_get_readers(readers, &numReaders);
 
-    return returnObj;
-}
+        if (result == NFC_RESULT_SUCCESS) {
+            returnObj["_success"] = true;
+            returnObj["readers"] = Json::Value();
 
-Json::Value NfcSeAccess::SEServiceGetReaders(const Json::Value& args)
-{
-    Json::Value returnObj;
+            for (uint32_t i = 0; i < numReaders; i++) {
+                returnObj["readers"].append(Json::Value(readers[i]));
+            }
 
-    if (!args.isMember("numReaders") || !args["numReaders"].isInt()) {
-        returnObj["_success"] = false;
-        return returnObj;
-    }
-
-    uint32_t numReaders = args["numReaders"].asInt();
-    uint32_t* readers = new uint32_t[numReaders];
-
-    nfc_result_t result = nfc_se_service_get_readers(readers, &numReaders);
-
-    if (result == NFC_RESULT_SUCCESS) {
-        returnObj["_success"] = true;
-        returnObj["readers"] = Json::Value();
-
-        for (uint32_t i = 0; i < numReaders; i++) {
-            returnObj["readers"].append(Json::Value(readers[i]));
+            returnObj["numReaders"] = numReaders;
         }
-        returnObj["numReaders"] = numReaders;
-    } else {
+
+        delete readers;
+    }
+
+    if (!returnObj.isMember("_success")) {
         returnObj["_success"] = false;
         returnObj["code"] = result;
     }
-
-    delete readers;
 
     return returnObj;
 }
@@ -452,6 +404,28 @@ Json::Value NfcSeAccess::SEReaderGetName(const Json::Value& args)
     if (result == NFC_RESULT_SUCCESS) {
         returnObj["_success"] = true;
         returnObj["readerName"] = readerName;
+    } else {
+        returnObj["_success"] = false;
+        returnObj["code"] = result;
+    }
+
+    return returnObj;
+}
+
+Json::Value NfcSeAccess::SEReaderCloseSessions(const Json::Value& args)
+{
+    Json::Value returnObj;
+
+    if (!args.isMember("reader") || !args["reader"].isInt()) {
+        returnObj["_success"] = false;
+        return returnObj;
+    }
+
+    uint32_t reader = args["reader"].asInt();
+    nfc_result_t result = nfc_se_reader_close_sessions(reader);
+
+    if (result == NFC_RESULT_SUCCESS) {
+        returnObj["_success"] = true;
     } else {
         returnObj["_success"] = false;
         returnObj["code"] = result;

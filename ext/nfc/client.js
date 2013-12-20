@@ -134,23 +134,6 @@ _self.secure.access.seChannelTransmitAPDU = function (channel, apdu) {
     return result;
 };
 
-_self.secure.access.seChannelGetTransmitData = function (channel, responseLen) {
-    if (typeof channel !== "number") {
-        throw "Invalid channel";
-    }
-
-    if (typeof responseLen !== "number") {
-        throw "Invalid response length";
-    }
-
-    var result = window.webworks.execSync(_ID, "secure/access/seChannelGetTransmitData", {
-        "channel": channel,
-        "responseLen": responseLen
-    });
-
-    return result;
-};
-
 _self.secure.access.seChannelCloseChannel = function (channel) {
     if (typeof channel !== "number") {
         throw "Invalid channel";
@@ -199,18 +182,8 @@ _self.secure.access.seGetActiveSEType = function () {
     return window.webworks.execSync(_ID, "secure/access/seGetActiveSEType", null);
 };
 
-_self.secure.access.seServiceGetNumReaders = function () {
-    return window.webworks.execSync(_ID, "secure/access/seServiceGetNumReaders", null);
-};
-
-_self.secure.access.seServiceGetReaders = function (numReaders) {
-    if (typeof numReaders !== "number") {
-        throw "Invalid numReaders";
-    }
-
-    return window.webworks.execSync(_ID, "secure/access/seServiceGetReaders", {
-        "numReaders": numReaders
-    });
+_self.secure.access.seServiceGetReaders = function () {
+    return window.webworks.execSync(_ID, "secure/access/seServiceGetReaders", null);
 };
 
 _self.secure.access.seReaderIsSecureElementPresent = function (reader) {
@@ -229,6 +202,16 @@ _self.secure.access.seReaderOpenSession = function (reader) {
     }
 
     return window.webworks.execSync(_ID, "secure/access/seReaderOpenSession", {
+        "reader": reader
+    });
+};
+
+_self.secure.access.seReaderCloseSessions = function (reader) {
+    if (typeof reader !== "number") {
+        throw "Invalid reader";
+    }
+
+    window.webworks.execSync(_ID, "secure/access/seReaderCloseSessions", {
         "reader": reader
     });
 };
@@ -288,6 +271,16 @@ _self.secure.access.seSessionCloseChannels = function (session) {
     }
 
     window.webworks.execSync(_ID, "secure/access/seSessionCloseChannels", {
+        "session": session
+    });
+};
+
+_self.secure.access.seSessionCloseSession = function (session) {
+    if (typeof session !== "number") {
+        throw "Invalid session";
+    }
+
+    window.webworks.execSync(_ID, "secure/access/seSessionCloseSession", {
         "session": session
     });
 };
@@ -371,7 +364,7 @@ _self.secure.access.seSetUICCActive = function (callback) {
 //////////////////////////////
 
 _self.secure.transaction.seParseTransaction = function (data) {
-    // we will take JS object and strigify it?
+    // we will take JS object and stringify it?
     if (typeof data !== "object" ||
         !data.version ||
         !data.seType ||
@@ -381,7 +374,7 @@ _self.secure.transaction.seParseTransaction = function (data) {
     }
 
     return window.webworks.execSync(_ID, "secure/transaction/seParseTransaction", {
-        "data": JSON.strigify(data)
+        "data": JSON.stringify(data)
     });
 };
 

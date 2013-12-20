@@ -74,25 +74,16 @@ module.exports = {
 
                 delete args.apdu;
 
-                var result = nfc.getInstance().seChannelTransmitAPDU(args);
-                sendResponse(result, success, result.responseLen, fail, "Failed to transmit APDU");
-            },
-
-            seChannelGetTransmitData: function (success, fail, args) {
-                args.channel = JSON.parse(decodeURIComponent(args.channel));
-                args.responseLen = JSON.parse(decodeURIComponent(args.responseLen));
-
-                var result = nfc.getInstance().seChannelGetTransmitData(args),
+                var result = nfc.getInstance().seChannelTransmitAPDU(args),
                     resArray = new Uint8Array(window.atob(result.response).split("").map(
                         function (c) {
                             return c.charCodeAt(0);
                         })
                     );
-
                 sendResponse(result, success, {
                     "response": resArray,
                     "responseLen": result.responseLen
-                }, fail, "Failed to transmit data");
+                }, fail, "Failed to transmit APDU");
             },
 
             seChannelCloseChannel: function (success, fail, args) {
@@ -152,15 +143,8 @@ module.exports = {
                 sendResponse(result, success, undefined, fail, "Failed to obtain the type of secure element");
             },
 
-            seServiceGetNumReaders: function (success, fail, args) {
-                var result = nfc.getInstance().seServiceGetNumReaders();
-                sendResponse(result, success, result.numReaders, fail, "Failed to get number of readers available to the calling application");
-            },
-
             seServiceGetReaders: function (success, fail, args) {
-                args.numReaders = JSON.parse(decodeURIComponent(args.numReaders));
-
-                var result = nfc.getInstance().seServiceGetReaders(args);
+                var result = nfc.getInstance().seServiceGetReaders();
                 sendResponse(result, success, {
                     "readers": result.readers,
                     "numReaders": result.numReaders
@@ -179,6 +163,13 @@ module.exports = {
 
                 var result = nfc.getInstance().seReaderOpenSession(args);
                 sendResponse(result, success, result.session, fail, "Failed to open session");
+            },
+
+            seReaderCloseSessions: function (success, fail, args) {
+                args.reader = JSON.parse(decodeURIComponent(args.reader));
+
+                var result = nfc.getInstance().seReaderCloseSessions(args);
+                sendResponse(result, success, undefined, fail, "Failed to close sessions");
             },
 
             seReaderGetName: function (success, fail, args) {
@@ -371,11 +362,6 @@ JNEXT.Nfc = function ()
         return JSON.parse(value);
     };
 
-    self.seChannelGetTransmitData = function (args) {
-        var value = JNEXT.invoke(self.m_id, "seChannelGetTransmitData " + JSON.stringify(args));
-        return JSON.parse(value);
-    };
-
     self.seChannelCloseChannel = function (args) {
         var value = JNEXT.invoke(self.m_id, "seChannelCloseChannel " + JSON.stringify(args));
         return JSON.parse(value);
@@ -416,8 +402,8 @@ JNEXT.Nfc = function ()
         return JSON.parse(value);
     };
 
-    self.seServiceGetReaders = function (args) {
-        var value = JNEXT.invoke(self.m_id, "seServiceGetReaders " + JSON.stringify(args));
+    self.seServiceGetReaders = function () {
+        var value = JNEXT.invoke(self.m_id, "seServiceGetReaders");
         return JSON.parse(value);
     };
 
@@ -428,6 +414,11 @@ JNEXT.Nfc = function ()
 
     self.seReaderOpenSession = function (args) {
         var value = JNEXT.invoke(self.m_id, "seReaderOpenSession " + JSON.stringify(args));
+        return JSON.parse(value);
+    };
+
+    self.seReaderCloseSessions = function (args) {
+        var value = JNEXT.invoke(self.m_id, "seReaderCloseSessions " + JSON.stringify(args));
         return JSON.parse(value);
     };
 

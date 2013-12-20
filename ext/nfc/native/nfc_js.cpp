@@ -78,9 +78,6 @@ std::string NfcJs::InvokeMethod(const std::string& command)
     } else if (strCommand == "seChannelTransmitAPDU") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEChannelTransmitAPDU(obj));
         return result;
-    } else if (strCommand == "seChannelGetTransmitData") {
-        std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEChannelGetTransmitData(obj));
-        return result;
     } else if (strCommand == "seChannelCloseChannel") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEChannelCloseChannel(obj));
         return result;
@@ -106,17 +103,17 @@ std::string NfcJs::InvokeMethod(const std::string& command)
     } else if (strCommand == "seGetActiveSEType") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEGetActiveSEType());
         return result;
-    } else if (strCommand == "seServiceGetNumReaders") {
-        std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEServiceGetNumReaders());
-        return result;
     } else if (strCommand == "seServiceGetReaders") {
-        std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEServiceGetReaders(obj));
+        std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEServiceGetReaders());
         return result;
     } else if (strCommand == "seReaderIsSecureElementPresent") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEReaderIsSecureElementPresent(obj));
         return result;
     } else if (strCommand == "seReaderOpenSession") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEReaderOpenSession(obj));
+        return result;
+    } else if (strCommand == "seReaderCloseSessions") {
+        std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEReaderCloseSessions(obj));
         return result;
     } else if (strCommand == "seReaderGetName") {
         std::string result = Json::FastWriter().write(webworks::NfcSeAccess::SEReaderGetName(obj));
