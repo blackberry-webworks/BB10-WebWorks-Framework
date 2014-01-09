@@ -189,9 +189,15 @@ module.exports = {
 
                 delete args.aid;
 
-                var result = nfc.getInstance().seSessionOpenLogicalChannel(args);
+                var result = nfc.getInstance().seSessionOpenLogicalChannel(args),
+                    resArray = new Uint8Array(window.atob(result.response).split("").map(
+                        function (c) {
+                            return c.charCodeAt(0);
+                        })
+                    );
                 sendResponse(result, success, {
                     "channel": result.channel,
+                    "response": resArray,
                     "responseLen": result.responseLen
                 }, fail, "Failed to get open channel");
             },
