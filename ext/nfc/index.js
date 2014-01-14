@@ -227,9 +227,16 @@ module.exports = {
                 args.session = JSON.parse(decodeURIComponent(args.session));
                 args.fcpType = JSON.parse(decodeURIComponent(args.fcpType));
 
-                var result = nfc.getInstance().seSessionOpenBasicChannel(args);
+                var result = nfc.getInstance().seSessionOpenBasicChannel(args),
+                    resArray = new Uint8Array(window.atob(result.response).split("").map(
+                        function (c) {
+                            return c.charCodeAt(0);
+                        })
+                    );
+
                 sendResponse(result, success, {
                     "channel": result.channel,
+                    "response": resArray,
                     "responseLen": result.responseLen
                 }, fail, "Failed to open channel");
             },

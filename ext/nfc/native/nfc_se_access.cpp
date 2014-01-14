@@ -560,9 +560,19 @@ Json::Value NfcSeAccess::SESessionOpenBasicChannel(const Json::Value& args)
     nfc_result_t result = nfc_se_session_open_basic_channel(session, fcpType, &channel, &responseLen);
 
     if (result == NFC_RESULT_SUCCESS) {
-        returnObj["_success"] = true;
-        returnObj["channel"] = channel;
-        returnObj["responseLen"] = responseLen;
+        size_t resLen = static_cast<size_t>(responseLen);
+        uint8_t response[resLen];
+        result = nfc_se_channel_get_transmit_data(channel, response, &resLen);
+
+        if (result == NFC_RESULT_SUCCESS) {
+            returnObj["_success"] = true;
+            returnObj["channel"] = channel;
+            // convert response to send as a base64 string
+            returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
+            returnObj["responseLen"] = resLen;
+
+            return returnObj;
+        }
     } else {
         returnObj["_success"] = false;
         returnObj["code"] = result;
@@ -609,7 +619,7 @@ Json::Value NfcSeAccess::SESessionGetATR(const Json::Value& args)
     // According to this link, there are a total of 2 to 33 characters in the ATR
     // http://en.wikipedia.org/wiki/Answer_to_reset
     uint8_t* atr = new uint8_t[40];
-    size_t atrLenInBytes = sizeof(atr);
+    size_t atrLenInBytes = 40;
     size_t returnedATRLenInBytes;
 
     // convert atr to send as a base64 string
