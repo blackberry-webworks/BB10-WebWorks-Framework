@@ -140,7 +140,7 @@ module.exports = {
 
             seGetActiveSEType: function (success, fail, args) {
                 var result = nfc.getInstance().seGetActiveSEType();
-                sendResponse(result, success, undefined, fail, "Failed to obtain the type of secure element");
+                sendResponse(result, success, result.seType, fail, "Failed to obtain the type of secure element");
             },
 
             seServiceGetReaders: function (success, fail, args) {

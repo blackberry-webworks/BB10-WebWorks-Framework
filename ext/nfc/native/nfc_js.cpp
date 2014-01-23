@@ -157,16 +157,16 @@ std::string NfcJs::InvokeMethod(const std::string& command)
     } else if (strCommand == "seTransactionForegroundApplication") {
         std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionForegroundApplication());
         return result;
-    } else if (strCommand == "SETransactionGetNumberOfAIDs") {
+    } else if (strCommand == "seTransactionGetNumberOfAIDs") {
         std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionGetNumberOfAIDs(obj));
         return result;
-    } else if (strCommand == "SETransactionGetAID") {
+    } else if (strCommand == "seTransactionGetAID") {
         std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionGetAID(obj));
         return result;
-    } else if (strCommand == "SETransactionGetEventDataLength") {
+    } else if (strCommand == "seTransactionGetEventDataLength") {
         std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionGetEventDataLength(obj));
         return result;
-    } else if (strCommand == "SETransactionGetEventData") {
+    } else if (strCommand == "seTransactionGetEventData") {
         std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionGetEventData(obj));
         return result;
     }
