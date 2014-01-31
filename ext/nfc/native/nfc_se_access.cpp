@@ -86,14 +86,24 @@ Json::Value NfcSeAccess::OpenLogicalChannelDirect(const Json::Value& args)
     nfc_result_t result = nfc_se_open_logical_channel_direct(seType, aid, sizeof(aid), fcpType, &seSession, &seChannel, &responseLen);
 
     if (result == NFC_RESULT_SUCCESS) {
-        returnObj["_success"] = true;
-        returnObj["session"] = seSession;
-        returnObj["channel"] = seChannel;
-        returnObj["responseLen"] = responseLen;
-    } else {
-        returnObj["_success"] = false;
-        returnObj["code"] = result;
+        size_t resLen = static_cast<size_t>(responseLen);
+        uint8_t response[resLen];
+        result = nfc_se_channel_get_transmit_data(seChannel, response, &resLen);
+
+        if (result == NFC_RESULT_SUCCESS) {
+            returnObj["_success"] = true;
+            returnObj["session"] = seSession;
+            returnObj["channel"] = seChannel;
+            // convert response to send as a base64 string
+            returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
+            returnObj["responseLen"] = resLen;
+
+            return returnObj;
+        }
     }
+
+    returnObj["_success"] = false;
+    returnObj["code"] = result;
 
     //delete aid;
 
