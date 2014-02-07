@@ -163,9 +163,6 @@ std::string NfcJs::InvokeMethod(const std::string& command)
     } else if (strCommand == "seTransactionGetAID") {
         std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionGetAID(obj));
         return result;
-    } else if (strCommand == "seTransactionGetEventDataLength") {
-        std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionGetEventDataLength(obj));
-        return result;
     } else if (strCommand == "seTransactionGetEventData") {
         std::string result = Json::FastWriter().write(webworks::NfcSeTransaction::SETransactionGetEventData(obj));
         return result;

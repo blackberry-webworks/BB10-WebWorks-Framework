@@ -437,16 +437,6 @@ _self.secure.transaction.seTransactionGetAID = function (transaction, index) {
     });
 };
 
-_self.secure.transaction.seTransactionGetEventDataLength = function (transaction) {
-    if (typeof transaction !== "number") {
-        throw "Invalid transaction";
-    }
-
-    return window.webworks.execSync(_ID, "secure/transaction/seTransactionGetEventDataLength", {
-        "transaction": transaction
-    });
-};
-
 _self.secure.transaction.seTransactionGetEventData = function (transaction) {
     if (typeof transaction !== "number") {
         throw "Invalid transaction";

@@ -200,34 +200,10 @@ Json::Value NfcSeTransaction::SETransactionGetAID(const Json::Value& args)
         returnObj["_success"] = true;
         // convert aid to send as a base64 string
         returnObj["aid"] = webworks::Utils::toBase64(aid, aidLength);
-        returnObj["aidLength"] = aidLength;
     } else {
         returnObj["_success"] = false;
         returnObj["code"] = result;
     }
-
-    return returnObj;
-}
-
-Json::Value NfcSeTransaction::SETransactionGetEventDataLength(const Json::Value& args)
-{
-    Json::Value returnObj;
-    nfc_se_transaction_t* transaction;
-
-    if (!args.isMember("transaction") || !args["transaction"].isInt()) {
-        returnObj["_success"] = false;
-        return returnObj;
-    } else {
-        if ((transaction = getTransactionById(args["transaction"].asInt())) == NULL) {
-            returnObj["_success"] = false;
-            return returnObj;
-        }
-    }
-
-    size_t eventDataLength = nfc_se_transaction_get_event_data_length(transaction);
-
-    returnObj["_success"] = true;
-    returnObj["eventDataLen"] = eventDataLength;
 
     return returnObj;
 }

@@ -66,8 +66,7 @@ module.exports = {
                 sendResponse(result, success, {
                     "session": result.session,
                     "channel": result.channel,
-                    "response": resArray,
-                    "responseLen": result.responseLen
+                    "response": resArray
                 }, fail, "Failed to open channel");
             },
 
@@ -87,8 +86,7 @@ module.exports = {
                         })
                     );
                 sendResponse(result, success, {
-                    "response": resArray,
-                    "responseLen": result.responseLen
+                    "response": resArray
                 }, fail, "Failed to transmit APDU");
             },
 
@@ -152,8 +150,7 @@ module.exports = {
             seServiceGetReaders: function (success, fail, args) {
                 var result = nfc.getInstance().seServiceGetReaders();
                 sendResponse(result, success, {
-                    "readers": result.readers,
-                    "numReaders": result.numReaders
+                    "readers": result.readers
                 }, fail, "Failed to get readers");
             },
 
@@ -203,8 +200,7 @@ module.exports = {
                     );
                 sendResponse(result, success, {
                     "channel": result.channel,
-                    "response": resArray,
-                    "responseLen": result.responseLen
+                    "response": resArray
                 }, fail, "Failed to get open channel");
             },
 
@@ -242,8 +238,7 @@ module.exports = {
 
                 sendResponse(result, success, {
                     "channel": result.channel,
-                    "response": resArray,
-                    "responseLen": result.responseLen
+                    "response": resArray
                 }, fail, "Failed to open channel");
             },
 
@@ -324,16 +319,8 @@ module.exports = {
                     )) : undefined;
 
                 sendResponse(result, success, {
-                    "aid": aid,
-                    "aidLen": result.aidLength
+                    "aid": aid
                 }, fail, "Failed to get AID");
-            },
-
-            seTransactionGetEventDataLength: function (success, fail, args) {
-                args.transaction = JSON.parse(decodeURIComponent(args.transaction));
-
-                var result = nfc.getInstance().seTransactionGetEventDataLength(args);
-                sendResponse(result, success, result.eventDataLen, fail, "Failed to get event data length");
             },
 
             seTransactionGetEventData: function (success, fail, args) {

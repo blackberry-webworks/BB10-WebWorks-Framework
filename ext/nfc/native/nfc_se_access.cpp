@@ -96,7 +96,6 @@ Json::Value NfcSeAccess::OpenLogicalChannelDirect(const Json::Value& args)
             returnObj["channel"] = seChannel;
             // convert response to send as a base64 string
             returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
-            returnObj["responseLen"] = resLen;
 
             return returnObj;
         }
@@ -142,7 +141,6 @@ Json::Value NfcSeAccess::SEChannelTransmitAPDU(const Json::Value& args)
             returnObj["_success"] = true;
             // convert response to send as a base64 string
             returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
-            returnObj["responseLen"] = responseLen;
 
             return returnObj;
         }
@@ -329,8 +327,6 @@ Json::Value NfcSeAccess::SEServiceGetReaders()
             for (uint32_t i = 0; i < numReaders; i++) {
                 returnObj["readers"].append(Json::Value(readers[i]));
             }
-
-            returnObj["numReaders"] = numReaders;
         }
 
         delete readers;
@@ -488,7 +484,6 @@ Json::Value NfcSeAccess::SESessionOpenLogicalChannel(const Json::Value& args)
             returnObj["channel"] = channel;
             // convert response to send as a base64 string
             returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
-            returnObj["responseLen"] = resLen;
 
             return returnObj;
         }
@@ -579,7 +574,6 @@ Json::Value NfcSeAccess::SESessionOpenBasicChannel(const Json::Value& args)
             returnObj["channel"] = channel;
             // convert response to send as a base64 string
             returnObj["response"] = webworks::Utils::toBase64(response, responseLen);
-            returnObj["responseLen"] = resLen;
 
             return returnObj;
         }
@@ -638,7 +632,6 @@ Json::Value NfcSeAccess::SESessionGetATR(const Json::Value& args)
     if (result == NFC_RESULT_SUCCESS) {
         returnObj["_success"] = true;
         returnObj["atr"] = webworks::Utils::toBase64(atr, returnedATRLenInBytes);
-        returnObj["returnedATRInBytesLen"] = returnedATRLenInBytes;
     } else {
         returnObj["_success"] = false;
         returnObj["code"] = result;

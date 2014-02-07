@@ -38,7 +38,6 @@ namespace webworks {
 			static Json::Value SETransactionForegroundApplication();
 			static Json::Value SETransactionGetNumberOfAIDs(const Json::Value& args);
 			static Json::Value SETransactionGetAID(const Json::Value& args);
-			static Json::Value SETransactionGetEventDataLength(const Json::Value& args);
 			static Json::Value SETransactionGetEventData(const Json::Value& args);
 
 		private:
